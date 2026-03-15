@@ -7195,7 +7195,10 @@ margin-top:4px;
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwp4gEQ3xcSWuRBnFDQ5BHLu5VNSrj9tbOKeuKr2bi6VF2Fi1CN0nTd-ZVFkhMoWfLw/exec';
+    const SCRIPT_URL_PRIMARY = 'https://script.google.com/macros/s/AKfycbyuAFNVdeu3ARrl-kmUIXfDPnxAUfuEwqurHVoKxRitrOcJ7rqYx4DjllfvYyFOzxEP/exec';
+    const SCRIPT_URL_FALLBACK = 'https://script.google.com/macros/s/AKfycbwp4gEQ3xcSWuRBnFDQ5BHLu5VNSrj9tbOKeuKr2bi6VF2Fi1CN0nTd-ZVFkhMoWfLw/exec';
+    const SCRIPT_URL = SCRIPT_URL_PRIMARY;
+    const SCRIPT_URLS = Array.from(new Set([SCRIPT_URL_PRIMARY, SCRIPT_URL_FALLBACK].filter(Boolean)));
     const NOTICE_TEXT = '※ 세부 경기 시간은 진행 상황에 따라 변동 될 수 있으니 안내 방송에 귀 기울여 주시고, 세부 경기 일정을 확인해 주세요.';
     const SPORTS_LIST = ['풋살', '축구', '피구(남)', '피구(여)', '빅발리볼', '발야구', '줄다리기', '이어달리기', '8자 줄넘기', '단체줄넘기', '미션달리기', '팔씨름'];
     const BRACKET_HIDDEN_SPORTS = [];
@@ -7226,6 +7229,26 @@ margin-top:4px;
     }
 
     let currentPlayerGrade = '1학년';
+
+    async function fetchScriptResponse(query = '', options = {}) {
+      let lastError = null;
+      for (const base of SCRIPT_URLS) {
+        try {
+          const res = await fetch(`${base}${query}`, options);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res;
+        } catch (err) {
+          lastError = err;
+          console.warn('script fetch failed:', base, query, err);
+        }
+      }
+      throw lastError || new Error('Apps Script 연동에 실패했습니다.');
+    }
+
+    async function fetchScriptJson(query = '', options = {}) {
+      const res = await fetchScriptResponse(query, options);
+      return res.json();
+    }
     let currentScheduleGrade = '1학년';
     let currentSportSearchContext = null;
     const tabDataCache = {};
@@ -7365,9 +7388,7 @@ margin-top:4px;
         }
       }
 
-      const request = fetch(`${SCRIPT_URL}?tab=${encodeURIComponent(tabName)}`, { cache: 'no-store' }).then(async (res) => {
-        if (!res.ok) throw new Error('Network response was not ok');
-        const json = await res.json();
+      const request = fetchScriptJson(`?tab=${encodeURIComponent(tabName)}`, { cache: 'no-store' }).then((json) => {
         return sanitizeTabularData(json);
       });
 
@@ -9261,8 +9282,7 @@ margin-top:4px;
 
     async function loadBracketDataToContainer(container, targetKey, sportLabel = '') {
       try {
-        const res = await fetch(`${SCRIPT_URL}?tab=대진표`);
-        const data = await res.json();
+        const data = await fetchScriptJson('?tab=대진표');
         const filtered = data.filter(item => normalizeSportName(item.col1 || '') === normalizeSportName(targetKey));
 
         if (!filtered.length) {
@@ -9339,8 +9359,7 @@ margin-top:4px;
       modal.style.display = 'flex';
 
       try {
-        const res = await fetch(`${SCRIPT_URL}?tab=${encodeURIComponent(type)}`);
-        const data = await res.json();
+        const data = await fetchScriptJson(`?tab=${encodeURIComponent(type)}`);
 
         if (type === '선수단') {
           const classes = matchInfo.match(/\d+-\d+/g) || [];
@@ -9468,8 +9487,7 @@ margin-top:4px;
         } else if (gradeDataCache[listId]) {
           data = gradeDataCache[listId];
         } else {
-          const res = await fetch(`${SCRIPT_URL}?tab=선수단`);
-          data = await res.json();
+          data = await fetchScriptJson('?tab=선수단');
           gradeDataCache[listId] = data;
         }
 
@@ -14935,8 +14953,7 @@ margin-top:4px;
         if (typeof getTabData === 'function') {
           data = await getTabData('선수단');
         } else {
-          const res = await fetch(`${SCRIPT_URL}?tab=선수단`);
-          data = await res.json();
+          data = await fetchScriptJson('?tab=선수단');
         }
         window.gradeDataCache = window.gradeDataCache || {};
         window.gradeDataCache[listId] = data;
@@ -14961,7 +14978,7 @@ margin-top:4px;
     try {
       const data = typeof getTabData === 'function'
         ? await getTabData(type)
-        : await (await fetch(`${SCRIPT_URL}?tab=${encodeURIComponent(type)}`)).json();
+        : await fetchScriptJson(`?tab=${encodeURIComponent(type)}`);
       const rows = Array.isArray(data) ? data.slice(1) : [];
 
       if (type === '선수단') {
