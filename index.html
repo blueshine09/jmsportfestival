@@ -7196,6 +7196,7 @@ margin-top:4px;
 
   <script>
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3AHUP0MMXi8bfmKNkJ2v5uIKwQ5-aFVxbn9KK2ZL7wX7VOmetI5mG0HK2ESgiL7eI/exec';
+    const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyO8wWbpEl_q4CqEDBiw41BqADPK-vVcr6CsRzuUcxKY3EdKEgrriRyE8DVszIpVW91/exec';
     const NOTICE_TEXT = '※ 세부 경기 시간은 진행 상황에 따라 변동 될 수 있으니 안내 방송에 귀 기울여 주시고, 세부 경기 일정을 확인해 주세요.';
     const SPORTS_LIST = ['풋살', '축구', '피구(남)', '피구(여)', '빅발리볼', '발야구', '줄다리기', '이어달리기', '8자 줄넘기', '단체줄넘기', '미션달리기', '팔씨름'];
     const BRACKET_HIDDEN_SPORTS = [];
@@ -15227,6 +15228,428 @@ margin-top:4px;
     transform: scale(0.985) !important;
   }
 </style>
+
+
+<script id="relay-schedule-roster-split-patch">
+(function(){
+  const safeText = (v) => String(v == null ? '' : v).trim();
+  const hasFn = (name) => typeof window[name] === 'function';
+  const eqSport = (a, b) => hasFn('sportEquals')
+    ? window.sportEquals(safeText(a), safeText(b))
+    : safeText(a) === safeText(b);
+
+  function isRelaySport(sport){
+    const raw = safeText(sport);
+    return eqSport(raw, '이어달리기') || /^이어달리기\s*(\((학급|연합)\))?$/.test(raw);
+  }
+
+  function detectRelayTypeFromText(text){
+    const raw = safeText(text);
+    if (/^연합$/.test(raw)) return '연합';
+    if (/^학급$/.test(raw)) return '학급';
+    return '';
+  }
+
+  function detectRelayTypeFromRow(row, context){
+    if (context === 'schedule' || context === 'roster') {
+      const byCol6 = detectRelayTypeFromText(row?.col6);
+      if (byCol6) return byCol6;
+      const sportText = safeText(row?.col1);
+      const sportMatch = sportText.match(/^이어달리기\s*\((학급|연합)\)$/);
+      if (sportMatch) return sportMatch[1];
+      return '';
+    }
+    const cols = [row?.col2, row?.col3, row?.col4, row?.col5, row?.col6, row?.col7];
+    const text = cols.map(safeText).filter(Boolean).join(' ');
+    return detectRelayTypeFromText(text);
+  }
+
+  function relaySegmentHTML(kind, currentType){
+    const classActive = currentType === '학급' ? 'active' : '';
+    const unionActive = currentType === '연합' ? 'active' : '';
+    const resultId = kind === 'schedule' ? 'relay-schedule-result' : 'relay-roster-result';
+    const label = kind === 'schedule' ? '세부일정' : '선수단';
+    const onclickClass = kind === 'schedule'
+      ? "loadRelayScheduleSplit('학급', this)"
+      : "loadRelayRosterSplit('학급', this)";
+    const onclickUnion = kind === 'schedule'
+      ? "loadRelayScheduleSplit('연합', this)"
+      : "loadRelayRosterSplit('연합', this)";
+    return `
+      <div class="relay-selector-shell">
+        <div class="relay-segment" role="tablist" aria-label="이어달리기 ${label} 구분">
+          <button type="button" class="relay-segment-btn ${classActive}" onclick="${onclickClass}">
+            <span class="relay-btn-title">학급</span>
+          </button>
+          <button type="button" class="relay-segment-btn ${unionActive}" onclick="${onclickUnion}">
+            <span class="relay-btn-title">연합</span>
+          </button>
+        </div>
+        <div id="${resultId}" class="relay-selector-result"></div>
+      </div>
+    `;
+  }
+
+  function getRelayRows(data, type, context){
+    const rows = Array.isArray(data) ? data.filter((row) => isRelaySport(row?.col1 || '')) : [];
+    const filtered = rows.filter((row) => detectRelayTypeFromRow(row, context) === type);
+    if (context === 'roster') {
+      return hasFn('dedupeRosterRows') ? window.dedupeRosterRows(filtered) : filtered;
+    }
+    return hasFn('uniqueRows') ? window.uniqueRows(filtered) : filtered;
+  }
+
+  window.loadRelayScheduleSplit = async function(type = '학급', btn = null){
+    const container = document.getElementById('sport-common-detail');
+    if (!container) return;
+    const normalizedType = safeText(type) === '연합' ? '연합' : '학급';
+    container.innerHTML = relaySegmentHTML('schedule', normalizedType);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    const resultBox = document.getElementById('relay-schedule-result');
+    if (!resultBox) return;
+    resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem; padding:20px;">로딩 중...</div>';
+    try {
+      const allData = await (hasFn('fetchTabDataCached')
+        ? window.fetchTabDataCached('세부경기일정')
+        : Promise.resolve([]));
+      const rows = getRelayRows(allData, normalizedType, 'schedule');
+      if (hasFn('renderScheduleList')) {
+        window.renderScheduleList(resultBox, rows, '이어달리기');
+      } else {
+        resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 일정 렌더러를 찾지 못했습니다.</div>';
+      }
+    } catch (error) {
+      resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 데이터를 불러오지 못했습니다.</div>';
+    }
+  };
+
+  window.loadRelayRosterSplit = async function(type = '학급', btn = null){
+    const container = document.getElementById('sport-common-detail');
+    if (!container) return;
+    const normalizedType = safeText(type) === '연합' ? '연합' : '학급';
+    container.innerHTML = relaySegmentHTML('roster', normalizedType);
+    if (window.lucide && typeof window.lucide.createIcons === 'function') {
+      window.lucide.createIcons();
+    }
+    const resultBox = document.getElementById('relay-roster-result');
+    if (!resultBox) return;
+    resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem; padding:20px;">로딩 중...</div>';
+    try {
+      const allData = await (hasFn('fetchTabDataCached')
+        ? window.fetchTabDataCached('선수단')
+        : Promise.resolve([]));
+      const rows = getRelayRows(allData, normalizedType, 'roster');
+      if (hasFn('renderClassCards')) {
+        window.renderClassCards(resultBox, rows, '이어달리기', false);
+      } else {
+        resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 선수단 렌더러를 찾지 못했습니다.</div>';
+      }
+    } catch (error) {
+      resultBox.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 데이터를 불러오지 못했습니다.</div>';
+    }
+  };
+
+  if (typeof window.handleSportFilterClick === 'function') {
+    const originalHandleSportFilterClick = window.handleSportFilterClick;
+    window.handleSportFilterClick = async function(btn, targetTab, sport, isPlayerGrid = false, isScheduleView = false, mode = 'default'){
+      if (!isRelaySport(sport) || mode === 'bracket') {
+        return originalHandleSportFilterClick.apply(this, arguments);
+      }
+
+      const container = document.getElementById('sport-common-detail');
+      const isAlreadyActive = !!btn && btn.classList.contains('active');
+      document.querySelectorAll('#sport-filter-group .filter-btn').forEach((b) => b.classList.remove('active'));
+
+      if (isScheduleView && window.currentDetailScheduleMode === 'timeline') {
+        window.currentDetailScheduleMode = 'sport';
+        const sportFilterGroup = document.getElementById('sport-filter-group');
+        if (sportFilterGroup) sportFilterGroup.classList.remove('is-hidden');
+        document.querySelectorAll('.schedule-view-toggle-btn').forEach((button) => {
+          button.classList.toggle('active', button.dataset.mode === 'sport');
+        });
+      }
+
+      if (isAlreadyActive) {
+        if (typeof window.resetSportDetailArea === 'function') {
+          window.resetSportDetailArea(targetTab, isPlayerGrid, isScheduleView, mode);
+        }
+        if (isScheduleView && typeof window.renderScheduleDetailByMode === 'function') {
+          await window.renderScheduleDetailByMode();
+        }
+        return;
+      }
+
+      if (btn) btn.classList.add('active');
+      if (isScheduleView) {
+        document.getElementById('sport-filter-group')?.classList.add('schedule-hidden-after-select');
+      }
+      if (!container) return;
+
+      if (isScheduleView) {
+        await window.loadRelayScheduleSplit('학급');
+        return;
+      }
+      if (isPlayerGrid) {
+        await window.loadRelayRosterSplit('학급');
+        return;
+      }
+      return originalHandleSportFilterClick.apply(this, arguments);
+    };
+  }
+
+  if (typeof window.openDetailInfo === 'function') {
+    const originalOpenDetailInfo = window.openDetailInfo;
+    window.openDetailInfo = async function(type, sport, matchInfo = ''){
+      if (!(type === '선수단' && isRelaySport(sport))) {
+        return originalOpenDetailInfo.apply(this, arguments);
+      }
+
+      const modal = document.getElementById('detail-modal');
+      const title = document.getElementById('detail-modal-title');
+      const content = document.getElementById('detail-modal-content');
+      if (!modal || !title || !content) return;
+
+      const relayType = detectRelayTypeFromText(matchInfo) === '연합' ? '연합' : '학급';
+      title.textContent = `${sport} ${type} 정보`;
+      content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
+      modal.style.display = 'flex';
+
+      try {
+        const data = hasFn('fetchTabDataCached')
+          ? await window.fetchTabDataCached('선수단')
+          : await (await fetch(`${typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : ''}?tab=${encodeURIComponent('선수단')}`)).json();
+        const rows = Array.isArray(data) ? data.slice(1) : [];
+        const filtered = getRelayRows(rows, relayType, 'roster');
+        if (hasFn('renderClassCards')) {
+          window.renderClassCards(content, filtered, '이어달리기', false);
+        } else {
+          content.innerHTML = '<div class="loader">⚠️ 데이터를 표시하지 못했습니다.</div>';
+        }
+      } catch (error) {
+        content.innerHTML = '<div class="loader">⚠️ 데이터를 불러오지 못했습니다.</div>';
+      }
+    };
+  }
+})();
+</script>
+
+
+<style id="fab-top-final-fix-v1">
+  #fab-top-btn.fab-top{
+    position:relative !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    text-indent:0 !important;
+    font-size:0 !important;
+    overflow:visible !important;
+  }
+  #fab-top-btn.fab-top::before,
+  #fab-top-btn.fab-top::after{
+    content:none !important;
+    display:none !important;
+  }
+  #fab-top-btn .fab-top-stack{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    line-height:1;
+    gap:2px;
+    color:#2563eb;
+    pointer-events:none;
+  }
+  #fab-top-btn .fab-top-arrow{
+    font-size:16px;
+    font-weight:900;
+    line-height:1;
+  }
+  #fab-top-btn .fab-top-label{
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:0.04em;
+    line-height:1;
+  }
+</style>
+<script id="fab-top-final-fix-script-v1">
+  (function(){
+    function applyTopButtonContent(){
+      const btn=document.getElementById('fab-top-btn');
+      if(!btn) return;
+      if(btn.querySelector('.fab-top-stack')) return;
+      btn.innerHTML='<span class="fab-top-stack"><span class="fab-top-arrow">↑</span><span class="fab-top-label">TOP</span></span>';
+    }
+    if(document.readyState==='loading'){
+      document.addEventListener('DOMContentLoaded', applyTopButtonContent);
+    } else {
+      applyTopButtonContent();
+    }
+    window.addEventListener('load', applyTopButtonContent);
+  })();
+</script>
+
+<style id="feedback-fab-style-v1">
+  #feedback-fab-btn{
+    position:fixed;
+    right:18px;
+    bottom:100px;
+    z-index:10001;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-width:56px;
+    height:56px;
+    padding:0 14px;
+    border:none;
+    border-radius:999px;
+    background:rgba(37,99,235,0.96);
+    color:#fff;
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:0.02em;
+    box-shadow:0 10px 24px rgba(37,99,235,0.28);
+  }
+  #feedback-fab-btn:active{transform:translateY(1px);}
+  #feedback-modal{
+    position:fixed;
+    inset:0;
+    z-index:10020;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:18px;
+    background:rgba(15,23,42,0.45);
+  }
+  #feedback-modal.open{display:flex;}
+  .feedback-sheet{
+    width:min(100%, 460px);
+    max-height:min(88vh, 760px);
+    overflow:auto;
+    background:#fff;
+    border-radius:22px;
+    padding:18px;
+    box-shadow:0 20px 48px rgba(15,23,42,0.22);
+  }
+  .feedback-title{margin:0 0 6px;font-size:1.05rem;font-weight:900;color:#0f172a;}
+  .feedback-sub{margin:0 0 14px;font-size:0.84rem;color:#64748b;line-height:1.45;}
+  .feedback-field{display:grid;gap:6px;margin-bottom:12px;}
+  .feedback-field label{font-size:0.78rem;font-weight:800;color:#334155;}
+  .feedback-field input,.feedback-field select,.feedback-field textarea{
+    width:100%;border:1px solid rgba(148,163,184,0.4);border-radius:14px;padding:11px 12px;font:inherit;background:#fff;color:#0f172a;
+  }
+  .feedback-field textarea{min-height:120px;resize:vertical;}
+  .feedback-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:12px;}
+  .feedback-ghost,.feedback-primary{
+    border:none;border-radius:14px;padding:10px 14px;font:inherit;font-weight:900;
+  }
+  .feedback-ghost{background:#e2e8f0;color:#334155;}
+  .feedback-primary{background:#2563eb;color:#fff;}
+  #feedback-status{margin-top:12px;font-size:0.8rem;font-weight:700;color:#475569;min-height:1.2em;}
+  @media (max-width: 640px){
+    #feedback-fab-btn{right:14px;bottom:96px;height:52px;min-width:52px;font-size:12px;}
+    .feedback-sheet{padding:16px;border-radius:18px;}
+  }
+</style>
+
+<button id="feedback-fab-btn" type="button" aria-label="의견 남기기">의견</button>
+
+<div id="feedback-modal" aria-hidden="true">
+  <div class="feedback-sheet" role="dialog" aria-modal="true" aria-labelledby="feedback-title">
+    <h3 id="feedback-title" class="feedback-title">의견 남기기</h3>
+    <p class="feedback-sub">오류, 일정 문의, 건의사항을 남길 수 있습니다. 전송 내용은 구글시트에 저장됩니다.</p>
+
+    <div class="feedback-field">
+      <label for="feedback-name">이름</label>
+      <input id="feedback-name" type="text" placeholder="이름">
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedback-class">학년/반</label>
+      <input id="feedback-class" type="text" placeholder="예: 2학년 3반">
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedback-type">의견 유형</label>
+      <select id="feedback-type">
+        <option value="오류 신고">오류 신고</option>
+        <option value="일정 문의">일정 문의</option>
+        <option value="건의사항">건의사항</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+
+    <div class="feedback-field">
+      <label for="feedback-message">의견 내용</label>
+      <textarea id="feedback-message" placeholder="내용을 입력하세요"></textarea>
+    </div>
+
+    <div class="feedback-actions">
+      <button id="feedback-cancel" type="button" class="feedback-ghost">닫기</button>
+      <button id="feedback-submit" type="button" class="feedback-primary">보내기</button>
+    </div>
+
+    <div id="feedback-status"></div>
+  </div>
+</div>
+
+<script id="feedback-fab-script-v1">
+(function(){
+  const SCRIPT = (typeof FEEDBACK_SCRIPT_URL !== 'undefined' && FEEDBACK_SCRIPT_URL) ? FEEDBACK_SCRIPT_URL : ((typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) ? SCRIPT_URL : '');
+  function el(id){ return document.getElementById(id); }
+  function openModal(){ const m=el('feedback-modal'); if(m){ m.classList.add('open'); m.setAttribute('aria-hidden','false'); } }
+  function closeModal(){ const m=el('feedback-modal'); if(m){ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); } }
+  function setStatus(msg, isError){ const s=el('feedback-status'); if(s){ s.textContent=msg||''; s.style.color=isError?'#b91c1c':'#475569'; } }
+  async function submitFeedback(){
+    const payload = {
+      action:'submitFeedback',
+      name:(el('feedback-name')?.value||'').trim(),
+      className:(el('feedback-class')?.value||'').trim(),
+      type:(el('feedback-type')?.value||'기타').trim(),
+      message:(el('feedback-message')?.value||'').trim(),
+      page:location.href,
+      referrer:document.referrer || '',
+      userAgent:navigator.userAgent || ''
+    };
+    if(!payload.message){ setStatus('의견 내용을 입력해 주세요.', true); return; }
+    if(!SCRIPT){ setStatus('SCRIPT_URL이 설정되지 않아 전송할 수 없습니다.', true); return; }
+    const submitBtn = el('feedback-submit');
+    if(submitBtn) submitBtn.disabled = true;
+    setStatus('전송 중...', false);
+    try{
+      const res = await fetch(SCRIPT, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if(result && result.ok){
+        setStatus('의견이 저장되었습니다.', false);
+        if(el('feedback-name')) el('feedback-name').value='';
+        if(el('feedback-class')) el('feedback-class').value='';
+        if(el('feedback-message')) el('feedback-message').value='';
+      } else {
+        setStatus((result && result.message) || '저장에 실패했습니다.', true);
+      }
+    }catch(err){
+      setStatus('전송 중 오류가 발생했습니다.', true);
+    } finally {
+      if(submitBtn) submitBtn.disabled = false;
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function(){
+    const btn = el('feedback-fab-btn');
+    const cancel = el('feedback-cancel');
+    const modal = el('feedback-modal');
+    const submit = el('feedback-submit');
+    if(btn) btn.addEventListener('click', openModal);
+    if(cancel) cancel.addEventListener('click', closeModal);
+    if(submit) submit.addEventListener('click', submitFeedback);
+    if(modal) modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+  });
+})();
+</script>
 
 </body>
 </html>
