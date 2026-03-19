@@ -2315,14 +2315,19 @@
     }
 
     .item-info {
-      display: flex;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas:
+        "time . loc"
+        "content content content";
       align-items: center;
-      gap: 12px;
+      gap: 6px 12px;
       flex: 1;
       overflow: hidden;
     }
 
     .item-time {
+      grid-area: time;
       font-size: 0.8rem;
       color: var(--primary);
       font-weight: 700;
@@ -2331,19 +2336,22 @@
     }
 
     .item-content {
+      grid-area: content;
       font-size: 0.85rem;
       font-weight: 700;
       color: var(--dark);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      flex: 1;
+      min-width: 0;
     }
 
     .btn-group {
+      grid-area: loc;
       display: flex;
       gap: 4px;
       flex-shrink: 0;
+      justify-self: end;
     }
 
     .inline-btn {
