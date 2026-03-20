@@ -2315,19 +2315,14 @@
     }
 
     .item-info {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      grid-template-areas:
-        "time . loc"
-        "content content content";
+      display: flex;
       align-items: center;
-      gap: 6px 12px;
+      gap: 12px;
       flex: 1;
       overflow: hidden;
     }
 
     .item-time {
-      grid-area: time;
       font-size: 0.8rem;
       color: var(--primary);
       font-weight: 700;
@@ -2336,22 +2331,19 @@
     }
 
     .item-content {
-      grid-area: content;
       font-size: 0.85rem;
       font-weight: 700;
       color: var(--dark);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      min-width: 0;
+      flex: 1;
     }
 
     .btn-group {
-      grid-area: loc;
       display: flex;
       gap: 4px;
       flex-shrink: 0;
-      justify-self: end;
     }
 
     .inline-btn {
@@ -7493,8 +7485,7 @@ margin-top:4px;
     function toggleMainTab(key) {
       const activeBtn = document.querySelector('.tab-item.active');
       const isSameActive = activeBtn && activeBtn.dataset.key === key;
-      if (isSameActive && key !== '홈') {
-        activateMainTab('홈');
+      if (isSameActive) {
         return;
       }
       activateMainTab(key);
@@ -8311,15 +8302,12 @@ margin-top:4px;
         btn.onclick = () => {
           clearScoreAutoRefresh();
           const isAlreadyActive = btn.classList.contains('active');
-          document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
 
           if (isAlreadyActive) {
-            els.dataList.innerHTML = '';
-            els.pageNoticeArea.innerHTML = '';
-            els.dayTagArea.innerHTML = '';
             return;
           }
 
+          document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
 
           const mergedNoticeConfig = {
@@ -12502,13 +12490,20 @@ margin-top:4px;
 
   window.updateScheduleGradeFilter = function(grade, sport, listId, btn = null) {
     const buttons = document.querySelectorAll(`.schedule-grade-btn[data-target="${listId}"]`);
+    const isAlreadyActive = !!btn && btn.classList.contains('active');
     currentScheduleGrade = grade;
     buttons.forEach((button) => {
-      button.classList.toggle('active', button.textContent === grade);
+      button.classList.toggle('active', !isAlreadyActive && button.textContent === grade);
     });
 
     const listContainer = document.getElementById(listId);
     if (!listContainer) return;
+
+    if (isAlreadyActive) {
+      listContainer.innerHTML = '';
+      return;
+    }
+
     const data = Array.isArray(scheduleGradeDataCache?.[listId]) ? scheduleGradeDataCache[listId] : [];
     const filtered = uniqueRows(data).filter((item) => getScheduleGrade(item) === grade);
 
@@ -12518,7 +12513,7 @@ margin-top:4px;
 
     if (typeof bindScheduleActionButtons === 'function') bindScheduleActionButtons(listContainer);
     const gradeTabs = document.querySelector(`.schedule-grade-tabs button[data-target="${listId}"]`)?.closest('.schedule-grade-tabs');
-    if (gradeTabs) gradeTabs.classList.add('schedule-hidden-after-select');
+    if (gradeTabs && !isAlreadyActive) gradeTabs.classList.add('schedule-hidden-after-select');
   };
 
   window.loadBracketDataToContainer = async function(container, targetKey, sportLabel = '') {
