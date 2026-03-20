@@ -4092,7 +4092,37 @@ margin-right:4px;
       }
     }
 
-  </style>
+  
+
+/* overview card content second line - minimal patch */
+.schedule-overview-shell .item-info{
+  display:grid !important;
+  grid-template-columns:auto 1fr auto !important;
+  align-items:center !important;
+  column-gap:12px !important;
+  row-gap:6px !important;
+}
+
+.schedule-overview-shell .item-time{
+  grid-column:1 !important;
+}
+
+.schedule-overview-shell .btn-group{
+  grid-column:3 !important;
+  justify-self:end !important;
+}
+
+.schedule-overview-shell .item-content{
+  grid-column:1 / -1 !important;
+  display:block !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  min-width:0 !important;
+}
+
+
+</style>
 
   <!-- Festive iOS override -->
   <style id="festive-ios-override">
@@ -7485,7 +7515,8 @@ margin-top:4px;
     function toggleMainTab(key) {
       const activeBtn = document.querySelector('.tab-item.active');
       const isSameActive = activeBtn && activeBtn.dataset.key === key;
-      if (isSameActive) {
+      if (isSameActive && key !== '홈') {
+        activateMainTab('홈');
         return;
       }
       activateMainTab(key);
@@ -8302,12 +8333,15 @@ margin-top:4px;
         btn.onclick = () => {
           clearScoreAutoRefresh();
           const isAlreadyActive = btn.classList.contains('active');
+          document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
 
           if (isAlreadyActive) {
+            els.dataList.innerHTML = '';
+            els.pageNoticeArea.innerHTML = '';
+            els.dayTagArea.innerHTML = '';
             return;
           }
 
-          document.querySelectorAll('.sub-tab').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
 
           const mergedNoticeConfig = {
@@ -12490,20 +12524,13 @@ margin-top:4px;
 
   window.updateScheduleGradeFilter = function(grade, sport, listId, btn = null) {
     const buttons = document.querySelectorAll(`.schedule-grade-btn[data-target="${listId}"]`);
-    const isAlreadyActive = !!btn && btn.classList.contains('active');
     currentScheduleGrade = grade;
     buttons.forEach((button) => {
-      button.classList.toggle('active', !isAlreadyActive && button.textContent === grade);
+      button.classList.toggle('active', button.textContent === grade);
     });
 
     const listContainer = document.getElementById(listId);
     if (!listContainer) return;
-
-    if (isAlreadyActive) {
-      listContainer.innerHTML = '';
-      return;
-    }
-
     const data = Array.isArray(scheduleGradeDataCache?.[listId]) ? scheduleGradeDataCache[listId] : [];
     const filtered = uniqueRows(data).filter((item) => getScheduleGrade(item) === grade);
 
@@ -12513,7 +12540,7 @@ margin-top:4px;
 
     if (typeof bindScheduleActionButtons === 'function') bindScheduleActionButtons(listContainer);
     const gradeTabs = document.querySelector(`.schedule-grade-tabs button[data-target="${listId}"]`)?.closest('.schedule-grade-tabs');
-    if (gradeTabs && !isAlreadyActive) gradeTabs.classList.add('schedule-hidden-after-select');
+    if (gradeTabs) gradeTabs.classList.add('schedule-hidden-after-select');
   };
 
   window.loadBracketDataToContainer = async function(container, targetKey, sportLabel = '') {
@@ -15554,6 +15581,83 @@ margin-top:4px;
     #feedback-fab-btn{right:14px;bottom:96px;height:52px;min-width:52px;font-size:12px;}
     .feedback-sheet{padding:16px;border-radius:18px;}
   }
+
+
+/* overview/detail text size alignment - minimal patch */
+.schedule-overview-shell .item-content,
+.schedule-match-title,
+.timeline-card-list .schedule-match-title{
+  font-size: 1rem !important;
+  line-height: 1.35 !important;
+}
+
+@media (max-width: 640px){
+  .schedule-overview-shell .item-content,
+  .schedule-match-title,
+  .timeline-card-list .schedule-match-title{
+    font-size: 0.94rem !important;
+    line-height: 1.35 !important;
+  }
+}
+
+
+
+/* overview shell final line layout patch */
+.schedule-overview-shell .item-row{
+  display:grid !important;
+  grid-template-columns:36px minmax(0, 1fr) !important;
+  align-items:start !important;
+  column-gap:12px !important;
+}
+
+.schedule-overview-shell .item-no{
+  grid-column:1 !important;
+  grid-row:1 / span 2 !important;
+  width:24px !important;
+  min-width:24px !important;
+  height:24px !important;
+  align-self:start !important;
+  justify-self:center !important;
+  margin-top:2px !important;
+}
+
+.schedule-overview-shell .item-info{
+  grid-column:2 !important;
+  display:grid !important;
+  grid-template-columns:92px minmax(0, 1fr) max-content !important;
+  align-items:center !important;
+  column-gap:12px !important;
+  row-gap:6px !important;
+  min-width:0 !important;
+}
+
+.schedule-overview-shell .item-time{
+  grid-column:1 !important;
+  grid-row:1 !important;
+  display:block !important;
+  width:92px !important;
+  min-width:92px !important;
+  white-space:nowrap !important;
+}
+
+.schedule-overview-shell .btn-group{
+  grid-column:3 !important;
+  grid-row:1 !important;
+  justify-self:end !important;
+  align-self:center !important;
+  margin:0 !important;
+}
+
+.schedule-overview-shell .item-content{
+  grid-column:1 / -1 !important;
+  grid-row:2 !important;
+  display:block !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  min-width:0 !important;
+}
+
 </style>
 
 <button id="feedback-fab-btn" type="button" aria-label="의견 남기기">의견</button>
@@ -15654,5 +15758,43 @@ margin-top:4px;
 })();
 </script>
 
+
+<style>
+
+/* 심판진 카드 헤더 한 줄 정렬 보정 */
+.unified-info-card[data-search-item="true"] .unified-info-card-head {
+  display: grid !important;
+  grid-template-columns: 32px minmax(0, 1fr) !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.unified-info-card[data-search-item="true"] .referee-head-wrap {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) auto !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.unified-info-card[data-search-item="true"] .referee-head-left {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: nowrap !important;
+  min-width: 0 !important;
+}
+
+.unified-info-card[data-search-item="true"] .referee-grade-text,
+.unified-info-card[data-search-item="true"] .referee-stage-badge,
+.unified-info-card[data-search-item="true"] .meta-pill.location {
+  white-space: nowrap !important;
+}
+
+.unified-info-card[data-search-item="true"] .meta-pill.location {
+  justify-self: end !important;
+}
+
+</style>
 </body>
 </html>
