@@ -4092,37 +4092,7 @@ margin-right:4px;
       }
     }
 
-  
-
-/* overview card content second line - minimal patch */
-.schedule-overview-shell .item-info{
-  display:grid !important;
-  grid-template-columns:auto 1fr auto !important;
-  align-items:center !important;
-  column-gap:12px !important;
-  row-gap:6px !important;
-}
-
-.schedule-overview-shell .item-time{
-  grid-column:1 !important;
-}
-
-.schedule-overview-shell .btn-group{
-  grid-column:3 !important;
-  justify-self:end !important;
-}
-
-.schedule-overview-shell .item-content{
-  grid-column:1 / -1 !important;
-  display:block !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  min-width:0 !important;
-}
-
-
-</style>
+  </style>
 
   <!-- Festive iOS override -->
   <style id="festive-ios-override">
@@ -8409,8 +8379,12 @@ margin-top:4px;
 
     function normalizeSportName(name = '') {
       let value = String(name).trim();
+      value = value.replace(/[（）]/g, ch => ch === '（' ? '(' : ')');
       value = value.replace(/\s+/g, '');
       if (value === '팔시름') value = '팔씨름';
+      if (/^피구남$|^남자피구$|^남피구$/.test(value)) value = '피구(남)';
+      if (/^피구여$|^여자피구$|^여피구$/.test(value)) value = '피구(여)';
+      if (/^이어달리기\((학급|연합)\)$/.test(value)) value = '이어달리기';
       return value;
     }
 
@@ -15274,16 +15248,19 @@ margin-top:4px;
   }
 
   function detectRelayTypeFromText(text){
-    const raw = safeText(text);
-    if (/^연합$/.test(raw)) return '연합';
-    if (/^학급$/.test(raw)) return '학급';
+    const raw = safeText(text).replace(/\s+/g, '');
+    if (/연합/.test(raw)) return '연합';
+    if (/학급/.test(raw)) return '학급';
     return '';
   }
 
   function detectRelayTypeFromRow(row, context){
     if (context === 'schedule' || context === 'roster') {
-      const byCol6 = detectRelayTypeFromText(row?.col6);
-      if (byCol6) return byCol6;
+      const cols = [row?.col6, row?.col2, row?.col3, row?.col4, row?.col5, row?.col7];
+      for (const col of cols) {
+        const byCol = detectRelayTypeFromText(col);
+        if (byCol) return byCol;
+      }
       const sportText = safeText(row?.col1);
       const sportMatch = sportText.match(/^이어달리기\s*\((학급|연합)\)$/);
       if (sportMatch) return sportMatch[1];
@@ -15323,10 +15300,14 @@ margin-top:4px;
   function getRelayRows(data, type, context){
     const rows = Array.isArray(data) ? data.filter((row) => isRelaySport(row?.col1 || '')) : [];
     const filtered = rows.filter((row) => detectRelayTypeFromRow(row, context) === type);
+    const fallbackRows = filtered.length
+      ? filtered
+      : rows.filter((row) => !detectRelayTypeFromRow(row, context));
+    const finalRows = filtered.length ? filtered : fallbackRows;
     if (context === 'roster') {
-      return hasFn('dedupeRosterRows') ? window.dedupeRosterRows(filtered) : filtered;
+      return hasFn('dedupeRosterRows') ? window.dedupeRosterRows(finalRows) : finalRows;
     }
-    return hasFn('uniqueRows') ? window.uniqueRows(filtered) : filtered;
+    return hasFn('uniqueRows') ? window.uniqueRows(finalRows) : finalRows;
   }
 
   window.loadRelayScheduleSplit = async function(type = '학급', btn = null){
@@ -15581,83 +15562,6 @@ margin-top:4px;
     #feedback-fab-btn{right:14px;bottom:96px;height:52px;min-width:52px;font-size:12px;}
     .feedback-sheet{padding:16px;border-radius:18px;}
   }
-
-
-/* overview/detail text size alignment - minimal patch */
-.schedule-overview-shell .item-content,
-.schedule-match-title,
-.timeline-card-list .schedule-match-title{
-  font-size: 1rem !important;
-  line-height: 1.35 !important;
-}
-
-@media (max-width: 640px){
-  .schedule-overview-shell .item-content,
-  .schedule-match-title,
-  .timeline-card-list .schedule-match-title{
-    font-size: 0.94rem !important;
-    line-height: 1.35 !important;
-  }
-}
-
-
-
-/* overview shell final line layout patch */
-.schedule-overview-shell .item-row{
-  display:grid !important;
-  grid-template-columns:36px minmax(0, 1fr) !important;
-  align-items:start !important;
-  column-gap:12px !important;
-}
-
-.schedule-overview-shell .item-no{
-  grid-column:1 !important;
-  grid-row:1 / span 2 !important;
-  width:24px !important;
-  min-width:24px !important;
-  height:24px !important;
-  align-self:start !important;
-  justify-self:center !important;
-  margin-top:2px !important;
-}
-
-.schedule-overview-shell .item-info{
-  grid-column:2 !important;
-  display:grid !important;
-  grid-template-columns:92px minmax(0, 1fr) max-content !important;
-  align-items:center !important;
-  column-gap:12px !important;
-  row-gap:6px !important;
-  min-width:0 !important;
-}
-
-.schedule-overview-shell .item-time{
-  grid-column:1 !important;
-  grid-row:1 !important;
-  display:block !important;
-  width:92px !important;
-  min-width:92px !important;
-  white-space:nowrap !important;
-}
-
-.schedule-overview-shell .btn-group{
-  grid-column:3 !important;
-  grid-row:1 !important;
-  justify-self:end !important;
-  align-self:center !important;
-  margin:0 !important;
-}
-
-.schedule-overview-shell .item-content{
-  grid-column:1 / -1 !important;
-  grid-row:2 !important;
-  display:block !important;
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  min-width:0 !important;
-}
-
 </style>
 
 <button id="feedback-fab-btn" type="button" aria-label="의견 남기기">의견</button>
@@ -15759,42 +15663,62 @@ margin-top:4px;
 </script>
 
 
-<style>
 
-/* 심판진 카드 헤더 한 줄 정렬 보정 */
-.unified-info-card[data-search-item="true"] .unified-info-card-head {
-  display: grid !important;
-  grid-template-columns: 32px minmax(0, 1fr) !important;
-  align-items: center !important;
-  gap: 10px !important;
-}
-
-.unified-info-card[data-search-item="true"] .referee-head-wrap {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  align-items: center !important;
-  gap: 10px !important;
-  width: 100% !important;
-}
-
-.unified-info-card[data-search-item="true"] .referee-head-left {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  flex-wrap: nowrap !important;
-  min-width: 0 !important;
-}
-
-.unified-info-card[data-search-item="true"] .referee-grade-text,
-.unified-info-card[data-search-item="true"] .referee-stage-badge,
-.unified-info-card[data-search-item="true"] .meta-pill.location {
-  white-space: nowrap !important;
-}
-
-.unified-info-card[data-search-item="true"] .meta-pill.location {
-  justify-self: end !important;
-}
-
-</style>
+  <!-- overview card layout fix -->
+  <style>
+    .schedule-overview-shell .item-row{
+      display:grid !important;
+      grid-template-columns: 32px 74px minmax(0,1fr) auto !important;
+      align-items:center !important;
+      column-gap: 12px !important;
+      row-gap: 6px !important;
+    }
+    .schedule-overview-shell .item-no{
+      grid-column: 1 !important;
+      grid-row: 1 !important;
+      align-self:center !important;
+      margin-top: 0 !important;
+    }
+    .schedule-overview-shell .item-info{
+      display: contents !important;
+    }
+    .schedule-overview-shell .item-time{
+      grid-column: 2 !important;
+      grid-row: 1 !important;
+      min-width: 74px !important;
+      white-space: nowrap !important;
+      align-self:center !important;
+    }
+    .schedule-overview-shell .item-content{
+      grid-column: 2 / 5 !important;
+      grid-row: 2 !important;
+      display:block !important;
+      white-space: normal !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      line-height: 1.4 !important;
+      min-width: 0 !important;
+    }
+    .schedule-overview-shell .btn-group{
+      grid-column: 4 !important;
+      grid-row: 1 !important;
+      justify-self:end !important;
+      align-self:center !important;
+      min-width: 0 !important;
+    }
+    .schedule-overview-shell .inline-btn.loc{
+      white-space: nowrap !important;
+    }
+    @media (max-width: 768px){
+      .schedule-overview-shell .item-row{
+        grid-template-columns: 28px 68px minmax(0,1fr) auto !important;
+        column-gap: 10px !important;
+        row-gap: 5px !important;
+      }
+      .schedule-overview-shell .item-time{
+        min-width: 68px !important;
+      }
+    }
+  </style>
 </body>
 </html>
