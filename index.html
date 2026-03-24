@@ -2026,6 +2026,29 @@
       border-left: none;
     }
 
+    .team-row.advance-enter {
+      animation: advancePopIn 0.78s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-origin: center center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .team-row.advance-enter::after {
+      content: '';
+      position: absolute;
+      inset: -2px;
+      border-radius: 12px;
+      border: 2px solid rgba(0, 122, 255, 0.28);
+      box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.22);
+      animation: advanceRing 0.78s ease-out;
+      pointer-events: none;
+    }
+
+    .team-row.advance-enter .team-info-column,
+    .team-row.advance-enter .score {
+      animation: advanceGlow 0.78s ease-out;
+    }
+
     .champ-area {
       position: relative;
       overflow: hidden;
@@ -2077,6 +2100,43 @@
     @keyframes championPulse {
       0%, 100% { transform: scale(1); box-shadow: 0 18px 32px rgba(245, 158, 11, 0.16); }
       50% { transform: scale(1.015); box-shadow: 0 22px 36px rgba(245, 158, 11, 0.24); }
+    }
+
+    @keyframes advancePopIn {
+      0% {
+        transform: translateY(10px) scale(0.92);
+        box-shadow: 0 0 0 rgba(59, 130, 246, 0);
+      }
+      45% {
+        transform: translateY(-4px) scale(1.04);
+        box-shadow: 0 16px 28px rgba(59, 130, 246, 0.18);
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+    }
+
+    @keyframes advanceRing {
+      0% {
+        opacity: 0.85;
+        transform: scale(0.94);
+        box-shadow: 0 0 0 0 rgba(0, 122, 255, 0.22);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.08);
+        box-shadow: 0 0 0 14px rgba(0, 122, 255, 0);
+      }
+    }
+
+    @keyframes advanceGlow {
+      0% {
+        background-color: rgba(191, 219, 254, 0.72);
+      }
+      100% {
+        background-color: transparent;
+      }
     }
 
     @keyframes championShine {
@@ -11232,7 +11292,7 @@ html {
         if (currentActiveMainTab === '홈') {
           updateHomeLiveBoard().catch(() => {});
         }
-      }, 60000);
+      }, 180000);
     }
 
     function stopHomeLiveAutoRefresh() {
@@ -11333,7 +11393,7 @@ html {
 
 
     const STORAGE_CACHE_PREFIX = 'sports-festival-cache-v26:';
-    const STORAGE_CACHE_TTL_MS = 1000 * 60 * 3;
+    const STORAGE_CACHE_TTL_MS = 1000 * 60 * 10;
 
     function requestIdleTask(callback, timeout = 1200) {
       if (typeof window.requestIdleCallback === 'function') {
@@ -11375,9 +11435,6 @@ html {
         const persisted = readPersistedTabCache(tabName);
         if (persisted) {
           tabDataCache[tabName] = persisted;
-          requestIdleTask(() => {
-            fetchTabData(tabName, { force: true }).catch(() => {});
-          }, 900);
           return Promise.resolve(persisted);
         }
       }
@@ -11461,11 +11518,16 @@ html {
     };
 
     function prefetchEssentialTabs() {
-      const tabsToWarm = ['공지사항', '전체일정_1일차', '전체일정_2일차', '세부경기일정', '점수', '시상', '선수단', '심판'];
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const saveData = !!(connection && connection.saveData);
+      const slowNetwork = !!(connection && /(^|\b)(slow-2g|2g)(\b|$)/i.test(String(connection.effectiveType || '')));
+      if (saveData || slowNetwork) return;
+
+      const tabsToWarm = ['공지사항', '전체일정_1일차', '전체일정_2일차'];
       tabsToWarm.forEach((tabName, index) => {
         requestIdleTask(() => {
           fetchTabData(tabName).catch(() => {});
-        }, 450 + (index * 140));
+        }, 900 + (index * 280));
       });
     }
 
@@ -14216,26 +14278,102 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
     }
 
     function applyWinners() {
-      document.querySelectorAll('.match-unit').forEach(u => {
-        const rows = u.querySelectorAll('.team-row:not(.bye-win)');
-        if (rows.length === 2) {
-          const s1 = parseFloat(rows[0].querySelector('.score').textContent);
-          const s2 = parseFloat(rows[1].querySelector('.score').textContent);
-          const pk1 = parseFloat(rows[0].querySelector('.score').dataset.pk) || 0;
-          const pk2 = parseFloat(rows[1].querySelector('.score').dataset.pk) || 0;
+      const getRowName = (row) => String(row?.querySelector('input')?.value || '').trim();
+      const setRowName = (row, value, placeholder = 'TBD') => {
+        if (!row) return;
+        const input = row.querySelector('input');
+        if (!input) return;
+        const prevValue = String(input.value || '').trim();
+        const nextValue = String(value || '').trim();
+        input.value = nextValue;
+        input.placeholder = nextValue ? '' : placeholder;
 
-          let winIdx = s1 > s2 ? 0 : (s2 > s1 ? 1 : (pk1 > pk2 ? 0 : (pk2 > pk1 ? 1 : -1)));
-          if (winIdx !== -1) {
-            rows[winIdx].classList.add(rows[winIdx].dataset.type === 'final' ? 'final-winner' : 'winner');
+        row.classList.remove('advance-enter');
+        if (nextValue && nextValue !== prevValue) {
+          void row.offsetWidth;
+          row.classList.add('advance-enter');
+          window.setTimeout(() => row.classList.remove('advance-enter'), 900);
+        }
+      };
+      const clearWinnerStyles = (root) => {
+        root.querySelectorAll('.team-row').forEach(row => {
+          row.classList.remove('winner', 'final-winner');
+        });
+      };
+      const resolveWinnerRow = (rows) => {
+        if (!rows.length) return null;
+        if (rows.length === 1) return rows[0];
+
+        const s1 = parseFloat(rows[0].querySelector('.score')?.textContent);
+        const s2 = parseFloat(rows[1].querySelector('.score')?.textContent);
+        const pk1 = parseFloat(rows[0].querySelector('.score')?.dataset.pk) || 0;
+        const pk2 = parseFloat(rows[1].querySelector('.score')?.dataset.pk) || 0;
+
+        if (Number.isFinite(s1) && Number.isFinite(s2)) {
+          if (s1 > s2) return rows[0];
+          if (s2 > s1) return rows[1];
+          if (pk1 > pk2) return rows[0];
+          if (pk2 > pk1) return rows[1];
+        }
+        return null;
+      };
+
+      document.querySelectorAll('.bracket').forEach(bracket => {
+        clearWinnerStyles(bracket);
+
+        const rounds = Array.from(bracket.querySelectorAll('.round'));
+        if (rounds.length < 3) return;
+
+        const firstRoundUnits = Array.from(rounds[0].querySelectorAll('.match-unit'));
+        const secondRoundRows = Array.from(rounds[1].querySelectorAll('.team-row:not(.bye-win)'));
+        const finalRows = Array.from(rounds[2].querySelectorAll('.team-row:not(.bye-win)'));
+        const championNode = rounds[2].querySelector('.champ-team-name');
+        const championArea = rounds[2].querySelector('.champ-area');
+
+        const firstRoundWinners = firstRoundUnits.map(unit => {
+          const rows = Array.from(unit.querySelectorAll('.team-row'));
+          const winnerRow = resolveWinnerRow(rows);
+          if (winnerRow) {
+            winnerRow.classList.add(winnerRow.dataset.type === 'final' ? 'final-winner' : 'winner');
+            return getRowName(winnerRow);
           }
+          return '';
+        });
+
+        setRowName(secondRoundRows[0], firstRoundWinners[0] || '', '준결승1');
+        setRowName(secondRoundRows[1], firstRoundWinners[1] || '', '준결승2');
+        setRowName(secondRoundRows[2], firstRoundWinners[2] || '', '준결승3');
+        setRowName(secondRoundRows[3], firstRoundWinners[3] || '', '준결승4');
+
+        const secondRoundUnits = Array.from(rounds[1].querySelectorAll('.match-unit'));
+        const secondRoundWinners = secondRoundUnits.map(unit => {
+          const rows = Array.from(unit.querySelectorAll('.team-row:not(.bye-win)'));
+          const winnerRow = resolveWinnerRow(rows);
+          if (winnerRow) {
+            winnerRow.classList.add('winner');
+            return getRowName(winnerRow);
+          }
+          return '';
+        });
+
+        setRowName(finalRows[0], secondRoundWinners[0] || '', '결승1');
+        setRowName(finalRows[1], secondRoundWinners[1] || '', '결승2');
+
+        const finalWinnerRow = resolveWinnerRow(finalRows);
+        if (finalWinnerRow) {
+          finalWinnerRow.classList.add('final-winner');
+        }
+
+        if (championNode) {
+          const championName = finalWinnerRow ? getRowName(finalWinnerRow) : '';
+          championNode.textContent = championName || '대기중';
+          if (championArea) championArea.classList.toggle('pending', !championName);
         }
       });
 
       document.querySelectorAll('.champ-team-name').forEach(node => {
         const value = String(node.textContent || '').trim();
-        if (!value || value === '대기중') {
-          node.closest('.champ-area')?.classList.add('pending');
-        }
+        node.closest('.champ-area')?.classList.toggle('pending', !value || value === '대기중');
       });
     }
 
@@ -15891,6 +16029,11 @@ ${guide}`, current || '');
 
   window.preloadCriticalMapImages = async function preloadCriticalMapImages(){
     try {
+      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const saveData = !!(connection && connection.saveData);
+      const slowNetwork = !!(connection && /(^|\b)(slow-2g|2g)(\b|$)/i.test(String(connection.effectiveType || '')));
+      if (saveData || slowNetwork) return;
+
       const candidates = new Set();
       const [day1, day2] = await Promise.allSettled([
         fetchTabData('전체일정_1일차'),
@@ -15901,21 +16044,11 @@ ${guide}`, current || '');
         const meta = extractScheduleImageMeta(result.value);
         if (meta && meta.url) candidates.add(meta.url);
       });
-      try {
-        const teacherRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB);
-        (teacherRows || []).slice(1).forEach(row => {
-          const possible = [row?.col5, row?.col6, row?.col7].map(v => String(v || '').trim());
-          possible.forEach(value => {
-            if (/^https?:\/\//i.test(value) && /(png|jpe?g|webp|gif|drive\.google\.com|googleusercontent\.com)/i.test(value)) {
-              candidates.add(value);
-            }
-          });
-        });
-      } catch (_) {}
-      Array.from(candidates).slice(0, 4).forEach(url => {
+
+      Array.from(candidates).slice(0, 2).forEach(url => {
         const img = new Image();
         img.decoding = 'async';
-        img.fetchPriority = 'high';
+        img.loading = 'lazy';
         img.src = url;
       });
     } catch (_) {}
