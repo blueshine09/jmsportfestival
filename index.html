@@ -386,6 +386,31 @@
       flex-shrink: 0;
     }
 
+    .seat-link-btn .seat-photo-icon,
+    .seat-layout-btn .seat-photo-icon {
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 18px;
+      color: currentColor;
+      line-height: 1;
+    }
+
+    .seat-link-btn .seat-photo-icon svg,
+    .seat-layout-btn .seat-photo-icon svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
     .image-viewer-modal {
       position: fixed;
       inset: 0;
@@ -12498,7 +12523,7 @@ html {
                     data-image-title="${escapeHtml(imageMeta.title || `${dayLabel} 좌석 배치`)}"
                     data-inline-click="openImageViewerFromDataset(this)"
                   >
-                    <i data-lucide="image"></i>
+                    <span class="seat-photo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></span>
                     좌석 배치
                   </button>
                 ` : ''}
@@ -13962,7 +13987,7 @@ html {
             data-image-source="${safeUrl}"
             data-inline-click="openImageViewerFromDataset(this)"
           >
-            <i data-lucide="image"></i>
+            <span class="seat-photo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></span>
             연합팀 좌석 배치 보기
           </button>
         </div>
@@ -15461,7 +15486,7 @@ ${guide}`, current || '');
             </div>
             <div class="festival-title">함께 뛰고, 함께 응원하는<br>우리들의 축제</div>
           </section>
-          <div id="home-live-board"></div>
+          <div class="home-live-stack"><div id="home-live-schedule"></div><div id="home-live-top3"></div></div>
           <div class="quick-action-row">
             <div class="quick-action-card" data-inline-click="activateMainTab('일정')">
               <div class="quick-action-icon bg-blue"><i data-lucide="calendar-range" size="18"></i></div>
@@ -16100,13 +16125,35 @@ ${guide}`, current || '');
       .map((item, index) => ({ ...item, rank: index + 1 }));
   }
 
-  async function buildHomeLiveBoardHtml(summary, candidates) {
+  function buildHomeLiveScheduleHtml(summary) {
     const badgeText = summary.isLive ? 'LIVE' : 'NOW';
     const nextLabel = String(summary.nextLabel || '').trim();
     const nextHtml = nextLabel
       ? `<div class="home-live-next"><span class="home-live-next-label">다음 일정</span>${escapeHtml(nextLabel)}</div>`
       : '';
 
+    return `
+      <div class="home-live-card compact ios-live-card">
+        <div class="home-live-header">
+          <span class="home-live-badge">${escapeHtml(badgeText)}</span>
+        </div>
+        <div class="home-live-main compact">
+          <div class="home-live-content">
+            <div class="home-live-primary-row">
+              <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc || '')}</div>
+              ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
+            </div>
+            ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
+            <div class="home-live-actions compact">
+              <button type="button" class="home-live-link compact" data-inline-click="activateMainTab('일정')">전체 일정 보기</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function buildHomeTop3Html() {
     let scoreTop3Html = '<div class="home-live-score-empty">실시간 점수를 아직 불러오지 못했습니다.</div>';
     try {
       const scoreData = await fetchTabDataCached('점수');
@@ -16127,60 +16174,43 @@ ${guide}`, current || '');
     } catch (_) {}
 
     return `
-      <div class="home-live-stack">
-        <div class="home-live-card compact ios-live-card">
-          <div class="home-live-header">
-            <span class="home-live-badge">${escapeHtml(badgeText)}</span>
-          </div>
-          <div class="home-live-main compact">
-            <div class="home-live-content">
-              <div class="home-live-primary-row">
-                <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc || '')}</div>
-                ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
-              </div>
-              ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
-              <div class="home-live-actions compact">
-                <button type="button" class="home-live-link compact" data-inline-click="activateMainTab('일정')">전체 일정 보기</button>
-              </div>
-            </div>
-          </div>
+      <div class="home-live-card compact home-live-score-block">
+        <div class="home-live-score-head">
+          <div class="home-live-score-title">실시간 점수 TOP 3</div>
+          <div class="home-live-score-meta">점수 탭 기준</div>
         </div>
-        <div class="home-live-card compact home-live-score-block">
-          <div class="home-live-score-head">
-            <div class="home-live-score-title">실시간 점수 TOP 3</div>
-            <div class="home-live-score-meta">점수 탭 기준</div>
-          </div>
-          ${scoreTop3Html}
-        </div>
+        ${scoreTop3Html}
       </div>
     `;
   }
 
-  const liveState = { inflight: null, lastRunAt: 0, lastHtml: '', ttl: 15000 };
+  const liveScheduleState = { inflight: null, lastRunAt: 0, lastHtml: '', ttl: 15000 };
+  const liveTop3State = { inflight: null, lastRunAt: 0, lastHtml: '', ttl: 10000 };
   const originalUpdateHomeLiveBoard = window.updateHomeLiveBoard;
-  window.updateHomeLiveBoard = async function unifiedUpdateHomeLiveBoard(){
-    const mount = document.getElementById('home-live-board');
+
+  window.updateHomeLiveScheduleBoard = async function updateHomeLiveScheduleBoard(){
+    const mount = document.getElementById('home-live-schedule');
     if (!mount) return;
 
     const now = Date.now();
-    if (liveState.inflight) {
-      setHtmlIfChanged(mount, liveState.lastHtml || HOME_LIVE_SKELETON);
-      return liveState.inflight.then(() => {
-        const currentMount = document.getElementById('home-live-board');
-        if (currentMount && liveState.lastHtml) setHtmlIfChanged(currentMount, liveState.lastHtml);
+    if (liveScheduleState.inflight) {
+      setHtmlIfChanged(mount, liveScheduleState.lastHtml || HOME_LIVE_SKELETON);
+      return liveScheduleState.inflight.then(() => {
+        const currentMount = document.getElementById('home-live-schedule');
+        if (currentMount && liveScheduleState.lastHtml) setHtmlIfChanged(currentMount, liveScheduleState.lastHtml);
       }).catch(() => {
-        const currentMount = document.getElementById('home-live-board');
-        if (currentMount && liveState.lastHtml) setHtmlIfChanged(currentMount, liveState.lastHtml);
+        const currentMount = document.getElementById('home-live-schedule');
+        if (currentMount && liveScheduleState.lastHtml) setHtmlIfChanged(currentMount, liveScheduleState.lastHtml);
       });
     }
-    if ((now - liveState.lastRunAt) < liveState.ttl && liveState.lastHtml) {
-      setHtmlIfChanged(mount, liveState.lastHtml);
+    if ((now - liveScheduleState.lastRunAt) < liveScheduleState.ttl && liveScheduleState.lastHtml) {
+      setHtmlIfChanged(mount, liveScheduleState.lastHtml);
       return;
     }
 
     setHtmlIfChanged(mount, HOME_LIVE_SKELETON);
 
-    liveState.inflight = (async () => {
+    liveScheduleState.inflight = (async () => {
       try {
         const [day1Data, day2Data] = await Promise.all([
           fetchTabDataCached('전체일정_1일차'),
@@ -16201,29 +16231,81 @@ ${guide}`, current || '');
         }
 
         const candidates = extractFavoriteSportCandidates([].concat(day1Rows, day2Rows));
-        const html = await buildHomeLiveBoardHtml(summary, candidates);
+        const html = buildHomeLiveScheduleHtml(summary);
         setHtmlIfChanged(mount, html);
         window.__festivalSportCandidates = candidates;
-        liveState.lastRunAt = Date.now();
-        liveState.lastHtml = mount.innerHTML;
+        liveScheduleState.lastRunAt = Date.now();
+        liveScheduleState.lastHtml = mount.innerHTML;
       } catch (error) {
         if (typeof originalUpdateHomeLiveBoard === 'function') {
           try {
             await originalUpdateHomeLiveBoard.apply(this, arguments);
-            liveState.lastRunAt = Date.now();
-            liveState.lastHtml = mount.innerHTML;
+            liveScheduleState.lastRunAt = Date.now();
+            liveScheduleState.lastHtml = mount.innerHTML;
             return;
           } catch (_) {}
         }
         const html = '<div class="home-live-card ios-live-card"><div class="home-live-body">일정 요약을 불러오지 못했습니다.</div></div>';
         setHtmlIfChanged(mount, html);
-        liveState.lastRunAt = Date.now();
-        liveState.lastHtml = mount.innerHTML;
+        liveScheduleState.lastRunAt = Date.now();
+        liveScheduleState.lastHtml = mount.innerHTML;
       } finally {
-        liveState.inflight = null;
+        liveScheduleState.inflight = null;
       }
     })();
-    return liveState.inflight;
+    return liveScheduleState.inflight;
+  };
+
+  window.updateHomeTop3Board = async function updateHomeTop3Board(){
+    const mount = document.getElementById('home-live-top3');
+    if (!mount) return;
+
+    const now = Date.now();
+    const loadingHtml = '<div class="home-live-card compact home-live-score-block"><div class="home-live-score-head"><div class="home-live-score-title">실시간 점수 TOP 3</div><div class="home-live-score-meta">점수 탭 기준</div></div><div class="home-live-score-empty">불러오는 중입니다.</div></div>';
+
+    if (liveTop3State.inflight) {
+      setHtmlIfChanged(mount, liveTop3State.lastHtml || loadingHtml);
+      return liveTop3State.inflight.then(() => {
+        const currentMount = document.getElementById('home-live-top3');
+        if (currentMount && liveTop3State.lastHtml) setHtmlIfChanged(currentMount, liveTop3State.lastHtml);
+      }).catch(() => {
+        const currentMount = document.getElementById('home-live-top3');
+        if (currentMount && liveTop3State.lastHtml) setHtmlIfChanged(currentMount, liveTop3State.lastHtml);
+      });
+    }
+    if ((now - liveTop3State.lastRunAt) < liveTop3State.ttl && liveTop3State.lastHtml) {
+      setHtmlIfChanged(mount, liveTop3State.lastHtml);
+      return;
+    }
+
+    setHtmlIfChanged(mount, loadingHtml);
+
+    liveTop3State.inflight = (async () => {
+      try {
+        const html = await buildHomeTop3Html();
+        setHtmlIfChanged(mount, html);
+        liveTop3State.lastRunAt = Date.now();
+        liveTop3State.lastHtml = mount.innerHTML;
+      } catch (_) {
+        if (liveTop3State.lastHtml) {
+          setHtmlIfChanged(mount, liveTop3State.lastHtml);
+        } else {
+          setHtmlIfChanged(mount, '<div class="home-live-card compact home-live-score-block"><div class="home-live-score-head"><div class="home-live-score-title">실시간 점수 TOP 3</div><div class="home-live-score-meta">점수 탭 기준</div></div><div class="home-live-score-empty">실시간 점수를 아직 불러오지 못했습니다.</div></div>');
+          liveTop3State.lastHtml = mount.innerHTML;
+        }
+        liveTop3State.lastRunAt = Date.now();
+      } finally {
+        liveTop3State.inflight = null;
+      }
+    })();
+    return liveTop3State.inflight;
+  };
+
+  window.updateHomeLiveBoard = function unifiedUpdateHomeLiveBoard(){
+    const jobs = [];
+    if (typeof window.updateHomeLiveScheduleBoard === 'function') jobs.push(window.updateHomeLiveScheduleBoard());
+    if (typeof window.updateHomeTop3Board === 'function') jobs.push(window.updateHomeTop3Board());
+    return Promise.allSettled(jobs);
   };
 
   window.renderHomeMenu = function renderHomeMenuPatched(){
@@ -16246,7 +16328,7 @@ ${guide}`, current || '');
           </div>
           <div class="festival-title">함께 뛰고, 함께 응원하는<br>우리들의 축제</div>
         </section>
-        <div id="home-live-board"></div>
+        <div class="home-live-stack"><div id="home-live-schedule"></div><div id="home-live-top3"></div></div>
         <div class="section-caption home-grid-section">
           <div class="section-caption-title">축제 바로가기</div>
           <div class="section-caption-sub">자주 누르는 메뉴만 가볍게 모았습니다.</div>
@@ -16270,7 +16352,12 @@ ${guide}`, current || '');
     setHtmlIfChanged(homeGridEl, gridHtml);
     setHtmlIfChanged(homeUtilityEl, '');
     requestIconRefresh();
-    requestIdleTask(() => { window.updateHomeLiveBoard(); }, 1500);
+    try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(); } catch (_) {}
+    try { window.updateHomeTop3Board && window.updateHomeTop3Board(); } catch (_) {}
+    requestIdleTask(() => {
+      try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(); } catch (_) {}
+      try { window.updateHomeTop3Board && window.updateHomeTop3Board(); } catch (_) {}
+    }, 1500);
   };
 
   window.ensureFloatingAssistUI = function ensureFloatingAssistUIPatched() {
@@ -17655,486 +17742,7 @@ ${guide}`, current || '');
   
 
 
-<script id="performance-unified-patch-v13">
-(function(){
-  if (window.__performanceUnifiedPatchV13__) return;
-  window.__performanceUnifiedPatchV13__ = true;
-
-  window.__ENABLE_BACKGROUND_PREFETCH__ = false;
-
-  const idle = (cb, timeout = 1500) => {
-    if (typeof window.requestIdleCallback === 'function') {
-      return window.requestIdleCallback(cb, { timeout });
-    }
-    return setTimeout(cb, Math.min(timeout, 900));
-  };
-  const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-  function shouldSkipWarmup(){
-    try {
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-      const saveData = !!(connection && connection.saveData);
-      const slowNetwork = !!(connection && /(^|\b)(slow-2g|2g)(\b|$)/i.test(String(connection.effectiveType || '')));
-      return saveData || slowNetwork;
-    } catch (_) {
-      return false;
-    }
-  }
-
-  const baseEnhance = window.enhanceMobileScrollPerformance;
-  window.enhanceMobileScrollPerformance = function(){
-    if (window.__scrollPerfEnhancedOnce__) return;
-    window.__scrollPerfEnhancedOnce__ = true;
-    if (typeof baseEnhance === 'function') return baseEnhance.apply(this, arguments);
-  };
-
-  const baseUpdateHomeLiveBoard = window.updateHomeLiveBoard;
-  let homeLiveScheduled = false;
-  window.updateHomeLiveBoard = async function(){
-    if (document.hidden) return;
-    const mount = document.getElementById('home-live-board');
-    if (!homeLiveScheduled && typeof currentActiveMainTab !== 'undefined' && currentActiveMainTab === '홈' && mount && !String(mount.innerHTML || '').trim()) {
-      homeLiveScheduled = true;
-      return idle(() => {
-        homeLiveScheduled = false;
-        if (typeof baseUpdateHomeLiveBoard === 'function') baseUpdateHomeLiveBoard.apply(this, arguments);
-      }, 1200);
-    }
-    if (typeof baseUpdateHomeLiveBoard === 'function') {
-      return baseUpdateHomeLiveBoard.apply(this, arguments);
-    }
-  };
-
-  const reprioritizeImages = () => {
-    document.querySelectorAll('img[fetchpriority="high"]').forEach((img) => {
-      const inHero = !!img.closest('.festival-hero, #home-live-board, .home-hero-shell');
-      if (!inHero) img.setAttribute('fetchpriority', 'low');
-      if (!img.getAttribute('loading')) img.setAttribute('loading', 'lazy');
-      if (!img.getAttribute('decoding')) img.setAttribute('decoding', 'async');
-    });
-  };
-
-  const cache = window.__fullRenderCacheStore__ = window.__fullRenderCacheStore__ || {
-    initialViews: {},
-    detailViews: {},
-    pending: {},
-    started: false,
-    teacherRows: null,
-    teacherReady: false,
-    scheduleOverviewReady: false
-  };
-
-  const warmupTabs = [
-    '공지사항',
-    '전체일정_1일차',
-    '전체일정_2일차',
-    '점수'
-  ];
-
-  const renderPreloadTabs = ['점수'];
-
-  function getSandbox(){
-    let box = document.getElementById('render-cache-sandbox-v13');
-    if (box) return box;
-    box = document.createElement('div');
-    box.id = 'render-cache-sandbox-v13';
-    box.style.cssText = 'position:absolute;left:-99999px;top:0;width:420px;opacity:0;pointer-events:none;overflow:hidden;contain:layout style paint;';
-    document.body.appendChild(box);
-    return box;
-  }
-
-  function refreshDynamicUI(container){
-    try {
-      if (window.requestIconRefresh) window.requestIconRefresh();
-      else if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-    } catch (_) {}
-    try {
-      if (typeof window.bindScheduleActionButtons === 'function' && container) {
-        window.bindScheduleActionButtons(container);
-      }
-    } catch (_) {}
-    try {
-      if (typeof window.updateFloatingAssistVisibility === 'function') {
-        window.updateFloatingAssistVisibility();
-      }
-    } catch (_) {}
-  }
-
-  function applyCachedHTML(container, html){
-    if (!container) return;
-    container.innerHTML = html || '';
-    refreshDynamicUI(container);
-  }
-
-  async function warmTab(tabName){
-    try {
-      if (typeof window.fetchTabDataCached === 'function') {
-        await window.fetchTabDataCached(tabName);
-      } else if (typeof window.fetchTabData === 'function') {
-        await window.fetchTabData(tabName);
-      }
-    } catch (_) {}
-  }
-
-  function makeInitialRootHTML(targetTab, isPlayerGrid, isScheduleView, mode){
-    const intro = getSportGridIntro(targetTab, isPlayerGrid, isScheduleView, mode);
-    const useGlobalSearch = mode === 'default' && (targetTab === '선수단' || targetTab === '심판');
-    const showHero = !(isScheduleView || (mode === 'default' && targetTab === '심판') || (mode === 'default' && targetTab === '선수단'));
-    let extraTopHtml = '';
-    let detailDefaultHtml = getSportGridDefaultDetailHTML(targetTab, isPlayerGrid, isScheduleView, mode);
-
-    if (useGlobalSearch) {
-      const modeKey = targetTab === '선수단' ? 'player' : 'referee';
-      const prefix = `warm-${modeKey}`;
-      extraTopHtml = `
-        <div class="global-search-panel">
-          ${createNameSearchHTML(
-            prefix,
-            modeKey === 'player' ? '선수 이름을 검색해 주세요.' : '심판 이름 또는 역할을 검색해 주세요.',
-            ''
-          ).replace(`filterSearchItems('${prefix}')`, `handleGlobalSportSearch('${targetTab}-${prefix}')`)}
-          <div id="${prefix}-results" class="sport-detail-content"></div>
-        </div>
-      `;
-    } else if (isScheduleView) {
-      const activeMode = window.currentDetailScheduleMode || 'sport';
-      extraTopHtml = `
-        <div class="schedule-view-toolbar" id="schedule-view-toolbar">
-          <div class="schedule-view-copy">
-            <div class="schedule-view-title">세부일정 보기</div>
-            <div class="schedule-view-sub">종목별 카드 보기와 시간순 보기 중 필요한 방식으로 확인하세요.</div>
-          </div>
-          <div class="schedule-view-actions">
-            <div class="schedule-view-toggle" role="tablist" aria-label="세부일정 보기 방식">
-              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'sport' ? 'active' : ''}" data-mode="sport" data-inline-click="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
-              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'timeline' ? 'active' : ''}" data-mode="timeline" data-inline-click="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
-            </div>
-            <div class="schedule-guide-action">
-              <button type="button" class="seat-link-btn schedule-guide-btn" data-inline-click="openDetailScheduleGuide(this)">
-                <i data-lucide="map"></i>
-                경기장 안내
-              </button>
-            </div>
-          </div>
-        </div>
-      `;
-      detailDefaultHtml = activeMode === 'sport'
-        ? '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">종목을 선택해 주세요.</strong><span>종목 버튼을 누르면 해당 종목의 세부 일정이 카드형으로 열립니다.</span></div>'
-        : '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">보기 방식을 선택해 주세요.</strong><span>상단에서 종목별 보기 또는 시간순 보기를 누르면 아래에 일정이 열립니다.</span></div>';
-    }
-
-    return `
-      ${showHero ? createHeroCardHTML(intro.title, intro.desc, intro.badge, intro.tone) : ''}
-      ${extraTopHtml}
-      <div class="filter-btn-grid ${isScheduleView && (window.currentDetailScheduleMode || 'sport') !== 'sport' ? 'is-hidden' : ''}" id="sport-filter-group">
-        ${(mode === 'bracket' ? SPORTS_LIST.filter(sport => !BRACKET_HIDDEN_SPORTS.includes(sport)) : SPORTS_LIST).map(sport => `
-          <button type="button" class="filter-btn" data-inline-click="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
-        `).join('')}
-      </div>
-      <div id="sport-common-detail" class="sport-detail-content">
-        ${detailDefaultHtml}
-      </div>
-    `;
-  }
-
-  function buildScheduleOverviewHTML(day1Data, day2Data){
-    const defaultDayKey = (() => {
-      try {
-        const saved = sessionStorage.getItem('festival_schedule_detail_day');
-        if (saved === '1' || saved === '2') return saved;
-      } catch (_) {}
-      try {
-        const now = new Date();
-        const month = now.getMonth() + 1;
-        const date = now.getDate();
-        return (month < 4 || (month === 4 && date <= 2)) ? '1' : '2';
-      } catch (_) {
-        return '1';
-      }
-    })();
-    const day1Active = defaultDayKey === '1' ? 'active' : '';
-    const day2Active = defaultDayKey === '2' ? 'active' : '';
-    const day1PanelActive = defaultDayKey === '1' ? 'active' : '';
-    const day2PanelActive = defaultDayKey === '2' ? 'active' : '';
-    const day1Html = typeof renderScheduleCards === 'function' ? renderScheduleCards(day1Data, '1일차') : '';
-    const day2Html = typeof renderScheduleCards === 'function' ? renderScheduleCards(day2Data, '2일차') : '';
-    return `
-      <div class="schedule-day-tabs">
-        <button type="button" class="schedule-day-btn ${day1Active}" data-day="1" data-inline-click="switchScheduleDay('1', this)">1일차</button>
-        <button type="button" class="schedule-day-btn ${day2Active}" data-day="2" data-inline-click="switchScheduleDay('2', this)">2일차</button>
-      </div>
-      <div class="schedule-day-panel ${day1PanelActive}" data-schedule-day="1">${day1Html}</div>
-      <div class="schedule-day-panel ${day2PanelActive}" data-schedule-day="2">${day2Html}</div>
-    `;
-  }
-
-  function getDetailCacheKey(targetTab, sport, isPlayerGrid, isScheduleView, mode){
-    return [targetTab, sport, isPlayerGrid ? 'player' : 'basic', isScheduleView ? 'schedule' : 'normal', mode || 'default'].join('::');
-  }
-
-  async function renderDetailToCache(targetTab, sport, isPlayerGrid, isScheduleView, mode){
-    const cacheKey = getDetailCacheKey(targetTab, sport, isPlayerGrid, isScheduleView, mode);
-    if (cache.detailViews[cacheKey]) return cache.detailViews[cacheKey];
-    if (cache.pending[cacheKey]) return cache.pending[cacheKey];
-
-    cache.pending[cacheKey] = (async () => {
-      const sandbox = getSandbox();
-      const host = document.createElement('div');
-      host.setAttribute('data-cache-key', cacheKey);
-      sandbox.appendChild(host);
-      try {
-        if (mode === 'bracket') {
-          const gradeSports = ['풋살','빅발리볼','8자 줄넘기','단체줄넘기','팔씨름'];
-          if (sport === '이어달리기') {
-            host.innerHTML = '<div id="sport-common-detail"></div>';
-            await loadRelayBracket('학급');
-            const target = host.querySelector('#sport-common-detail') || host;
-            const html = target.innerHTML || '';
-            cache.detailViews[cacheKey] = html;
-            return html;
-          }
-          if (gradeSports.includes(sport)) {
-            host.innerHTML = `
-              <div class="player-grade-tabs" id="bracket-grade-tabs">
-                <button class="grade-btn active" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','1학년', this)">1학년</button>
-                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','2학년', this)">2학년</button>
-                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','3학년', this)">3학년</button>
-              </div>
-              <div id="bracket-grade-container"><div class="loader">대진표 로딩중...</div></div>
-            `;
-            await loadBracketByGrade(sport, '1학년');
-            const html = host.innerHTML || '';
-            cache.detailViews[cacheKey] = html;
-            return html;
-          }
-          const bracketKey = `대진_${sport.replace(/\(|\)/g, '')}`;
-          await loadBracketDataToContainer(host, bracketKey, sport);
-          const html = host.innerHTML || '';
-          cache.detailViews[cacheKey] = html;
-          return html;
-        }
-
-        const allData = await window.fetchTabDataCached(targetTab);
-        const filtered = isPlayerGrid
-          ? dedupeRosterRows(allData.filter(item => sportEquals(item.col1 || '', sport)))
-          : allData.filter(item => sportEquals(item.col1 || '', sport));
-
-        if (isScheduleView) {
-          if (isGradeFilterSport(sport)) {
-            renderScheduleGradeFilter(host, filtered, sport);
-          } else {
-            renderScheduleList(host, filtered, sport);
-          }
-        } else if (mode === 'rule') {
-          renderRuleList(host, filtered, sport);
-        } else if (isPlayerGrid && isGradeFilterSport(sport)) {
-          renderGradeFilterAndList(host, allData, sport);
-        } else if (isPlayerGrid) {
-          renderClassCards(host, filtered, sport, false);
-        } else {
-          renderSubList(host, filtered, sport, targetTab);
-        }
-
-        const html = host.innerHTML || '';
-        cache.detailViews[cacheKey] = html;
-        return html;
-      } catch (_) {
-        cache.detailViews[cacheKey] = '';
-        return '';
-      } finally {
-        host.remove();
-        delete cache.pending[cacheKey];
-      }
-    })();
-
-    return cache.pending[cacheKey];
-  }
-
-  async function warmTeacherGuide(){
-    if (cache.teacherReady && cache.initialViews['교사업무분장']) return;
-    let rows = TEACHER_GUIDE_FALLBACK_ROWS;
-    try {
-      const remoteRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB);
-      const normalizedRemoteRows = normalizeTeacherGuideRows(remoteRows);
-      if (normalizedRemoteRows.length) rows = normalizedRemoteRows;
-    } catch (_) {}
-    cache.teacherRows = rows;
-    cache.teacherReady = true;
-    cache.initialViews['교사업무분장'] = renderTeacherGuideFromRows(rows);
-  }
-
-  async function warmScheduleOverview(){
-    if (cache.scheduleOverviewReady && cache.initialViews['일정_전체일정']) return;
-    try {
-      const [day1Data, day2Data] = await Promise.all([
-        fetchTabData('전체일정_1일차'),
-        fetchTabData('전체일정_2일차')
-      ]);
-      cache.initialViews['일정_전체일정'] = buildScheduleOverviewHTML(day1Data, day2Data);
-      cache.scheduleOverviewReady = true;
-    } catch (_) {}
-  }
-
-  async function warmDetailScheduleGuide(){
-    if (window.currentDetailScheduleGuideHtmlCache) return;
-    try {
-      const rows = await fetchTabDataCached('세부경기일정');
-      window.currentDetailScheduleGuideMeta = extractDetailScheduleGuideMeta(Array.isArray(rows) ? rows : []);
-      window.currentDetailScheduleGuideGallery = window.currentDetailScheduleGuideMeta?.images || [];
-      window.currentDetailScheduleGuideHtmlCache = buildDetailScheduleGuideHtml(window.currentDetailScheduleGuideGallery);
-      (window.currentDetailScheduleGuideGallery || []).slice(0, 6).forEach(item => {
-        if (!item?.url) return;
-        const img = new Image();
-        img.decoding = 'async';
-        img.loading = 'lazy';
-        img.fetchPriority = 'low';
-        img.src = item.url;
-      });
-    } catch (_) {
-      window.currentDetailScheduleGuideHtmlCache = buildDetailScheduleGuideHtml([]);
-    }
-  }
-
-  function seedInitialRoots(){
-    cache.initialViews['경기규칙'] = makeInitialRootHTML('경기규칙', false, false, 'rule');
-    cache.initialViews['대진표'] = makeInitialRootHTML('대진표', false, false, 'bracket');
-    cache.initialViews['선수단'] = makeInitialRootHTML('선수단', true, false, 'default');
-    cache.initialViews['심판'] = makeInitialRootHTML('심판', false, false, 'default');
-    cache.initialViews['일정_세부일정'] = makeInitialRootHTML('세부경기일정', false, true, 'default');
-  }
-
-  async function warmAll(){
-    if (cache.started) return;
-    cache.started = true;
-    seedInitialRoots();
-
-    if (!shouldSkipWarmup()) {
-      for (let i = 0; i < warmupTabs.length; i += 1) {
-        if (document.hidden) break;
-        await warmTab(warmupTabs[i]);
-        await wait(i < 2 ? 180 : 320);
-      }
-    }
-
-    for (const tabName of renderPreloadTabs) {
-      try { await window.fetchTabDataCached(tabName); } catch (_) {}
-      await wait(120);
-    }
-
-    await warmTeacherGuide();
-    await wait(100);
-    await warmScheduleOverview();
-    await wait(100);
-    await warmDetailScheduleGuide();
-    await wait(100);
-
-    if (typeof window.preloadCriticalMapImages === 'function' && !shouldSkipWarmup()) {
-      idle(() => { try { window.preloadCriticalMapImages(); } catch (_) {} }, 2500);
-    }
-
-    if (shouldSkipWarmup()) return;
-
-    const warmSpecs = [];
-    for (const sport of SPORTS_LIST) {
-      warmSpecs.push(['경기규칙', sport, false, false, 'rule']);
-      warmSpecs.push(['심판', sport, false, false, 'default']);
-      warmSpecs.push(['세부경기일정', sport, false, true, 'default']);
-      warmSpecs.push(['선수단', sport, true, false, 'default']);
-    }
-
-    for (const spec of warmSpecs) {
-      try { await renderDetailToCache(...spec); } catch (_) {}
-      await wait(90);
-    }
-  }
-
-  const originalRenderTeacherGuide = window.renderTeacherGuide;
-  window.renderTeacherGuide = async function patchedRenderTeacherGuide(){
-    if (cache.initialViews['교사업무분장']) {
-      els.dataList.innerHTML = cache.initialViews['교사업무분장'];
-      showState('data-list');
-      refreshDynamicUI(els.dataList);
-      return;
-    }
-    return originalRenderTeacherGuide.apply(this, arguments);
-  };
-  renderTeacherGuide = window.renderTeacherGuide;
-
-  const originalLoadScheduleOverview = window.loadScheduleOverview;
-  window.loadScheduleOverview = async function patchedLoadScheduleOverview(){
-    if (cache.initialViews['일정_전체일정']) {
-      els.dataList.innerHTML = cache.initialViews['일정_전체일정'];
-      showState('data-list');
-      refreshDynamicUI(els.dataList);
-      return;
-    }
-    return originalLoadScheduleOverview.apply(this, arguments);
-  };
-  loadScheduleOverview = window.loadScheduleOverview;
-
-  const originalActivateMainTab = window.activateMainTab;
-  window.activateMainTab = function patchedActivateMainTab(key, updateHash = true){
-    const result = originalActivateMainTab.apply(this, arguments);
-    if (key === '경기규칙' && cache.initialViews['경기규칙']) {
-      applyCachedHTML(els.dataList, cache.initialViews['경기규칙']);
-      showState('data-list');
-    } else if (key === '대진표' && cache.initialViews['대진표']) {
-      applyCachedHTML(els.dataList, cache.initialViews['대진표']);
-      showState('data-list');
-    }
-    return result;
-  };
-  activateMainTab = window.activateMainTab;
-
-  const originalHandleSportFilterClick = window.handleSportFilterClick;
-  window.handleSportFilterClick = async function patchedHandleSportFilterClick(btn, targetTab, sport, isPlayerGrid = false, isScheduleView = false, mode = 'default'){
-    const container = document.getElementById('sport-common-detail');
-    if (!container) return originalHandleSportFilterClick.apply(this, arguments);
-
-    if (mode === 'bracket' || targetTab === '대진표') {
-      return originalHandleSportFilterClick.apply(this, arguments);
-    }
-
-    const isAlreadyActive = btn.classList.contains('active');
-    document.querySelectorAll('#sport-filter-group .filter-btn').forEach(b => b.classList.remove('active'));
-
-    if (isScheduleView && window.currentDetailScheduleMode === 'timeline') {
-      window.currentDetailScheduleMode = 'sport';
-      const sportFilterGroup = document.getElementById('sport-filter-group');
-      if (sportFilterGroup) sportFilterGroup.classList.remove('is-hidden');
-      document.querySelectorAll('.schedule-view-toggle-btn').forEach(button => {
-        button.classList.toggle('active', button.dataset.mode === 'sport');
-      });
-    }
-
-    if (isAlreadyActive) {
-      return originalHandleSportFilterClick.apply(this, arguments);
-    }
-
-    const cacheKey = getDetailCacheKey(targetTab, sport, isPlayerGrid, isScheduleView, mode);
-    const cachedHtml = cache.detailViews[cacheKey];
-    if (cachedHtml) {
-      btn.classList.add('active');
-      if (isScheduleView) {
-        document.getElementById('sport-filter-group')?.classList.add('schedule-hidden-after-select');
-      }
-      applyCachedHTML(container, cachedHtml);
-      return;
-    }
-
-    return originalHandleSportFilterClick.apply(this, arguments);
-  };
-  handleSportFilterClick = window.handleSportFilterClick;
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', reprioritizeImages, { once:true });
-    window.addEventListener('DOMContentLoaded', () => idle(() => { warmAll().catch(() => {}); }, 1200), { once:true });
-  } else {
-    reprioritizeImages();
-    idle(() => { warmAll().catch(() => {}); }, 1200);
-  }
-})();
-</script></script>
+</script>
 
 <script id="referee-card-design-match-roster-v14">
 (function(){
@@ -18917,7 +18525,7 @@ ${guide}`, current || '');
                 data-image-source="${typeof escapeHtml === 'function' ? escapeHtml(imageMeta.url) : imageMeta.url}"
                 data-image-title="${typeof escapeHtml === 'function' ? escapeHtml(imageMeta.title || `${dayLabel} 좌석 배치`) : (imageMeta.title || `${dayLabel} 좌석 배치`)}"
                 data-inline-click="openImageViewerFromDataset(this)">
-                <i data-lucide="image"></i>
+                <span class="seat-photo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></span>
                 좌석 배치
               </button>` : ''}
           </div>
@@ -19145,7 +18753,7 @@ ${guide}`, current || '');
                 data-image-source="${esc(imageMeta.url)}"
                 data-image-title="${esc(imageMeta.title || `${dayLabel} 좌석 배치`)}"
                 data-inline-click="openImageViewerFromDataset(this)">
-                <i data-lucide="image"></i>
+                <span class="seat-photo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></span>
                 좌석 배치
               </button>` : ''}
           </div>
@@ -19217,64 +18825,7 @@ ${guide}`, current || '');
 </script>
 
 
-<script>
-(function(){
-  const perfState = window.__safePerfPatch__ = window.__safePerfPatch__ || { applied: false };
-  if (perfState.applied) return;
-  perfState.applied = true;
 
-  const onceMap = new Map();
-  function debounceByKey(key, fn, wait){
-    const old = onceMap.get(key);
-    if (old) clearTimeout(old);
-    const timer = setTimeout(() => {
-      onceMap.delete(key);
-      try { fn(); } catch (_) {}
-    }, wait);
-    onceMap.set(key, timer);
-  }
-
-  if (typeof window.updateHomeLiveBoard === 'function') {
-    const base = window.updateHomeLiveBoard;
-    let inflight = null;
-    let lastRun = 0;
-    window.updateHomeLiveBoard = async function(){
-      const now = Date.now();
-      if (inflight) return inflight;
-      if ((now - lastRun) < 3000) return Promise.resolve();
-      inflight = Promise.resolve().then(() => base.apply(this, arguments)).finally(() => {
-        lastRun = Date.now();
-        inflight = null;
-      });
-      return inflight;
-    };
-  }
-
-  if (typeof window.requestIconRefresh === 'function') {
-    const base = window.requestIconRefresh;
-    window.requestIconRefresh = function(){
-      debounceByKey('icon-refresh', () => base.apply(this, arguments), 120);
-    };
-  }
-
-  if (typeof window.activateMainTab === 'function') {
-    const base = window.activateMainTab;
-    let inflightKey = null;
-    window.activateMainTab = function(key){
-      const normalized = String(key || '');
-      if (inflightKey === normalized) return;
-      inflightKey = normalized;
-      try {
-        return base.apply(this, arguments);
-      } finally {
-        setTimeout(() => {
-          if (inflightKey === normalized) inflightKey = null;
-        }, 180);
-      }
-    };
-  }
-})();
-</script>
 
 
 <script id="safe-performance-stage2-v19">
@@ -19514,7 +19065,7 @@ document.addEventListener('click', function(e){
                 data-image-source="${esc(imageMeta.url)}"
                 data-image-title="${esc(imageMeta.title || `${dayLabel} 좌석 배치`)}"
                 data-inline-click="openImageViewerFromDataset(this)">
-                <i data-lucide="image"></i>
+                <span class="seat-photo-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" ry="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg></span>
                 좌석 배치
               </button>` : ''}
           </div>
