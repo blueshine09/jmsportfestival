@@ -4169,7 +4169,15 @@ margin-right:4px;
     .hero-card,
     .champ-area,
     .seat-link-btn,
-    .score-guide-btn {
+    .score-hero-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: -0.01em;
+}
+
+.score-guide-btn {
       animation: unifiedFloat 5.8s ease-in-out infinite;
     }
 
@@ -11022,6 +11030,135 @@ html {
       font-size: 0.89rem !important;
     }
   }
+
+  .home-live-stack{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+  .home-live-score-block{
+    padding: 0;
+  }
+  .home-live-score-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .home-live-score-title{
+    font-size:13px;
+    font-weight:800;
+    color:#0f172a;
+    letter-spacing:-0.02em;
+  }
+  .home-live-score-meta{
+    font-size:11px;
+    font-weight:700;
+    color:#6366f1;
+    white-space:nowrap;
+  }
+  .home-live-score-top3{
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:8px;
+  }
+  .home-live-score-top3 .summary-mini-card{
+    min-height:84px;
+    padding:12px 10px;
+    justify-content:center;
+    gap:4px;
+    border-width:1px;
+    border-style:solid;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-1{
+    background:
+      linear-gradient(180deg, rgba(255,248,220,0.98) 0%, rgba(255,255,255,0.99) 100%);
+    border-color:rgba(212,175,55,0.36);
+    box-shadow:0 8px 18px rgba(212,175,55,0.10);
+    position:relative;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-1::before{
+    content:'';
+    position:absolute;
+    inset:0 auto 0 0;
+    width:4px;
+    border-radius:14px 0 0 14px;
+    background:linear-gradient(180deg, rgba(212,175,55,0.58) 0%, rgba(212,175,55,0.18) 100%);
+  }
+  .home-live-score-top3 .summary-mini-card.rank-2{
+    background:
+      linear-gradient(180deg, rgba(245,247,250,0.98) 0%, rgba(255,255,255,0.99) 100%);
+    border-color:rgba(148,163,184,0.34);
+    box-shadow:0 8px 18px rgba(148,163,184,0.10);
+    position:relative;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-2::before{
+    content:'';
+    position:absolute;
+    inset:0 auto 0 0;
+    width:4px;
+    border-radius:14px 0 0 14px;
+    background:linear-gradient(180deg, rgba(148,163,184,0.54) 0%, rgba(148,163,184,0.16) 100%);
+  }
+  .home-live-score-top3 .summary-mini-card.rank-3{
+    background:
+      linear-gradient(180deg, rgba(250,243,238,0.98) 0%, rgba(255,255,255,0.99) 100%);
+    border-color:rgba(184,115,51,0.30);
+    box-shadow:0 8px 18px rgba(184,115,51,0.08);
+    position:relative;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-3::before{
+    content:'';
+    position:absolute;
+    inset:0 auto 0 0;
+    width:4px;
+    border-radius:14px 0 0 14px;
+    background:linear-gradient(180deg, rgba(184,115,51,0.52) 0%, rgba(184,115,51,0.16) 100%);
+  }
+  .home-live-score-top3 .summary-mini-card.rank-1 .summary-mini-rank{
+    color:#b8860b;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-2 .summary-mini-rank{
+    color:#64748b;
+  }
+  .home-live-score-top3 .summary-mini-card.rank-3 .summary-mini-rank{
+    color:#b87333;
+  }
+  .home-live-score-top3 .summary-mini-name{
+    font-size:12px;
+    line-height:1.25;
+    word-break:keep-all;
+  }
+  .home-live-score-top3 .summary-mini-score{
+    font-size:12px;
+  }
+  .home-live-score-empty{
+    padding:14px 12px;
+    border-radius:16px;
+    border:1px solid rgba(226,232,240,0.9);
+    background:rgba(248,250,252,0.92);
+    font-size:12px;
+    font-weight:700;
+    color:#64748b;
+    text-align:center;
+  }
+  @media (max-width: 420px){
+    .home-live-score-top3{
+      gap:6px;
+    }
+    .home-live-score-top3 .summary-mini-card{
+      min-height:78px;
+      padding:10px 8px;
+    }
+    .home-live-score-title{
+      font-size:12px;
+    }
+    .home-live-score-meta{
+      font-size:10px;
+    }
+  }
+
 </style>
 
 <style id="award-plan-oneline-fix-v2">
@@ -11191,7 +11328,7 @@ html {
     <div class="sticky-header">
       <header>
         <div class="logo">2026 중마스포츠축제</div>
-        <button id="notice-bell-btn" class="header-icon-btn" onclick="showNoticeAlert()" aria-label="공지사항 보기"><i data-lucide="bell" size="22"></i></button>
+        <button id="notice-bell-btn" class="header-icon-btn" data-inline-click="showNoticeAlert()" aria-label="공지사항 보기"><i data-lucide="bell" size="22"></i></button>
       </header>
       <div class="tabbar-shell"><div class="tabbar-bg" aria-hidden="true"></div><nav class="nav-tabs" id="tabBar"></nav></div>
     </div>
@@ -11219,17 +11356,17 @@ html {
     <div class="modal-body">
       <div class="modal-header">
         <h3 id="modal-title-main">📢 전체 공지사항</h3>
-        <button onclick="closeModal('notice-modal')" class="close-btn"><i data-lucide="x" size="20"></i></button>
+        <button data-inline-click="closeModal('notice-modal')" class="close-btn"><i data-lucide="x" size="20"></i></button>
       </div>
       <div id="notice-content-list"></div>
     </div>
   </div>
 
-  <div id="image-viewer-modal" class="image-viewer-modal" onclick="handleImageViewerBackdrop(event)">
+  <div id="image-viewer-modal" class="image-viewer-modal" data-inline-click="handleImageViewerBackdrop(event)">
     <div class="image-viewer-dialog">
       <div class="image-viewer-head">
         <div id="image-viewer-title" class="image-viewer-title">연합팀 좌석 배치</div>
-        <button type="button" class="image-viewer-close" onclick="closeImageViewer()" aria-label="닫기">
+        <button type="button" class="image-viewer-close" data-inline-click="closeImageViewer()" aria-label="닫기">
           <i data-lucide="x" size="18"></i>
         </button>
       </div>
@@ -11243,7 +11380,7 @@ html {
     <div class="modal-body">
       <div class="modal-header">
         <h3 id="detail-modal-title">상세 정보</h3>
-        <button onclick="closeModal('detail-modal')" class="close-btn"><i data-lucide="x" size="20"></i></button>
+        <button data-inline-click="closeModal('detail-modal')" class="close-btn"><i data-lucide="x" size="20"></i></button>
       </div>
       <div id="detail-modal-content"></div>
     </div>
@@ -11503,7 +11640,7 @@ html {
       const slowNetwork = !!(connection && /(^|\b)(slow-2g|2g)(\b|$)/i.test(String(connection.effectiveType || '')));
       if (saveData || slowNetwork) return;
 
-      const tabsToWarm = ['공지사항', '전체일정_1일차', '전체일정_2일차'];
+      const tabsToWarm = ['공지사항', '전체일정_1일차', '전체일정_2일차', '점수'];
       tabsToWarm.forEach((tabName, index) => {
         requestIdleTask(() => {
           fetchTabData(tabName).catch(() => {});
@@ -11536,7 +11673,7 @@ html {
 
     function renderTopTabs() {
       els.tabBar.innerHTML = TAB_CONFIG.filter(tab => !tab.hidden).map(tab =>
-        `<button class="tab-item" data-key="${tab.key}" onclick="toggleMainTab('${tab.key}')">${tab.label}</button>`
+        `<button class="tab-item" data-key="${tab.key}" data-inline-click="toggleMainTab('${tab.key}')">${tab.label}</button>`
       ).join('');
     }
 
@@ -12030,7 +12167,7 @@ html {
               data-image-url="${escapeHtml(imageUrl)}"
               data-image-title="${escapeHtml(title)}"
               data-image-source="${escapeHtml(imageUrl)}"
-              onclick="openImageViewerFromDataset(this)"
+              data-inline-click="openImageViewerFromDataset(this)"
               aria-label="${escapeHtml(title)} 크게 보기"
             >
               <img
@@ -12148,7 +12285,7 @@ html {
 
       let rows = TEACHER_GUIDE_FALLBACK_ROWS;
       try {
-        const remoteRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB, { force: true });
+        const remoteRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB);
         const normalizedRemoteRows = normalizeTeacherGuideRows(remoteRows);
         if (normalizedRemoteRows.length) {
           rows = normalizedRemoteRows;
@@ -12226,15 +12363,23 @@ html {
 
 
 
-    function switchScheduleOverviewDay(dayKey) {
-      const emptyGuide = document.querySelector('.schedule-overview-empty-guide');
+    function switchScheduleOverviewDay(dayKey, trigger = null) {
+      const root = (() => {
+        if (trigger && typeof trigger.closest === 'function') {
+          return trigger.closest('.schedule-overview-shell') || trigger.closest('#data-list') || document;
+        }
+        const anyActiveOverview = document.querySelector('.schedule-overview-shell');
+        return anyActiveOverview || document;
+      })();
 
-      document.querySelectorAll('.schedule-day-btn').forEach(btn => {
+      const emptyGuide = root.querySelector ? root.querySelector('.schedule-overview-empty-guide') : null;
+
+      (root.querySelectorAll ? root.querySelectorAll('.schedule-day-switcher .schedule-day-btn[data-day]') : []).forEach(btn => {
         btn.classList.toggle('active', btn.dataset.day === dayKey);
       });
 
       let hasActivePanel = false;
-      document.querySelectorAll('.schedule-day-panel').forEach(panel => {
+      (root.querySelectorAll ? root.querySelectorAll('.schedule-overview-shell .schedule-day-panel[data-day]') : []).forEach(panel => {
         const isActive = panel.dataset.day === dayKey;
         panel.classList.toggle('active', isActive);
         if (isActive) hasActivePanel = true;
@@ -12243,9 +12388,46 @@ html {
       if (emptyGuide) {
         emptyGuide.classList.toggle('is-hidden', hasActivePanel);
       }
+
+      try {
+        sessionStorage.setItem('festival_schedule_overview_day', dayKey);
+      } catch (_) {}
+    }
+
+    function switchScheduleDay(dayKey, btn = null) {
+      const root = (() => {
+        if (btn && typeof btn.closest === 'function') {
+          return btn.closest('#sport-common-detail') || btn.closest('.tab-content') || document;
+        }
+        const activeRoot = document.getElementById('sport-common-detail') || document;
+        return activeRoot;
+      })();
+
+      const tabWrap = btn && typeof btn.closest === 'function'
+        ? btn.closest('.schedule-day-tabs')
+        : (root.querySelector ? root.querySelector('.schedule-day-tabs') : null);
+
+      const buttonScope = tabWrap || root;
+      const panelScope = root;
+
+      (buttonScope.querySelectorAll ? buttonScope.querySelectorAll('.schedule-day-btn[data-day]') : []).forEach(button => {
+        button.classList.toggle('active', button.dataset.day === dayKey);
+      });
+
+      (panelScope.querySelectorAll ? panelScope.querySelectorAll('.schedule-day-panel[data-schedule-day]') : []).forEach(panel => {
+        panel.classList.toggle('active', panel.dataset.scheduleDay === dayKey);
+      });
+
+      try {
+        sessionStorage.setItem('festival_schedule_detail_day', dayKey);
+      } catch (_) {}
     }
 
     function getDefaultScheduleOverviewDay() {
+      try {
+        const saved = sessionStorage.getItem('festival_schedule_overview_day');
+        if (saved === 'day1' || saved === 'day2') return saved;
+      } catch (_) {}
       const now = new Date();
       const month = now.getMonth() + 1;
       const date = now.getDate();
@@ -12314,7 +12496,7 @@ html {
                     data-image-url="${escapeHtml(imageMeta.url)}"
                     data-image-source="${escapeHtml(imageMeta.url)}"
                     data-image-title="${escapeHtml(imageMeta.title || `${dayLabel} 좌석 배치`)}"
-                    onclick="openImageViewerFromDataset(this)"
+                    data-inline-click="openImageViewerFromDataset(this)"
                   >
                     <i data-lucide="image"></i>
                     좌석 배치
@@ -12330,8 +12512,8 @@ html {
         els.dataList.innerHTML = `
           <div class="schedule-overview-shell">
             <div class="schedule-day-switcher">
-              <button class="schedule-day-btn ${defaultDay === 'day1' ? 'active' : ''}" type="button" data-day="day1" onclick="switchScheduleOverviewDay('day1')">1일차</button>
-              <button class="schedule-day-btn ${defaultDay === 'day2' ? 'active' : ''}" type="button" data-day="day2" onclick="switchScheduleOverviewDay('day2')">2일차</button>
+              <button class="schedule-day-btn ${defaultDay === 'day1' ? 'active' : ''}" type="button" data-day="day1" data-inline-click="switchScheduleOverviewDay('day1')">1일차</button>
+              <button class="schedule-day-btn ${defaultDay === 'day2' ? 'active' : ''}" type="button" data-day="day2" data-inline-click="switchScheduleOverviewDay('day2')">2일차</button>
             </div>
             <div class="section-empty-guide schedule-overview-empty-guide ${defaultDay ? 'is-hidden' : ''}"><strong style="font-size:1.365rem !important; line-height:1.15;">일차를 선택해 주세요.</strong><span>상단에서 1일차 또는 2일차를 누르면 아래에 전체일정이 열립니다.</span></div>
             ${renderDayPanel('day1', '1일차 전체일정', '4월 2일 · 운동장 및 체육관', day1Rows, '1일차: 운동장 및 체육관', day1ImageMeta, defaultDay)}
@@ -12528,7 +12710,7 @@ html {
               onkeydown="handleSearchInputKeydown(event, '${targetId}')"
               onsearch="handleSearchInputSubmit('${targetId}')"
             />
-            <button type="button" class="search-clear-btn" aria-label="검색어 지우기" onclick="clearSearchInput('${targetId}')">×</button>
+            <button type="button" class="search-clear-btn" aria-label="검색어 지우기" data-inline-click="clearSearchInput('${targetId}')">×</button>
             <span class="search-input-icon">🔍</span>
           </div>
           <div class="search-helper-text">${escapeHtml(helperText || '')}</div>
@@ -13068,7 +13250,7 @@ html {
 
       let html = `<div class="schedule-grade-tabs">`;
       grades.forEach(g => {
-        html += `<button class="schedule-grade-btn ${currentScheduleGrade === g ? 'active' : ''}" data-target="${listId}" onclick="event.stopPropagation(); updateScheduleGradeFilter('${g}', '${sport}', '${listId}', this)">${g}</button>`;
+        html += `<button class="schedule-grade-btn ${currentScheduleGrade === g ? 'active' : ''}" data-target="${listId}" data-inline-click="event.stopPropagation(); updateScheduleGradeFilter('${g}', '${sport}', '${listId}', this)">${g}</button>`;
       });
       html += `</div>`;
       html += `<div id="${listId}"></div>`;
@@ -13507,7 +13689,7 @@ html {
 
       let html = `<div class="player-grade-tabs">`;
       grades.forEach(g => {
-        html += `<button class="grade-btn ${currentPlayerGrade === g ? 'active' : ''}" data-target="${listId}" onclick="event.stopPropagation(); updateGradeFilter('${g}', '${sport}', null, '${listId}', this)">${g}</button>`;
+        html += `<button class="grade-btn ${currentPlayerGrade === g ? 'active' : ''}" data-target="${listId}" data-inline-click="event.stopPropagation(); updateGradeFilter('${g}', '${sport}', null, '${listId}', this)">${g}</button>`;
       });
       html += `</div><div id="${listId}"></div>`;
 
@@ -13778,7 +13960,7 @@ html {
             data-image-url="${safeUrl}"
             data-image-title="${safeTitle}"
             data-image-source="${safeUrl}"
-            onclick="openImageViewerFromDataset(this)"
+            data-inline-click="openImageViewerFromDataset(this)"
           >
             <i data-lucide="image"></i>
             연합팀 좌석 배치 보기
@@ -13891,19 +14073,19 @@ html {
       const unionActive = currentType === '연합' ? 'active' : '';
       const gradeSelectorHTML = currentType === '학급' ? `
         <div class="player-grade-tabs relay-grade-tabs" id="relay-grade-tabs">
-          <button class="grade-btn ${currentGrade === '1학년' ? 'active' : ''}" onclick="loadRelayBracketGrade('1학년', this)">1학년</button>
-          <button class="grade-btn ${currentGrade === '2학년' ? 'active' : ''}" onclick="loadRelayBracketGrade('2학년', this)">2학년</button>
-          <button class="grade-btn ${currentGrade === '3학년' ? 'active' : ''}" onclick="loadRelayBracketGrade('3학년', this)">3학년</button>
+          <button class="grade-btn ${currentGrade === '1학년' ? 'active' : ''}" data-inline-click="loadRelayBracketGrade('1학년', this)">1학년</button>
+          <button class="grade-btn ${currentGrade === '2학년' ? 'active' : ''}" data-inline-click="loadRelayBracketGrade('2학년', this)">2학년</button>
+          <button class="grade-btn ${currentGrade === '3학년' ? 'active' : ''}" data-inline-click="loadRelayBracketGrade('3학년', this)">3학년</button>
         </div>
       ` : '';
 
       return `
         <div class="relay-selector-shell">
           <div class="relay-segment" role="tablist" aria-label="이어달리기 대진표 구분">
-            <button type="button" class="relay-segment-btn ${classActive}" onclick="loadRelayBracket('학급', this)">
+            <button type="button" class="relay-segment-btn ${classActive}" data-inline-click="loadRelayBracket('학급', this)">
               <span class="relay-btn-title">학급</span>
             </button>
-            <button type="button" class="relay-segment-btn ${unionActive}" onclick="loadRelayBracket('연합', this)">
+            <button type="button" class="relay-segment-btn ${unionActive}" data-inline-click="loadRelayBracket('연합', this)">
               <span class="relay-btn-title">연합</span>
             </button>
           </div>
@@ -14481,6 +14663,9 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
             rank: index + 1
           }));
 
+        const scoreRenderStamp = new Date();
+        const scoreRenderTime = `${String(scoreRenderStamp.getHours()).padStart(2, '0')}:${String(scoreRenderStamp.getMinutes()).padStart(2, '0')}`;
+
         let html = `<div class="realtime-score-page">`;
         html += `
           <div class="hero-card tone-indigo score-hero-card">
@@ -14488,10 +14673,11 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
               <div class="hero-copy">
                 <div class="hero-title">실시간 점수 현황</div>
                 <div class="hero-desc">점수는 1분 간격으로 자동 새로고침되며, 상위 학급 순위를 한눈에 확인할 수 있습니다.</div>
+                <div class="score-hero-meta">${scoreRenderTime} 기준</div>
               </div>
               <div class="score-hero-side">
                 <div class="hero-badge tone-indigo">자동 갱신</div>
-                <button type="button" class="score-guide-btn" onclick="openScoreGuideModal()">점수배점표</button>
+                <button type="button" class="score-guide-btn" data-inline-click="openScoreGuideModal()">점수배점표</button>
               </div>
             </div>
           </div>
@@ -14501,7 +14687,7 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
           html += `
             <div class="score-page-top3">
               ${rankings.map(item => `
-                <div class="summary-mini-card">
+                <div class="summary-mini-card rank-${item.rank}">
                   <div class="summary-mini-rank">${item.rank === 1 ? '🥇' : (item.rank === 2 ? '🥈' : '🥉')}</div>
                   <div class="summary-mini-name">${escapeHtml(item.name)}</div>
                   <div class="summary-mini-score">${escapeHtml(item.score)}점</div>
@@ -14511,7 +14697,7 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
           `;
         }
 
-        html += `<div class="score-table-wrapper realtime-score-board"><table>`;
+        html += `<div class="score-table-wrapper realtime-score-board"><div class="realtime-score-board-fit"><table>`;
 
         const headerRow = data[0];
 
@@ -14539,12 +14725,51 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
 
         html += '</tbody></table></div></div>';
         els.dataList.innerHTML = html;
+        requestAnimationFrame(() => {
+          fitRealtimeScoreBoard();
+          requestAnimationFrame(fitRealtimeScoreBoard);
+        });
         showState('data-list');
       } catch (e) {
         console.error(e);
         if (!isSilent) showState('error-box');
       }
     }
+
+    function fitRealtimeScoreBoard() {
+      try {
+        const wrapper = document.querySelector('.realtime-score-board');
+        if (!wrapper) return;
+        const fitBox = wrapper.querySelector('.realtime-score-board-fit');
+        const table = fitBox ? fitBox.querySelector('table') : wrapper.querySelector('table');
+        if (!fitBox || !table) return;
+
+        wrapper.style.minHeight = '';
+        wrapper.style.display = 'flex';
+        wrapper.style.justifyContent = 'center';
+        wrapper.style.alignItems = 'flex-start';
+        wrapper.style.width = '100%';
+
+        fitBox.style.margin = '0 auto';
+        fitBox.style.transform = 'none';
+        fitBox.style.transformOrigin = 'top center';
+        fitBox.style.width = '100%';
+        fitBox.style.maxWidth = '100%';
+
+        table.style.width = '100%';
+        table.style.maxWidth = '100%';
+        table.style.tableLayout = 'fixed';
+
+        wrapper.style.minHeight = `${Math.ceil(fitBox.offsetHeight) + 2}px`;
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    window.addEventListener('resize', () => {
+      clearTimeout(window.__scoreBoardFitTimer__);
+      window.__scoreBoardFitTimer__ = setTimeout(fitRealtimeScoreBoard, 80);
+    });
 
     async function loadAwardPlanData(tabName) {
       showState('loader');
@@ -14909,11 +15134,11 @@ async function loadBracketByGrade(sport, grade, btn = null) {
             </div>
             <div class="schedule-view-actions">
               <div class="schedule-view-toggle" role="tablist" aria-label="세부일정 보기 방식">
-                <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'sport' ? 'active' : ''}" data-mode="sport" onclick="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
-                <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'timeline' ? 'active' : ''}" data-mode="timeline" onclick="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
+                <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'sport' ? 'active' : ''}" data-mode="sport" data-inline-click="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
+                <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'timeline' ? 'active' : ''}" data-mode="timeline" data-inline-click="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
               </div>
               <div class="schedule-guide-action">
-                <button type="button" class="seat-link-btn schedule-guide-btn" onclick="openDetailScheduleGuide(this)">
+                <button type="button" class="seat-link-btn schedule-guide-btn" data-inline-click="openDetailScheduleGuide(this)">
                   <i data-lucide="map"></i>
                   경기장 안내
                 </button>
@@ -14933,7 +15158,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         ${extraTopHtml}
         <div class="filter-btn-grid ${isScheduleView && currentDetailScheduleMode !== 'sport' ? 'is-hidden' : ''}" id="sport-filter-group">
           ${(mode === 'bracket' ? SPORTS_LIST.filter(sport => !BRACKET_HIDDEN_SPORTS.includes(sport)) : SPORTS_LIST).map(sport => `
-            <button type="button" class="filter-btn" onclick="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
+            <button type="button" class="filter-btn" data-inline-click="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
           `).join('')}
         </div>
         <div id="sport-common-detail" class="sport-detail-content">
@@ -14994,9 +15219,9 @@ async function loadBracketByGrade(sport, grade, btn = null) {
           if (gradeSports.includes(sport)) {
             container.innerHTML = `
               <div class="player-grade-tabs" id="bracket-grade-tabs">
-                <button class="grade-btn active" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','1학년', this)">1학년</button>
-                <button class="grade-btn" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','2학년', this)">2학년</button>
-                <button class="grade-btn" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','3학년', this)">3학년</button>
+                <button class="grade-btn active" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','1학년', this)">1학년</button>
+                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','2학년', this)">2학년</button>
+                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','3학년', this)">3학년</button>
               </div>
               <div id="bracket-grade-container">
                 <div class="loader">대진표 로딩중...</div>
@@ -15201,7 +15426,7 @@ ${guide}`, current || '');
                 ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
                 <div class="home-live-title">${escapeHtml(summary.title)}</div>
                 <div class="home-live-actions compact">
-                  <button type="button" class="home-live-link compact" onclick="activateMainTab('일정')">전체 일정 보기</button>
+                  <button type="button" class="home-live-link compact" data-inline-click="activateMainTab('일정')">전체 일정 보기</button>
                 </div>
               </div>
             </div>
@@ -15238,21 +15463,21 @@ ${guide}`, current || '');
           </section>
           <div id="home-live-board"></div>
           <div class="quick-action-row">
-            <div class="quick-action-card" onclick="activateMainTab('일정')">
+            <div class="quick-action-card" data-inline-click="activateMainTab('일정')">
               <div class="quick-action-icon bg-blue"><i data-lucide="calendar-range" size="18"></i></div>
               <div class="quick-action-copy">
                 <div class="quick-action-title">일정 보기</div>
                 <div class="quick-action-sub">전체·세부일정 한 번에</div>
               </div>
             </div>
-            <div class="quick-action-card" onclick="activateMainTab('점수시상')">
+            <div class="quick-action-card" data-inline-click="activateMainTab('점수시상')">
               <div class="quick-action-icon bg-indigo"><i data-lucide="trophy" size="18"></i></div>
               <div class="quick-action-copy">
                 <div class="quick-action-title">실시간 점수</div>
                 <div class="quick-action-sub">현재 순위와 점수 확인</div>
               </div>
             </div>
-            <div class="quick-action-card" onclick="activateMainTab('명단정보')">
+            <div class="quick-action-card" data-inline-click="activateMainTab('명단정보')">
               <div class="quick-action-icon bg-pink"><i data-lucide="search" size="18"></i></div>
               <div class="quick-action-copy">
                 <div class="quick-action-title">선수/심판 검색</div>
@@ -15266,7 +15491,7 @@ ${guide}`, current || '');
         </div>
       `;
       els.homeGrid.innerHTML = homePrimaryTabs.map(tab => `
-        <div class="menu-card" onclick="toggleMainTab('${tab.key}')">
+        <div class="menu-card" data-inline-click="toggleMainTab('${tab.key}')">
           <div class="icon-wrapper ${tab.color}"><i data-lucide="${tab.icon}" size="22"></i></div>
           <span class="menu-label">${tab.label}</span>
           <span class="menu-desc">${menuMeta[tab.label]?.desc || ''}</span>
@@ -15850,6 +16075,87 @@ ${guide}`, current || '');
     };
   }
 
+  function parseRealtimeScoreRankings(scoreData) {
+    if (!Array.isArray(scoreData) || scoreData.length < 2) return [];
+
+    const headerVals = Object.values(scoreData[0] || {});
+    const totalRow = scoreData[9] || scoreData[scoreData.length - 1] || {};
+    const totalVals = Object.values(totalRow || {});
+
+    return headerVals
+      .map((rawName, colIndex) => {
+        if (colIndex === 0) return null;
+        const rawScore = totalVals[colIndex];
+        const scoreText = String(rawScore ?? '').replace(/,/g, '').trim();
+        const scoreValue = parseFloat(scoreText);
+        return {
+          name: String(rawName ?? '').trim(),
+          score: String(rawScore ?? '').trim(),
+          scoreValue: Number.isFinite(scoreValue) ? scoreValue : -Infinity
+        };
+      })
+      .filter(item => item && item.name && item.scoreValue !== -Infinity)
+      .sort((a, b) => b.scoreValue - a.scoreValue)
+      .slice(0, 3)
+      .map((item, index) => ({ ...item, rank: index + 1 }));
+  }
+
+  async function buildHomeLiveBoardHtml(summary, candidates) {
+    const badgeText = summary.isLive ? 'LIVE' : 'NOW';
+    const nextLabel = String(summary.nextLabel || '').trim();
+    const nextHtml = nextLabel
+      ? `<div class="home-live-next"><span class="home-live-next-label">다음 일정</span>${escapeHtml(nextLabel)}</div>`
+      : '';
+
+    let scoreTop3Html = '<div class="home-live-score-empty">실시간 점수를 아직 불러오지 못했습니다.</div>';
+    try {
+      const scoreData = await fetchTabDataCached('점수');
+      const rankings = parseRealtimeScoreRankings(scoreData);
+      if (rankings.length) {
+        scoreTop3Html = `
+          <div class="home-live-score-top3">
+            ${rankings.map(item => `
+              <div class="summary-mini-card rank-${item.rank}">
+                <div class="summary-mini-rank">${item.rank === 1 ? '🥇' : (item.rank === 2 ? '🥈' : '🥉')}</div>
+                <div class="summary-mini-name">${escapeHtml(item.name)}</div>
+                <div class="summary-mini-score">${escapeHtml(item.score)}점</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    } catch (_) {}
+
+    return `
+      <div class="home-live-stack">
+        <div class="home-live-card compact ios-live-card">
+          <div class="home-live-header">
+            <span class="home-live-badge">${escapeHtml(badgeText)}</span>
+          </div>
+          <div class="home-live-main compact">
+            <div class="home-live-content">
+              <div class="home-live-primary-row">
+                <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc || '')}</div>
+                ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
+              </div>
+              ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
+              <div class="home-live-actions compact">
+                <button type="button" class="home-live-link compact" data-inline-click="activateMainTab('일정')">전체 일정 보기</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="home-live-card compact home-live-score-block">
+          <div class="home-live-score-head">
+            <div class="home-live-score-title">실시간 점수 TOP 3</div>
+            <div class="home-live-score-meta">점수 탭 기준</div>
+          </div>
+          ${scoreTop3Html}
+        </div>
+      </div>
+    `;
+  }
+
   const liveState = { inflight: null, lastRunAt: 0, lastHtml: '', ttl: 15000 };
   const originalUpdateHomeLiveBoard = window.updateHomeLiveBoard;
   window.updateHomeLiveBoard = async function unifiedUpdateHomeLiveBoard(){
@@ -15895,31 +16201,7 @@ ${guide}`, current || '');
         }
 
         const candidates = extractFavoriteSportCandidates([].concat(day1Rows, day2Rows));
-        const badgeText = summary.isLive ? 'LIVE' : 'NOW';
-        const nextLabel = String(summary.nextLabel || '').trim();
-        const nextHtml = nextLabel
-          ? `<div class="home-live-next"><span class="home-live-next-label">다음 일정</span>${escapeHtml(nextLabel)}</div>`
-          : '';
-
-        const html = `
-          <div class="home-live-card compact ios-live-card">
-            <div class="home-live-header">
-              <span class="home-live-badge">${escapeHtml(badgeText)}</span>
-            </div>
-            <div class="home-live-main compact">
-              <div class="home-live-content">
-                <div class="home-live-primary-row">
-                  <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc || '')}</div>
-                  ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
-                </div>
-                ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
-                <div class="home-live-actions compact">
-                  <button type="button" class="home-live-link compact" onclick="activateMainTab('일정')">전체 일정 보기</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
+        const html = await buildHomeLiveBoardHtml(summary, candidates);
         setHtmlIfChanged(mount, html);
         window.__festivalSportCandidates = candidates;
         liveState.lastRunAt = Date.now();
@@ -15953,7 +16235,7 @@ ${guide}`, current || '');
       { label: '시상계획', hint: '안내', icon: 'medal', color: 'bg-indigo', onclick: "activateMainTab('점수시상')" },
       { label: '경기 규칙', hint: '규칙', icon: 'book-open', color: 'bg-green', onclick: "activateMainTab('경기규칙')" },
       { label: '교사업무분장', hint: '운영', icon: 'briefcase-business', color: 'bg-orange', onclick: "activateMainTab('교사업무분장')" },
-      { label: '의견 남기기', hint: '참여', icon: 'message-square', color: 'bg-pink', onclick: "document.getElementById('feedback-fab-btn')?.click()" }
+      { label: '의견 남기기', hint: '참여', icon: 'message-square', color: 'bg-pink', onclick: "window.openFeedbackModal && window.openFeedbackModal()" }
     ];
 
     const heroHtml = `
@@ -15973,7 +16255,7 @@ ${guide}`, current || '');
     `;
 
     const gridHtml = iconLinks.map(item => `
-      <button type="button" class="menu-card home-icon-btn" onclick="${item.onclick}">
+      <button type="button" class="menu-card home-icon-btn" data-inline-click="${item.onclick}">
         <div class="icon-wrapper ${item.color}"><i data-lucide="${item.icon}" size="20"></i></div>
         <span class="home-icon-label">${item.label}</span>
         <span class="home-icon-hint">${item.hint}</span>
@@ -16573,7 +16855,7 @@ ${guide}`, current || '');
   if (typeof window.fetchTabDataCached === 'function') {
     const originalFetchTabDataCached = window.fetchTabDataCached;
     const memo = new Map();
-    const TTL = 10000;
+    const TTL = 60000;
     window.fetchTabDataCached = function(tabName){
       const key = safeText(tabName);
       const now = Date.now();
@@ -16759,7 +17041,7 @@ ${guide}`, current || '');
     let html = `<div class="player-grade-tabs">`;
     grades.forEach((g) => {
       const active = (window.currentPlayerGrade || '1학년') === g ? 'active' : '';
-      html += `<button class="grade-btn ${active}" data-target="${listId}" onclick="event.stopPropagation(); updateGradeFilter('${g}', '${String(sport).replace(/'/g, "\\'")}', null, '${listId}', this)">${g}</button>`;
+      html += `<button class="grade-btn ${active}" data-target="${listId}" data-inline-click="event.stopPropagation(); updateGradeFilter('${g}', '${String(sport).replace(/'/g, "\\'")}', null, '${listId}', this)">${g}</button>`;
     });
     html += `</div><div id="${listId}"></div>`;
     container.innerHTML = html;
@@ -16981,10 +17263,10 @@ ${guide}`, current || '');
     return `
       <div class="relay-selector-shell">
         <div class="relay-segment" role="tablist" aria-label="이어달리기 ${label} 구분">
-          <button type="button" class="relay-segment-btn ${classActive}" onclick="${onclickClass}">
+          <button type="button" class="relay-segment-btn ${classActive}" data-inline-click="${onclickClass}">
             <span class="relay-btn-title">학급</span>
           </button>
-          <button type="button" class="relay-segment-btn ${unionActive}" onclick="${onclickUnion}">
+          <button type="button" class="relay-segment-btn ${unionActive}" data-inline-click="${onclickUnion}">
             <span class="relay-btn-title">연합</span>
           </button>
         </div>
@@ -17216,14 +17498,15 @@ ${guide}`, current || '');
 (function(){
   const SCRIPT = (typeof FEEDBACK_SCRIPT_URL !== 'undefined' && FEEDBACK_SCRIPT_URL) ? FEEDBACK_SCRIPT_URL : ((typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) ? SCRIPT_URL : '');
   function el(id){ return document.getElementById(id); }
-  function openModal(){ const m=el('feedback-modal'); if(m){ m.classList.add('open'); m.setAttribute('aria-hidden','false'); } }
-  function closeModal(){ const m=el('feedback-modal'); if(m){ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); } }
+  function openFeedbackModal(){ const m=el('feedback-modal'); if(m){ m.classList.add('open'); m.setAttribute('aria-hidden','false'); } }
+  function closeFeedbackModal(){ const m=el('feedback-modal'); if(m){ m.classList.remove('open'); m.setAttribute('aria-hidden','true'); } }
   function setStatus(msg, isError){ const s=el('feedback-status'); if(s){ s.textContent=msg||''; s.style.color=isError?'#b91c1c':'#475569'; } }
   function bindSheetSwipeClose(){
     const modal = el('feedback-modal');
     const sheet = modal?.querySelector('.feedback-sheet');
     const handle = modal?.querySelector('.feedback-top');
-    if(!modal || !sheet || !handle) return;
+    if(!modal || !sheet || !handle || modal.dataset.swipeBound === '1') return;
+    modal.dataset.swipeBound = '1';
     let startY = 0;
     let currentY = 0;
     let dragging = false;
@@ -17255,7 +17538,7 @@ ${guide}`, current || '');
       currentY = 0;
       if(moved > CLOSE_DISTANCE){
         resetSheet();
-        closeModal();
+        closeFeedbackModal();
       } else {
         resetSheet();
       }
@@ -17314,17 +17597,36 @@ ${guide}`, current || '');
       if(submitBtn) submitBtn.disabled = false;
     }
   }
-  document.addEventListener('DOMContentLoaded', function(){
+  function bindFeedbackModal(){
     const btn = el('feedback-fab-btn');
     const cancel = el('feedback-cancel');
     const modal = el('feedback-modal');
     const submit = el('feedback-submit');
-    if(btn) btn.addEventListener('click', openModal);
-    if(cancel) cancel.addEventListener('click', closeModal);
-    if(submit) submit.addEventListener('click', submitFeedback);
-    if(modal) modal.addEventListener('click', function(e){ if(e.target === modal) closeModal(); });
+    if(btn && btn.dataset.boundFeedback !== '1'){
+      btn.dataset.boundFeedback = '1';
+      btn.addEventListener('click', openFeedbackModal);
+    }
+    if(cancel && cancel.dataset.boundFeedback !== '1'){
+      cancel.dataset.boundFeedback = '1';
+      cancel.addEventListener('click', closeFeedbackModal);
+    }
+    if(submit && submit.dataset.boundFeedback !== '1'){
+      submit.dataset.boundFeedback = '1';
+      submit.addEventListener('click', submitFeedback);
+    }
+    if(modal && modal.dataset.boundFeedback !== '1'){
+      modal.dataset.boundFeedback = '1';
+      modal.addEventListener('click', function(e){ if(e.target === modal) closeFeedbackModal(); });
+    }
     bindSheetSwipeClose();
-  });
+  }
+  window.openFeedbackModal = openFeedbackModal;
+  window.closeFeedbackModal = closeFeedbackModal;
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', bindFeedbackModal, { once:true });
+  } else {
+    bindFeedbackModal();
+  }
 })();
 </script>
 
@@ -17426,18 +17728,10 @@ ${guide}`, current || '');
     '공지사항',
     '전체일정_1일차',
     '전체일정_2일차',
-    '세부경기일정',
-    '경기규칙',
-    '대진표',
-    '점수',
-    '배점표',
-    '시상계획',
-    '선수단',
-    '심판',
-    '교사업무분장'
+    '점수'
   ];
 
-  const renderPreloadTabs = ['경기규칙','선수단','심판','세부경기일정','대진표','점수','시상계획'];
+  const renderPreloadTabs = ['점수'];
 
   function getSandbox(){
     let box = document.getElementById('render-cache-sandbox-v13');
@@ -17512,11 +17806,11 @@ ${guide}`, current || '');
           </div>
           <div class="schedule-view-actions">
             <div class="schedule-view-toggle" role="tablist" aria-label="세부일정 보기 방식">
-              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'sport' ? 'active' : ''}" data-mode="sport" onclick="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
-              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'timeline' ? 'active' : ''}" data-mode="timeline" onclick="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
+              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'sport' ? 'active' : ''}" data-mode="sport" data-inline-click="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
+              <button type="button" class="schedule-view-toggle-btn ${activeMode === 'timeline' ? 'active' : ''}" data-mode="timeline" data-inline-click="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
             </div>
             <div class="schedule-guide-action">
-              <button type="button" class="seat-link-btn schedule-guide-btn" onclick="openDetailScheduleGuide(this)">
+              <button type="button" class="seat-link-btn schedule-guide-btn" data-inline-click="openDetailScheduleGuide(this)">
                 <i data-lucide="map"></i>
                 경기장 안내
               </button>
@@ -17534,7 +17828,7 @@ ${guide}`, current || '');
       ${extraTopHtml}
       <div class="filter-btn-grid ${isScheduleView && (window.currentDetailScheduleMode || 'sport') !== 'sport' ? 'is-hidden' : ''}" id="sport-filter-group">
         ${(mode === 'bracket' ? SPORTS_LIST.filter(sport => !BRACKET_HIDDEN_SPORTS.includes(sport)) : SPORTS_LIST).map(sport => `
-          <button type="button" class="filter-btn" onclick="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
+          <button type="button" class="filter-btn" data-inline-click="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
         `).join('')}
       </div>
       <div id="sport-common-detail" class="sport-detail-content">
@@ -17544,26 +17838,30 @@ ${guide}`, current || '');
   }
 
   function buildScheduleOverviewHTML(day1Data, day2Data){
-    const isDay1Default = (() => {
+    const defaultDayKey = (() => {
+      try {
+        const saved = sessionStorage.getItem('festival_schedule_detail_day');
+        if (saved === '1' || saved === '2') return saved;
+      } catch (_) {}
       try {
         const now = new Date();
         const month = now.getMonth() + 1;
         const date = now.getDate();
-        return month < 4 || (month === 4 && date <= 2);
+        return (month < 4 || (month === 4 && date <= 2)) ? '1' : '2';
       } catch (_) {
-        return true;
+        return '1';
       }
     })();
-    const day1Active = isDay1Default ? 'active' : '';
-    const day2Active = isDay1Default ? '' : 'active';
-    const day1PanelActive = isDay1Default ? 'active' : '';
-    const day2PanelActive = isDay1Default ? '' : 'active';
+    const day1Active = defaultDayKey === '1' ? 'active' : '';
+    const day2Active = defaultDayKey === '2' ? 'active' : '';
+    const day1PanelActive = defaultDayKey === '1' ? 'active' : '';
+    const day2PanelActive = defaultDayKey === '2' ? 'active' : '';
     const day1Html = typeof renderScheduleCards === 'function' ? renderScheduleCards(day1Data, '1일차') : '';
     const day2Html = typeof renderScheduleCards === 'function' ? renderScheduleCards(day2Data, '2일차') : '';
     return `
       <div class="schedule-day-tabs">
-        <button type="button" class="schedule-day-btn ${day1Active}" data-day="1" onclick="switchScheduleDay('1', this)">1일차</button>
-        <button type="button" class="schedule-day-btn ${day2Active}" data-day="2" onclick="switchScheduleDay('2', this)">2일차</button>
+        <button type="button" class="schedule-day-btn ${day1Active}" data-day="1" data-inline-click="switchScheduleDay('1', this)">1일차</button>
+        <button type="button" class="schedule-day-btn ${day2Active}" data-day="2" data-inline-click="switchScheduleDay('2', this)">2일차</button>
       </div>
       <div class="schedule-day-panel ${day1PanelActive}" data-schedule-day="1">${day1Html}</div>
       <div class="schedule-day-panel ${day2PanelActive}" data-schedule-day="2">${day2Html}</div>
@@ -17598,9 +17896,9 @@ ${guide}`, current || '');
           if (gradeSports.includes(sport)) {
             host.innerHTML = `
               <div class="player-grade-tabs" id="bracket-grade-tabs">
-                <button class="grade-btn active" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','1학년', this)">1학년</button>
-                <button class="grade-btn" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','2학년', this)">2학년</button>
-                <button class="grade-btn" data-sport="${sport}" onclick="loadBracketByGrade('${sport}','3학년', this)">3학년</button>
+                <button class="grade-btn active" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','1학년', this)">1학년</button>
+                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','2학년', this)">2학년</button>
+                <button class="grade-btn" data-sport="${sport}" data-inline-click="loadBracketByGrade('${sport}','3학년', this)">3학년</button>
               </div>
               <div id="bracket-grade-container"><div class="loader">대진표 로딩중...</div></div>
             `;
@@ -17656,7 +17954,7 @@ ${guide}`, current || '');
     if (cache.teacherReady && cache.initialViews['교사업무분장']) return;
     let rows = TEACHER_GUIDE_FALLBACK_ROWS;
     try {
-      const remoteRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB, { force: true });
+      const remoteRows = await fetchTabData(TEACHER_GUIDE_SHEET_TAB);
       const normalizedRemoteRows = normalizeTeacherGuideRows(remoteRows);
       if (normalizedRemoteRows.length) rows = normalizedRemoteRows;
     } catch (_) {}
@@ -18047,9 +18345,1240 @@ ${guide}`, current || '');
 }
 </style>
 
+
+<style id="schedule-day-btn-fix-v1">
+.schedule-day-switcher{
+  display:grid !important;
+  grid-template-columns:1fr 1fr !important;
+  gap:8px !important;
+  padding:8px !important;
+  margin:14px 0 12px !important;
+  border-radius:22px !important;
+  background:linear-gradient(180deg, #f5f5f7 0%, #eef5ff 100%) !important;
+  border:1px solid #e5e5ea !important;
+  box-shadow:0 10px 24px rgba(0,0,0,0.05) !important;
+}
+
+.schedule-day-btn{
+  min-height:56px !important;
+  padding:18px 12px !important;
+  border:none !important;
+  border-radius:18px !important;
+  background:transparent !important;
+  color:#6b7280 !important;
+  font-weight:800 !important;
+  font-size:1rem !important;
+  letter-spacing:-0.01em !important;
+  box-shadow:none !important;
+  transform:none !important;
+}
+
+.schedule-day-btn.active{
+  background:#ffffff !important;
+  color:#111827 !important;
+  border:none !important;
+  box-shadow:0 10px 22px rgba(0,0,0,0.08) !important;
+}
+
+.schedule-day-btn::before,
+.schedule-day-btn::after{
+  display:none !important;
+  content:none !important;
+}
+</style>
+
+
+<style id="ui-preserve-refactor-consolidated-v1">
+/* UI/UX preserving consolidation layer */
+:is(.hero-card, .menu-card, .quick-action-card, .roster-card, .schedule-card, .section-card){
+  border-radius: inherit;
+  box-sizing: border-box;
+}
+:is(.grade-btn, .schedule-grade-btn, .schedule-day-btn, .relay-segment-btn, .score-guide-btn, .seat-link-btn, .schedule-view-toggle-btn, .tab-item){
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+:is(.hero-badge, .roster-sport-badge, .referee-roster-location, .referee-inline-stage){
+  white-space: nowrap;
+}
+:is(.hero-card.tone-blue, .hero-card.tone-pink, .hero-card.tone-green, .hero-card.tone-amber, .hero-card.tone-purple){
+  background-clip: padding-box;
+}
+
+
+/* home realtime top3 stronger medal tones */
+.home-live-score-top3 .summary-mini-card.rank-1{
+  background: linear-gradient(180deg, rgba(255,248,220,0.98) 0%, rgba(255,252,240,0.99) 100%) !important;
+  border: 1px solid rgba(212,175,55,0.42) !important;
+  box-shadow: 0 8px 18px rgba(212,175,55,0.12) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-2{
+  background: linear-gradient(180deg, rgba(242,245,248,0.98) 0%, rgba(255,255,255,0.99) 100%) !important;
+  border: 1px solid rgba(148,163,184,0.40) !important;
+  box-shadow: 0 8px 18px rgba(148,163,184,0.12) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-3{
+  background: linear-gradient(180deg, rgba(248,241,235,0.98) 0%, rgba(255,255,255,0.99) 100%) !important;
+  border: 1px solid rgba(184,115,51,0.38) !important;
+  box-shadow: 0 8px 18px rgba(184,115,51,0.10) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-1::before,
+.home-live-score-top3 .summary-mini-card.rank-2::before,
+.home-live-score-top3 .summary-mini-card.rank-3::before{
+  content:'' !important;
+  position:absolute !important;
+  inset:0 auto 0 0 !important;
+  width:4px !important;
+  border-radius:14px 0 0 14px !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-1::before{
+  background:linear-gradient(180deg, rgba(212,175,55,0.62) 0%, rgba(212,175,55,0.20) 100%) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-2::before{
+  background:linear-gradient(180deg, rgba(148,163,184,0.58) 0%, rgba(148,163,184,0.20) 100%) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-3::before{
+  background:linear-gradient(180deg, rgba(184,115,51,0.56) 0%, rgba(184,115,51,0.18) 100%) !important;
+}
+.home-live-score-top3 .summary-mini-card.rank-1 .summary-mini-rank,
+.home-live-score-top3 .summary-mini-card.rank-1 .summary-mini-score{ color:#b8860b !important; }
+.home-live-score-top3 .summary-mini-card.rank-2 .summary-mini-rank,
+.home-live-score-top3 .summary-mini-card.rank-2 .summary-mini-score{ color:#64748b !important; }
+.home-live-score-top3 .summary-mini-card.rank-3 .summary-mini-rank,
+.home-live-score-top3 .summary-mini-card.rank-3 .summary-mini-score{ color:#b87333 !important; }
+.home-live-score-top3 .summary-mini-card.rank-1 .summary-mini-name,
+.home-live-score-top3 .summary-mini-card.rank-2 .summary-mini-name,
+.home-live-score-top3 .summary-mini-card.rank-3 .summary-mini-name{ color:#1f2937 !important; }
+
+</style>
+<script id="ui-preserve-refactor-bridge-v2">
+(function(){
+  if (window.__uiPreserveRefactorBridgeV2__) return;
+  window.__uiPreserveRefactorBridgeV2__ = true;
+
+  const uiState = window.__festivalUiState || (window.__festivalUiState = Object.create(null));
+  const renderUtils = window.__festivalRenderUtils || (window.__festivalRenderUtils = Object.create(null));
+  const hotfix = window.__festivalHotfixRegistry || (window.__festivalHotfixRegistry = Object.create(null));
+
+  function defineAlias(name, bucket, fallback){
+    try {
+      const descriptor = Object.getOwnPropertyDescriptor(window, name);
+      if (!descriptor || descriptor.configurable) {
+        if (!(name in bucket)) {
+          bucket[name] = window[name] !== undefined ? window[name] : fallback;
+        }
+        Object.defineProperty(window, name, {
+          configurable: true,
+          enumerable: true,
+          get(){ return bucket[name]; },
+          set(value){ bucket[name] = value; }
+        });
+      }
+    } catch (_) {}
+  }
+
+  defineAlias('gradeDataCache', uiState, Object.create(null));
+  defineAlias('currentPlayerGrade', uiState, null);
+  defineAlias('currentScheduleGrade', uiState, null);
+  defineAlias('currentDetailScheduleMode', uiState, null);
+  defineAlias('currentMainTabKey', uiState, null);
+
+  renderUtils.setHTML = function(el, html){
+    if (!el) return false;
+    const next = html == null ? '' : String(html);
+    if (el.innerHTML === next) return false;
+    el.innerHTML = next;
+    return true;
+  };
+  renderUtils.clear = function(el){ return renderUtils.setHTML(el, ''); };
+  renderUtils.patchOnce = function(key, factory){
+    if (hotfix[key]) return hotfix[key];
+    const value = factory();
+    hotfix[key] = value || true;
+    return hotfix[key];
+  };
+
+  const ACTION_PREFIX = 'fp:';
+  const parserRules = [
+    [/^showNoticeAlert\(\)$/, () => ({ action: 'showNoticeAlert' })],
+    [/^closeImageViewer\(\)$/, () => ({ action: 'closeImageViewer' })],
+    [/^openScoreGuideModal\(\)$/, () => ({ action: 'openScoreGuideModal' })],
+    [/^closeModal\('([^']+)'\)$/, m => ({ action: 'closeModal', args: [m[1]] })],
+    [/^toggleMainTab\('([^']+)'\)$/, m => ({ action: 'toggleMainTab', args: [m[1]] })],
+    [/^activateMainTab\('([^']+)'\)$/, m => ({ action: 'activateMainTab', args: [m[1]] })],
+    [/^switchScheduleOverviewDay\('([^']+)'\)$/, m => ({ action: 'switchScheduleOverviewDay', args: [m[1]], passElement: true })],
+    [/^switchScheduleDay\('([^']+)',\s*this\)$/, m => ({ action: 'switchScheduleDay', args: [m[1]], passElement: true })],
+    [/^clearSearchInput\('([^']+)'\)$/, m => ({ action: 'clearSearchInput', args: [m[1]] })],
+    [/^loadRelayBracket\('([^']+)',\s*this\)$/, m => ({ action: 'loadRelayBracket', args: [m[1]], passElement: true })],
+    [/^loadRelayBracketGrade\('([^']+)',\s*this\)$/, m => ({ action: 'loadRelayBracketGrade', args: [m[1]], passElement: true })],
+    [/^loadBracketByGrade\('([^']+)'\s*,\s*'([^']+)'\s*,\s*this\)$/, m => ({ action: 'loadBracketByGrade', args: [m[1], m[2]], passElement: true })],
+    [/^openDetailScheduleGuide\(this\)$/, () => ({ action: 'openDetailScheduleGuide', passElement: true })],
+    [/^openImageViewerFromDataset\(this\)$/, () => ({ action: 'openImageViewerFromDataset', passElement: true })],
+    [/^handleImageViewerBackdrop\(event\)$/, () => ({ action: 'handleImageViewerBackdrop', passEvent: true })],
+    [/^handleScheduleDetailModeChange\('([^']+)',\s*this\)$/, m => ({ action: 'handleScheduleDetailModeChange', args: [m[1]], passElement: true })],
+    [/^handleSportFilterClick\(this,\s*'([^']+)',\s*'([^']+)',\s*(true|false),\s*(true|false),\s*'([^']+)'\)$/, m => ({ action: 'handleSportFilterClick', args: [m[1], m[2], m[3] === 'true', m[4] === 'true', m[5]], passElement: true, elementFirst: true })],
+    [/^event\.stopPropagation\(\);\s*updateScheduleGradeFilter\('([^']+)',\s*'([^']*)',\s*'([^']*)',\s*this\)$/, m => ({ action: 'updateScheduleGradeFilter', args: [m[1], m[2], m[3]], passElement: true, stop: true })],
+    [/^event\.stopPropagation\(\);\s*updateGradeFilter\('([^']+)',\s*'([^']*)',\s*null,\s*'([^']*)',\s*this\)$/, m => ({ action: 'updateGradeFilter', args: [m[1], m[2], null, m[3]], passElement: true, stop: true })],
+  ];
+
+  function parseInlineAction(code){
+    const text = String(code || '').trim().replace(/;$/, '');
+    for (const [regex, build] of parserRules){
+      const match = text.match(regex);
+      if (match) return build(match);
+    }
+    return null;
+  }
+
+  function encodeActionSpec(spec){
+    return ACTION_PREFIX + encodeURIComponent(JSON.stringify(spec));
+  }
+  function decodeActionSpec(value){
+    try {
+      if (!value || !String(value).startsWith(ACTION_PREFIX)) return null;
+      return JSON.parse(decodeURIComponent(String(value).slice(ACTION_PREFIX.length)));
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function applyActionSpec(el, rawCode){
+    if (!el || el.nodeType !== 1 || el.dataset.actionSpec) return false;
+    const parsed = parseInlineAction(rawCode);
+    if (!parsed) return false;
+    el.dataset.actionSpec = encodeActionSpec(parsed);
+    el.removeAttribute('onclick');
+    el.removeAttribute('data-inline-click');
+    return true;
+  }
+
+  function migrateActionAttributes(root){
+    const scope = root && root.querySelectorAll ? root : document;
+    const nodes = [];
+    if (scope !== document && scope.nodeType === 1) nodes.push(scope);
+    if (scope.querySelectorAll) {
+      scope.querySelectorAll('[onclick], [data-inline-click]').forEach((el) => nodes.push(el));
+    }
+    nodes.forEach((el) => {
+      applyActionSpec(el, el.getAttribute('data-inline-click') || el.getAttribute('onclick'));
+    });
+  }
+
+  function normalizeValue(v){
+    if (v === 'null') return null;
+    if (v === 'true') return true;
+    if (v === 'false') return false;
+    return v;
+  }
+
+  document.addEventListener('click', function(event){
+    const trigger = event.target.closest('[data-action-spec]');
+    if (!trigger) return;
+    const spec = decodeActionSpec(trigger.dataset.actionSpec);
+    if (!spec || !spec.action) return;
+    if (spec.stop) event.stopPropagation();
+    const fn = window[spec.action];
+    if (typeof fn !== 'function') return;
+    const args = Array.isArray(spec.args) ? spec.args.map(normalizeValue) : [];
+    if (spec.passEvent) {
+      if (spec.eventFirst) args.unshift(event);
+      else args.push(event);
+    }
+    if (spec.passElement) {
+      if (spec.elementFirst) args.unshift(trigger);
+      else args.push(trigger);
+    }
+    try {
+      fn.apply(window, args);
+    } catch (error) {
+      console.error('delegated action failed:', spec.action, error);
+    }
+  }, true);
+
+  const clickObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations){
+      mutation.addedNodes.forEach((node) => {
+        if (node && node.nodeType === 1) migrateActionAttributes(node);
+      });
+    }
+  });
+
+  function startActionMigration(){
+    migrateActionAttributes(document);
+    if (document.body) clickObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function wrapFunction(name, wrapper){
+    const original = window[name];
+    if (typeof original !== 'function' || original.__uiPreserveWrapped__) return false;
+    const wrapped = wrapper(original);
+    if (typeof wrapped !== 'function') return false;
+    wrapped.__uiPreserveWrapped__ = true;
+    window[name] = wrapped;
+    return true;
+  }
+
+  renderUtils.patchOnce('render-wrappers-v2', () => {
+    wrapFunction('setHtmlIfChanged', (original) => function(el, html){
+      if (!el) return false;
+      return renderUtils.setHTML(el, html) || original.apply(this, arguments);
+    });
+
+    wrapFunction('renderScheduleList', (original) => function(container, filtered, sport){
+      if (!container || typeof window.buildScheduleCardsHTML !== 'function') return original.apply(this, arguments);
+      const html = window.buildScheduleCardsHTML(filtered, sport);
+      renderUtils.setHTML(container, html);
+      migrateActionAttributes(container);
+      return html;
+    });
+
+    wrapFunction('renderGradeFilterAndList', (original) => function(container, data, sport){
+      const result = original.apply(this, arguments);
+      migrateActionAttributes(container || document);
+      return result;
+    });
+
+    wrapFunction('updateGradeFilter', (original) => async function(grade, sport, cachedData, listId, btn){
+      const result = await original.apply(this, arguments);
+      const target = document.getElementById(listId || 'grade-content-list');
+      if (target) migrateActionAttributes(target);
+      return result;
+    });
+
+    wrapFunction('updateScheduleGradeFilter', (original) => async function(grade, sport, listId, btn){
+      const result = await original.apply(this, arguments);
+      const target = document.getElementById(listId || 'schedule-grade-content-list');
+      if (target) migrateActionAttributes(target);
+      return result;
+    });
+
+    wrapFunction('loadBracketByGrade', (original) => async function(){
+      const result = await original.apply(this, arguments);
+      const target = document.getElementById('bracket-grade-container');
+      if (target) migrateActionAttributes(target);
+      return result;
+    });
+
+    wrapFunction('renderHomeContent', (original) => function(){
+      const result = original.apply(this, arguments);
+      const target = document.getElementById('tab-content');
+      if (target) migrateActionAttributes(target);
+      return result;
+    });
+
+    wrapFunction('activateMainTab', (original) => function(key, updateHash){
+      window.currentMainTabKey = key;
+      const result = original.apply(this, arguments);
+      const target = document.getElementById('tab-content');
+      if (target) migrateActionAttributes(target);
+      return result;
+    });
+
+    return true;
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startActionMigration, { once: true });
+  } else {
+    startActionMigration();
+  }
+})();
+</script>
+
+
+
+<style id="schedule-tabs-size-fix-v2">
+/* 일정 영역 탭 축소 방지: 레이아웃을 명시적으로 고정 */
+.schedule-day-tabs{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  align-items:stretch !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+.schedule-day-tabs > .schedule-day-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+  font-size:1rem !important;
+  line-height:1.2 !important;
+  min-height:56px !important;
+  padding:18px 12px !important;
+  box-sizing:border-box !important;
+}
+
+.schedule-day-switcher{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr)) !important;
+  gap:8px !important;
+  align-items:stretch !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+.schedule-day-switcher > .schedule-day-btn{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:100% !important;
+  min-width:0 !important;
+  white-space:nowrap !important;
+  text-align:center !important;
+}
+
+@media (max-width: 640px){
+  .schedule-day-tabs > .schedule-day-btn,
+  .schedule-day-switcher > .schedule-day-btn{
+    font-size:1rem !important;
+    min-height:54px !important;
+  }
+}
+</style>
+
+
+<style id="realtime-score-top3-medal-tones-v11">
+/* realtime score top3 medal tones */
+.score-page-top3 .summary-mini-card.rank-1{
+  background:linear-gradient(180deg, rgba(255,252,242,0.98) 0%, rgba(255,244,214,0.96) 100%) !important;
+  border:1px solid rgba(212,163,31,0.28) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 26px rgba(212,163,31,0.10) !important;
+}
+.score-page-top3 .summary-mini-card.rank-2{
+  background:linear-gradient(180deg, rgba(251,252,254,0.98) 0%, rgba(239,243,248,0.96) 100%) !important;
+  border:1px solid rgba(148,163,184,0.30) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 26px rgba(148,163,184,0.10) !important;
+}
+.score-page-top3 .summary-mini-card.rank-3{
+  background:linear-gradient(180deg, rgba(255,250,246,0.98) 0%, rgba(246,228,216,0.96) 100%) !important;
+  border:1px solid rgba(184,115,51,0.28) !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.98), 0 12px 26px rgba(184,115,51,0.10) !important;
+}
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-score{ color:#b8860b !important; }
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-score{ color:#64748b !important; }
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-score{ color:#b87333 !important; }
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-name,
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-name,
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-name{ color:#1f2937 !important; }
+
+
+/* v10 realtime score top3 medal tones - actually visible above glass overlay */
+.score-page-top3 .summary-mini-card.rank-1,
+.score-page-top3 .summary-mini-card.rank-2,
+.score-page-top3 .summary-mini-card.rank-3{
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.score-page-top3 .summary-mini-card.rank-1{
+  background: linear-gradient(180deg, rgba(255,251,236,0.98) 0%, rgba(248,236,194,0.98) 100%) !important;
+  border: 1px solid rgba(201,155,33,0.42) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 14px 28px rgba(201,155,33,0.14) !important;
+}
+.score-page-top3 .summary-mini-card.rank-1::before{
+  content:'' !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.48) 0%, rgba(255,255,255,0.10) 38%, rgba(255,255,255,0.04) 100%),
+    linear-gradient(90deg, rgba(201,155,33,0.22) 0 10px, rgba(255,255,255,0) 10px 100%) !important;
+  border:1px solid rgba(201,155,33,0.32) !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+}
+
+.score-page-top3 .summary-mini-card.rank-2{
+  background: linear-gradient(180deg, rgba(251,253,255,0.98) 0%, rgba(231,237,243,0.98) 100%) !important;
+  border: 1px solid rgba(137,148,163,0.42) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 14px 28px rgba(137,148,163,0.14) !important;
+}
+.score-page-top3 .summary-mini-card.rank-2::before{
+  content:'' !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.12) 38%, rgba(255,255,255,0.04) 100%),
+    linear-gradient(90deg, rgba(137,148,163,0.22) 0 10px, rgba(255,255,255,0) 10px 100%) !important;
+  border:1px solid rgba(137,148,163,0.32) !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+}
+
+.score-page-top3 .summary-mini-card.rank-3{
+  background: linear-gradient(180deg, rgba(255,248,243,0.98) 0%, rgba(239,221,207,0.98) 100%) !important;
+  border: 1px solid rgba(176,111,63,0.42) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.96), 0 14px 28px rgba(176,111,63,0.14) !important;
+}
+.score-page-top3 .summary-mini-card.rank-3::before{
+  content:'' !important;
+  position:absolute !important;
+  inset:0 !important;
+  border-radius:inherit !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.50) 0%, rgba(255,255,255,0.12) 38%, rgba(255,255,255,0.04) 100%),
+    linear-gradient(90deg, rgba(176,111,63,0.22) 0 10px, rgba(255,255,255,0) 10px 100%) !important;
+  border:1px solid rgba(176,111,63,0.32) !important;
+  z-index:0 !important;
+  pointer-events:none !important;
+}
+
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-score{ color:#a87400 !important; }
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-score{ color:#5f6b7a !important; }
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-rank,
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-score{ color:#a45d2a !important; }
+
+.score-page-top3 .summary-mini-card.rank-1 .summary-mini-name,
+.score-page-top3 .summary-mini-card.rank-2 .summary-mini-name,
+.score-page-top3 .summary-mini-card.rank-3 .summary-mini-name{
+  color:#1f2937 !important;
+}
+</style>
+
+<style id="score-board-fit-style">
+.realtime-score-board{ overflow:hidden !important; }
+.realtime-score-board table{ transform-origin:left top; will-change:transform; }
+.realtime-score-board th,
+.realtime-score-board td{ white-space:nowrap !important; }
+</style>
+
+<script id="schedule-overview-reentry-refresh-fix-v13">
+(function(){
+  if (window.__scheduleOverviewReentryRefreshFixV13__) return;
+  window.__scheduleOverviewReentryRefreshFixV13__ = true;
+
+  function isScheduleOverviewActive(){
+    try {
+      const activeMain = document.querySelector('.main-tab.active');
+      const activeSub = document.querySelector('.sub-tab-container.schedule-switcher .sub-tab.active');
+      return !!(activeMain && activeMain.dataset && activeMain.dataset.key === '일정' && activeSub && activeSub.dataset && activeSub.dataset.key === '일정_전체일정');
+    } catch(_) {
+      return false;
+    }
+  }
+
+  function isMeaningfulOverviewRowSafe(item){
+    if (!item || typeof item !== 'object') return false;
+    const values = [item.col1, item.col2, item.col3, item.col4]
+      .map(value => String(value || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    if (!values.length) return false;
+    return values.some(value => !/^\d+$/.test(value));
+  }
+
+  function buildFreshOverviewHtml(day1Data, day2Data){
+    const day1Rows = Array.isArray(day1Data) ? day1Data.slice(1).filter(isMeaningfulOverviewRowSafe) : [];
+    const day2Rows = Array.isArray(day2Data) ? day2Data.slice(1).filter(isMeaningfulOverviewRowSafe) : [];
+    const day1ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day1Data, '1일차 좌석 배치') : null;
+    const day2ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day2Data, '2일차 좌석 배치') : null;
+    const defaultDay = (typeof getDefaultScheduleOverviewDay === 'function') ? getDefaultScheduleOverviewDay() : 'day1';
+
+    if (!day1Rows.length && !day2Rows.length) return '';
+
+    const renderRows = (rows) => rows.map((item, i) => {
+      const location = item.col4 || item.col1;
+      const locationTag = location ? `<div class="btn-group"><span class="inline-btn loc">${typeof escapeHtml === 'function' ? escapeHtml(location) : String(location)}</span></div>` : '';
+      return `
+        <div class="data-card">
+          <div class="item-row">
+            <div class="item-no">${i + 1}</div>
+            <div class="item-info">
+              <span class="item-time">${typeof escapeHtml === 'function' ? escapeHtml(item.col2 || '') : String(item.col2 || '')}</span>
+              <span class="item-content">${typeof escapeHtml === 'function' ? escapeHtml(item.col3 || '') : String(item.col3 || '')}</span>
+              ${locationTag}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const renderDayPanel = (dayKey, dayLabel, daySub, rows, imageMeta) => `
+      <section class="schedule-day-panel ${defaultDay === dayKey ? 'active' : ''}" data-day="${dayKey}">
+        <section class="teacher-section-card" style="margin-top: 12px;">
+          <div class="teacher-section-head ${dayKey === 'day1' ? 'schedule-head-inline' : ''}">
+            <div>
+              <h3 class="teacher-section-title">${typeof escapeHtml === 'function' ? escapeHtml(dayLabel) : dayLabel}</h3>
+              <p class="teacher-section-sub">${typeof escapeHtml === 'function' ? escapeHtml(daySub) : daySub}</p>
+            </div>
+            ${(dayKey === 'day1' || dayKey === 'day2') && imageMeta && imageMeta.url ? `
+              <button class="seat-link-btn" type="button"
+                data-image-url="${typeof escapeHtml === 'function' ? escapeHtml(imageMeta.url) : imageMeta.url}"
+                data-image-source="${typeof escapeHtml === 'function' ? escapeHtml(imageMeta.url) : imageMeta.url}"
+                data-image-title="${typeof escapeHtml === 'function' ? escapeHtml(imageMeta.title || `${dayLabel} 좌석 배치`) : (imageMeta.title || `${dayLabel} 좌석 배치`)}"
+                data-inline-click="openImageViewerFromDataset(this)">
+                <i data-lucide="image"></i>
+                좌석 배치
+              </button>` : ''}
+          </div>
+          ${rows.length ? renderRows(rows) : (typeof createEmptyGuideHTML === 'function' ? createEmptyGuideHTML('등록된 일정이 없습니다.', '구글시트 일정을 확인해 주세요.') : '')}
+        </section>
+      </section>`;
+
+    return `
+      <div class="schedule-overview-shell">
+        <div class="schedule-day-switcher">
+          <button class="schedule-day-btn ${defaultDay === 'day1' ? 'active' : ''}" type="button" data-day="day1" data-inline-click="switchScheduleOverviewDay('day1')">1일차</button>
+          <button class="schedule-day-btn ${defaultDay === 'day2' ? 'active' : ''}" type="button" data-day="day2" data-inline-click="switchScheduleOverviewDay('day2')">2일차</button>
+        </div>
+        <div class="section-empty-guide schedule-overview-empty-guide ${defaultDay ? 'is-hidden' : ''}"><strong style="font-size:1.365rem !important; line-height:1.15;">일차를 선택해 주세요.</strong><span>상단에서 1일차 또는 2일차를 누르면 아래에 전체일정이 열립니다.</span></div>
+        ${renderDayPanel('day1', '1일차 전체일정', '4월 2일 · 운동장 및 체육관', day1Rows, day1ImageMeta)}
+        ${renderDayPanel('day2', '2일차 전체일정', '4월 3일 · 마동근린공원', day2Rows, day2ImageMeta)}
+      </div>`;
+  }
+
+  const originalLoadScheduleOverview = window.loadScheduleOverview;
+  if (typeof originalLoadScheduleOverview !== 'function') return;
+
+  window.loadScheduleOverview = async function patchedLoadScheduleOverviewV13(){
+    const target = (typeof els !== 'undefined' && els && els.dataList) ? els.dataList : document.getElementById('data-list');
+    const canPaintCached = !!(window.__fullRenderCacheStore__ && window.__fullRenderCacheStore__.initialViews && window.__fullRenderCacheStore__.initialViews['일정_전체일정']);
+
+    if (canPaintCached && target) {
+      target.innerHTML = window.__fullRenderCacheStore__.initialViews['일정_전체일정'];
+      if (typeof showState === 'function') showState('data-list');
+      if (typeof refreshDynamicUI === 'function') refreshDynamicUI(target);
+    }
+
+    try {
+      const [day1Data, day2Data] = await Promise.all([
+        (typeof fetchTabData === 'function' ? fetchTabData('전체일정_1일차', { force: true }) : Promise.resolve([])),
+        (typeof fetchTabData === 'function' ? fetchTabData('전체일정_2일차', { force: true }) : Promise.resolve([]))
+      ]);
+
+      const freshHtml = buildFreshOverviewHtml(day1Data, day2Data);
+      if (!freshHtml) {
+        return originalLoadScheduleOverview.apply(this, arguments);
+      }
+
+      if (window.__fullRenderCacheStore__ && window.__fullRenderCacheStore__.initialViews) {
+        window.__fullRenderCacheStore__.initialViews['일정_전체일정'] = freshHtml;
+        window.__fullRenderCacheStore__.scheduleOverviewReady = true;
+      }
+
+      if (isScheduleOverviewActive() && target) {
+        target.innerHTML = freshHtml;
+        if (typeof showState === 'function') showState('data-list');
+        if (typeof refreshDynamicUI === 'function') refreshDynamicUI(target);
+      }
+      return;
+    } catch (_) {
+      return originalLoadScheduleOverview.apply(this, arguments);
+    }
+  };
+
+  try { loadScheduleOverview = window.loadScheduleOverview; } catch(_) {}
+})();
+</script>
+
+<style>
+/* v14 realtime score board fit-box sync */
+.realtime-score-board {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.realtime-score-board-fit {
+  width: 100%;
+  margin: 0 !important;
+  border: 1px solid var(--border-soft) !important;
+  border-radius: 16px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+  transform-origin: top center;
+}
+
+.realtime-score-board-fit table {
+  width: 100% !important;
+  margin: 0 !important;
+}
+</style>
+
+
+<style>
+/* v16 realtime score board full-width fit */
+.realtime-score-board{
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  overflow: visible !important;
+}
+.realtime-score-board-fit{
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 auto !important;
+  transform: none !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+.realtime-score-board-fit table,
+.realtime-score-board table{
+  width: 100% !important;
+  max-width: 100% !important;
+  table-layout: fixed !important;
+}
+.realtime-score-board col.score-col-name{
+  width: 16% !important;
+}
+.realtime-score-board col.score-col-item,
+.realtime-score-board col.score-col-tail{
+  width: calc((100% - 16%) / 7) !important;
+}
+.realtime-score-board thead th{
+  font-size: 0.62rem !important;
+  padding: 8px 4px !important;
+  white-space: normal !important;
+  word-break: keep-all !important;
+  line-height: 1.2 !important;
+}
+.realtime-score-board tbody td{
+  font-size: 0.72rem !important;
+  padding: 8px 4px !important;
+  white-space: nowrap !important;
+  line-height: 1.25 !important;
+}
+.realtime-score-board .score-name-cell{
+  white-space: normal !important;
+  word-break: keep-all !important;
+  overflow-wrap: anywhere !important;
+  font-size: 0.7rem !important;
+}
+@media (max-width: 430px){
+  .realtime-score-board thead th{
+    font-size: 0.58rem !important;
+    padding: 7px 3px !important;
+  }
+  .realtime-score-board tbody td{
+    font-size: 0.68rem !important;
+    padding: 7px 3px !important;
+  }
+  .realtime-score-board .score-name-cell{
+    font-size: 0.66rem !important;
+  }
+}
+</style>
+
+
+<script id="schedule-overview-click-reload-fix-v17">
+(function(){
+  if (window.__scheduleOverviewClickReloadFixV17__) return;
+  window.__scheduleOverviewClickReloadFixV17__ = true;
+
+  function isScheduleOverviewActuallyOpen(){
+    try {
+      const activeMainByState = (typeof window.currentActiveMainTab !== 'undefined' && window.currentActiveMainTab === '일정');
+      const activeMainByDom = !!document.querySelector('.tab-item.active[data-key="일정"]');
+      const activeSub = document.querySelector('#sub-tab-area .sub-tab.active[data-key="일정_전체일정"]');
+      return !!((activeMainByState || activeMainByDom) && activeSub);
+    } catch(_) {
+      return false;
+    }
+  }
+
+  function isMeaningfulOverviewRowSafe(item){
+    if (!item || typeof item !== 'object') return false;
+    const values = [item.col1, item.col2, item.col3, item.col4]
+      .map(value => String(value || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    if (!values.length) return false;
+    return values.some(value => !/^\d+$/.test(value));
+  }
+
+  function buildFreshOverviewHtml(day1Data, day2Data){
+    const day1Rows = Array.isArray(day1Data) ? day1Data.slice(1).filter(isMeaningfulOverviewRowSafe) : [];
+    const day2Rows = Array.isArray(day2Data) ? day2Data.slice(1).filter(isMeaningfulOverviewRowSafe) : [];
+    const day1ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day1Data, '1일차 좌석 배치') : null;
+    const day2ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day2Data, '2일차 좌석 배치') : null;
+    const defaultDay = (typeof getDefaultScheduleOverviewDay === 'function') ? getDefaultScheduleOverviewDay() : 'day1';
+
+    if (!day1Rows.length && !day2Rows.length) return '';
+
+    const esc = (value) => (typeof escapeHtml === 'function' ? escapeHtml(value || '') : String(value || ''));
+    const empty = (title, desc) => (typeof createEmptyGuideHTML === 'function'
+      ? createEmptyGuideHTML(title, desc)
+      : `<div class="section-empty-guide"><strong>${esc(title)}</strong><span>${esc(desc)}</span></div>`);
+
+    const renderRows = (rows) => rows.map((item, i) => {
+      const location = item.col4 || item.col1;
+      const locationTag = location ? `<div class="btn-group"><span class="inline-btn loc">${esc(location)}</span></div>` : '';
+      return `
+        <div class="data-card">
+          <div class="item-row">
+            <div class="item-no">${i + 1}</div>
+            <div class="item-info">
+              <span class="item-time">${esc(item.col2 || '')}</span>
+              <span class="item-content">${esc(item.col3 || '')}</span>
+              ${locationTag}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const renderDayPanel = (dayKey, dayLabel, daySub, rows, imageMeta) => `
+      <section class="schedule-day-panel ${defaultDay === dayKey ? 'active' : ''}" data-day="${dayKey}">
+        <section class="teacher-section-card" style="margin-top: 12px;">
+          <div class="teacher-section-head ${dayKey === 'day1' ? 'schedule-head-inline' : ''}">
+            <div>
+              <h3 class="teacher-section-title">${esc(dayLabel)}</h3>
+              <p class="teacher-section-sub">${esc(daySub)}</p>
+            </div>
+            ${(dayKey === 'day1' || dayKey === 'day2') && imageMeta && imageMeta.url ? `
+              <button class="seat-link-btn" type="button"
+                data-image-url="${esc(imageMeta.url)}"
+                data-image-source="${esc(imageMeta.url)}"
+                data-image-title="${esc(imageMeta.title || `${dayLabel} 좌석 배치`)}"
+                data-inline-click="openImageViewerFromDataset(this)">
+                <i data-lucide="image"></i>
+                좌석 배치
+              </button>` : ''}
+          </div>
+          ${rows.length ? renderRows(rows) : empty('등록된 일정이 없습니다.', '구글시트 일정을 확인해 주세요.')}
+        </section>
+      </section>`;
+
+    return `
+      <div class="schedule-overview-shell">
+        <div class="schedule-day-switcher">
+          <button class="schedule-day-btn ${defaultDay === 'day1' ? 'active' : ''}" type="button" data-day="day1" data-inline-click="switchScheduleOverviewDay('day1')">1일차</button>
+          <button class="schedule-day-btn ${defaultDay === 'day2' ? 'active' : ''}" type="button" data-day="day2" data-inline-click="switchScheduleOverviewDay('day2')">2일차</button>
+        </div>
+        <div class="section-empty-guide schedule-overview-empty-guide ${defaultDay ? 'is-hidden' : ''}">
+          <strong style="font-size:1.365rem !important; line-height:1.15;">일차를 선택해 주세요.</strong>
+          <span>상단에서 1일차 또는 2일차를 누르면 아래에 전체일정이 열립니다.</span>
+        </div>
+        ${renderDayPanel('day1', '1일차 전체일정', '4월 2일 · 운동장 및 체육관', day1Rows, day1ImageMeta)}
+        ${renderDayPanel('day2', '2일차 전체일정', '4월 3일 · 마동근린공원', day2Rows, day2ImageMeta)}
+      </div>`;
+  }
+
+  const originalLoadScheduleOverview = window.loadScheduleOverview;
+  if (typeof originalLoadScheduleOverview !== 'function') return;
+
+  window.loadScheduleOverview = async function stableLoadScheduleOverviewV17(){
+    const target = (typeof els !== 'undefined' && els && els.dataList) ? els.dataList : document.getElementById('data-list');
+    const cacheStore = window.__fullRenderCacheStore__ || window.__festivalRenderCache__ || {};
+    const cachedHtml = cacheStore.initialViews && cacheStore.initialViews['일정_전체일정'];
+
+    if (target && cachedHtml) {
+      target.innerHTML = cachedHtml;
+      if (typeof showState === 'function') showState('data-list');
+      if (typeof refreshDynamicUI === 'function') refreshDynamicUI(target);
+    } else if (typeof showState === 'function') {
+      showState('loader');
+    }
+
+    try {
+      const [day1Data, day2Data] = await Promise.all([
+        (typeof fetchTabData === 'function' ? fetchTabData('전체일정_1일차', { force: true }) : Promise.resolve([])),
+        (typeof fetchTabData === 'function' ? fetchTabData('전체일정_2일차', { force: true }) : Promise.resolve([]))
+      ]);
+
+      const freshHtml = buildFreshOverviewHtml(day1Data, day2Data);
+
+      if (!freshHtml) {
+        return originalLoadScheduleOverview.apply(this, arguments);
+      }
+
+      if (cacheStore.initialViews) {
+        cacheStore.initialViews['일정_전체일정'] = freshHtml;
+        cacheStore.scheduleOverviewReady = true;
+      }
+
+      if (target && isScheduleOverviewActuallyOpen()) {
+        target.innerHTML = freshHtml;
+        if (typeof showState === 'function') showState('data-list');
+        if (typeof refreshDynamicUI === 'function') refreshDynamicUI(target);
+      }
+      return freshHtml;
+    } catch (_) {
+      return originalLoadScheduleOverview.apply(this, arguments);
+    }
+  };
+
+  try { loadScheduleOverview = window.loadScheduleOverview; } catch(_) {}
+})();
+</script>
+
+
+<script>
+(function(){
+  const perfState = window.__safePerfPatch__ = window.__safePerfPatch__ || { applied: false };
+  if (perfState.applied) return;
+  perfState.applied = true;
+
+  const onceMap = new Map();
+  function debounceByKey(key, fn, wait){
+    const old = onceMap.get(key);
+    if (old) clearTimeout(old);
+    const timer = setTimeout(() => {
+      onceMap.delete(key);
+      try { fn(); } catch (_) {}
+    }, wait);
+    onceMap.set(key, timer);
+  }
+
+  if (typeof window.updateHomeLiveBoard === 'function') {
+    const base = window.updateHomeLiveBoard;
+    let inflight = null;
+    let lastRun = 0;
+    window.updateHomeLiveBoard = async function(){
+      const now = Date.now();
+      if (inflight) return inflight;
+      if ((now - lastRun) < 3000) return Promise.resolve();
+      inflight = Promise.resolve().then(() => base.apply(this, arguments)).finally(() => {
+        lastRun = Date.now();
+        inflight = null;
+      });
+      return inflight;
+    };
+  }
+
+  if (typeof window.requestIconRefresh === 'function') {
+    const base = window.requestIconRefresh;
+    window.requestIconRefresh = function(){
+      debounceByKey('icon-refresh', () => base.apply(this, arguments), 120);
+    };
+  }
+
+  if (typeof window.activateMainTab === 'function') {
+    const base = window.activateMainTab;
+    let inflightKey = null;
+    window.activateMainTab = function(key){
+      const normalized = String(key || '');
+      if (inflightKey === normalized) return;
+      inflightKey = normalized;
+      try {
+        return base.apply(this, arguments);
+      } finally {
+        setTimeout(() => {
+          if (inflightKey === normalized) inflightKey = null;
+        }, 180);
+      }
+    };
+  }
+})();
+</script>
+
+
+<script id="safe-performance-stage2-v19">
+(function(){
+  if (window.__safePerfStage2V19__) return;
+  window.__safePerfStage2V19__ = true;
+
+  const HTML_PREFIX = 'sports-festival-html-cache-v19:';
+  const HTML_TTL = 1000 * 60 * 30;
+  const DATA_PREFIX = 'sports-festival-cache-v26:';
+  const DATA_TTL = 1000 * 60 * 30;
+
+  function lsGet(key){ try { return localStorage.getItem(key); } catch(_) { return null; } }
+  function lsSet(key, value){ try { localStorage.setItem(key, value); } catch(_) {} }
+  function safeParse(raw){ try { return JSON.parse(raw); } catch(_) { return null; } }
+  function activeViewKey(){
+    const sub = document.querySelector('#sub-tab-area .sub-tab.active[data-key]');
+    if (sub && sub.dataset && sub.dataset.key) return sub.dataset.key;
+    const main = document.querySelector('.tab-item.active[data-key]');
+    return main && main.dataset ? main.dataset.key : '';
+  }
+  function getHtmlKey(viewKey){ return HTML_PREFIX + String(viewKey || '').trim(); }
+  function readHtmlCache(viewKey){
+    const parsed = safeParse(lsGet(getHtmlKey(viewKey)) || '');
+    if (!parsed || typeof parsed.html !== 'string' || !parsed.savedAt) return '';
+    if ((Date.now() - parsed.savedAt) > HTML_TTL) return '';
+    return parsed.html || '';
+  }
+  function writeHtmlCache(viewKey, html){
+    if (!viewKey || typeof html !== 'string') return;
+    const trimmed = html.trim();
+    if (!trimmed) return;
+    if (/class="loader"|정보를 불러오는 중|로딩중/u.test(trimmed)) return;
+    lsSet(getHtmlKey(viewKey), JSON.stringify({ savedAt: Date.now(), html }));
+  }
+  function paintCached(viewKey){
+    const target = document.getElementById('data-list');
+    const html = readHtmlCache(viewKey);
+    if (!target || !html) return false;
+    target.innerHTML = html;
+    try { if (typeof showState === 'function') showState('data-list'); } catch(_) {}
+    try {
+      if (typeof refreshDynamicUI === 'function') refreshDynamicUI(target);
+      else if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+    } catch(_) {}
+    return true;
+  }
+  function staleRefresh(fn, args){
+    setTimeout(() => {
+      try { Promise.resolve(fn.apply(window, args || [])).catch(()=>{}); } catch(_) {}
+    }, 0);
+  }
+
+  // Persist rendered HTML for fast re-entry / refresh.
+  const dataList = document.getElementById('data-list');
+  if (dataList && typeof MutationObserver !== 'undefined') {
+    let saveTimer = null;
+    const observer = new MutationObserver(() => {
+      if (saveTimer) clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => {
+        const key = activeViewKey();
+        if (!key) return;
+        writeHtmlCache(key, dataList.innerHTML || '');
+      }, 120);
+    });
+    observer.observe(dataList, { childList: true, subtree: true, characterData: true });
+  }
+
+  // Extend persisted data cache lifetime safely.
+  if (typeof window.readPersistedTabCache === 'function') {
+    const originalRead = window.readPersistedTabCache;
+    window.readPersistedTabCache = function(tabName){
+      const preferred = safeParse(lsGet(DATA_PREFIX + String(tabName || '').trim()) || '');
+      if (preferred && Array.isArray(preferred.data) && preferred.savedAt && (Date.now() - preferred.savedAt) <= DATA_TTL) {
+        return preferred.data;
+      }
+      return originalRead.apply(this, arguments);
+    };
+  }
+  if (typeof window.writePersistedTabCache === 'function') {
+    const originalWrite = window.writePersistedTabCache;
+    window.writePersistedTabCache = function(tabName, data){
+      try {
+        if (Array.isArray(data)) {
+          lsSet(DATA_PREFIX + String(tabName || '').trim(), JSON.stringify({ savedAt: Date.now(), data }));
+        }
+      } catch(_) {}
+      return originalWrite.apply(this, arguments);
+    };
+  }
+
+  if (typeof window.loadRealtimeScore === 'function') {
+    const original = window.loadRealtimeScore;
+    window.loadRealtimeScore = function(key, isSilent){
+      if (!isSilent) {
+        paintCached(key || '점수');
+        staleRefresh(original, arguments);
+        return;
+      }
+      return original.apply(this, arguments);
+    };
+  }
+
+  if (typeof window.loadAwardPlanData === 'function') {
+    const original = window.loadAwardPlanData;
+    window.loadAwardPlanData = function(key){
+      paintCached(key || '시상 계획');
+      staleRefresh(original, arguments);
+      return;
+    };
+  }
+
+  if (typeof window.loadData === 'function') {
+    const original = window.loadData;
+    window.loadData = function(tabName){
+      paintCached(tabName);
+      staleRefresh(original, arguments);
+      return;
+    };
+  }
+
+  if (typeof window.renderTeacherGuide === 'function') {
+    const original = window.renderTeacherGuide;
+    window.renderTeacherGuide = function(){
+      paintCached('교사업무분장');
+      staleRefresh(original, arguments);
+      return;
+    };
+  }
+
+  if (typeof window.renderSportGrid === 'function') {
+    const original = window.renderSportGrid;
+    window.renderSportGrid = function(targetTab, isPlayerGrid, isScheduleView, mode){
+      const viewKey = isScheduleView ? '일정_세부일정' : String(targetTab || '');
+      paintCached(viewKey);
+      return original.apply(this, arguments);
+    };
+  }
+
+  if (typeof window.loadScheduleOverview === 'function') {
+    const original = window.loadScheduleOverview;
+    window.loadScheduleOverview = function(){
+      paintCached('일정_전체일정');
+      return original.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
+
+<style id="score-timestamp-visibility-fix">
+.score-hero-meta{
+  display:block !important;
+  margin-top:6px !important;
+  font-size:12px !important;
+  line-height:1.4 !important;
+  color:rgba(15, 23, 42, 0.62) !important;
+  letter-spacing:-0.01em !important;
+}
+.hero-card .score-hero-meta{
+  color:rgba(15, 23, 42, 0.62) !important;
+}
+</style>
+
+
+<script id="feedback-open-fallback-v1">
+document.addEventListener('click', function(e){
+  const target = e.target && e.target.closest ? e.target.closest('[aria-label="의견 남기기"], #feedback-fab-btn, [data-action-spec*="openFeedbackModal"], [data-inline-click*="openFeedbackModal"]') : null;
+  if(!target) return;
+  if(typeof window.openFeedbackModal === 'function'){
+    window.openFeedbackModal();
+  }
+});
+</script>
+
+<script id="schedule-overview-stability-fix-v23">
+(function(){
+  if (window.__scheduleOverviewStabilityFixV23__) return;
+  window.__scheduleOverviewStabilityFixV23__ = true;
+
+  const HTML_CACHE_KEY = 'sports-festival-html-cache-v19:일정_전체일정';
+  try { localStorage.removeItem(HTML_CACHE_KEY); } catch(_) {}
+
+  function esc(value){
+    return (typeof escapeHtml === 'function') ? escapeHtml(value || '') : String(value || '');
+  }
+
+  function isMeaningfulRow(item){
+    if (!item || typeof item !== 'object') return false;
+    const values = [item.col1, item.col2, item.col3, item.col4]
+      .map(v => String(v || '').replace(/\s+/g, ' ').trim())
+      .filter(Boolean);
+    if (!values.length) return false;
+    return values.some(v => !/^\d+$/.test(v));
+  }
+
+  function buildOverviewHtml(day1Data, day2Data){
+    const day1Rows = Array.isArray(day1Data) ? day1Data.slice(1).filter(isMeaningfulRow) : [];
+    const day2Rows = Array.isArray(day2Data) ? day2Data.slice(1).filter(isMeaningfulRow) : [];
+    const day1ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day1Data, '1일차 좌석 배치') : null;
+    const day2ImageMeta = (typeof extractScheduleImageMeta === 'function') ? extractScheduleImageMeta(day2Data, '2일차 좌석 배치') : null;
+    const defaultDay = (typeof getDefaultScheduleOverviewDay === 'function') ? getDefaultScheduleOverviewDay() : 'day1';
+
+    if (!day1Rows.length && !day2Rows.length) return '';
+
+    const empty = (title, desc) => (typeof createEmptyGuideHTML === 'function')
+      ? createEmptyGuideHTML(title, desc)
+      : `<div class="section-empty-guide"><strong>${esc(title)}</strong><span>${esc(desc)}</span></div>`;
+
+    const renderRows = (rows) => rows.map((item, i) => {
+      const location = item.col4 || item.col1;
+      const locationTag = location ? `<div class="btn-group"><span class="inline-btn loc">${esc(location)}</span></div>` : '';
+      return `
+        <div class="data-card">
+          <div class="item-row">
+            <div class="item-no">${i + 1}</div>
+            <div class="item-info">
+              <span class="item-time">${esc(item.col2 || '')}</span>
+              <span class="item-content">${esc(item.col3 || '')}</span>
+              ${locationTag}
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const renderPanel = (dayKey, dayLabel, daySub, rows, imageMeta) => `
+      <section class="schedule-day-panel ${defaultDay === dayKey ? 'active' : ''}" data-day="${dayKey}">
+        <section class="teacher-section-card" style="margin-top: 12px;">
+          <div class="teacher-section-head ${dayKey === 'day1' ? 'schedule-head-inline' : ''}">
+            <div>
+              <h3 class="teacher-section-title">${esc(dayLabel)}</h3>
+              <p class="teacher-section-sub">${esc(daySub)}</p>
+            </div>
+            ${(dayKey === 'day1' || dayKey === 'day2') && imageMeta && imageMeta.url ? `
+              <button class="seat-link-btn" type="button"
+                data-image-url="${esc(imageMeta.url)}"
+                data-image-source="${esc(imageMeta.url)}"
+                data-image-title="${esc(imageMeta.title || `${dayLabel} 좌석 배치`)}"
+                data-inline-click="openImageViewerFromDataset(this)">
+                <i data-lucide="image"></i>
+                좌석 배치
+              </button>` : ''}
+          </div>
+          ${rows.length ? renderRows(rows) : empty('등록된 일정이 없습니다.', '구글시트 일정을 확인해 주세요.')}
+        </section>
+      </section>`;
+
+    return `
+      <div class="schedule-overview-shell">
+        <div class="schedule-day-switcher">
+          <button class="schedule-day-btn ${defaultDay === 'day1' ? 'active' : ''}" type="button" data-day="day1" data-inline-click="switchScheduleOverviewDay('day1')">1일차</button>
+          <button class="schedule-day-btn ${defaultDay === 'day2' ? 'active' : ''}" type="button" data-day="day2" data-inline-click="switchScheduleOverviewDay('day2')">2일차</button>
+        </div>
+        <div class="section-empty-guide schedule-overview-empty-guide ${defaultDay ? 'is-hidden' : ''}">
+          <strong style="font-size:1.365rem !important; line-height:1.15;">일차를 선택해 주세요.</strong>
+          <span>상단에서 1일차 또는 2일차를 누르면 아래에 전체일정이 열립니다.</span>
+        </div>
+        ${renderPanel('day1', '1일차 전체일정', '4월 2일 · 운동장 및 체육관', day1Rows, day1ImageMeta)}
+        ${renderPanel('day2', '2일차 전체일정', '4월 3일 · 마동근린공원', day2Rows, day2ImageMeta)}
+      </div>`;
+  }
+
+  function writeFreshCaches(html){
+    try {
+      const cacheStore = window.__fullRenderCacheStore__ || window.__festivalRenderCache__;
+      if (cacheStore && cacheStore.initialViews) {
+        cacheStore.initialViews['일정_전체일정'] = html;
+        cacheStore.scheduleOverviewReady = true;
+      }
+    } catch(_) {}
+    try {
+      localStorage.setItem(HTML_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), html }));
+    } catch(_) {}
+  }
+
+  window.loadScheduleOverview = async function loadScheduleOverviewStableV23(){
+    const target = (typeof els !== 'undefined' && els && els.dataList) ? els.dataList : document.getElementById('data-list');
+    if (typeof showState === 'function') showState('loader');
+    try {
+      const fetcher = (typeof fetchTabDataCached === 'function') ? fetchTabDataCached : fetchTabData;
+      const [day1Data, day2Data] = await Promise.all([
+        fetcher('전체일정_1일차'),
+        fetcher('전체일정_2일차')
+      ]);
+      const html = buildOverviewHtml(day1Data, day2Data);
+      if (!html) {
+        if (typeof showState === 'function') showState('empty-box');
+        return '';
+      }
+      if (target) target.innerHTML = html;
+      writeFreshCaches(html);
+      if (typeof showState === 'function') showState('data-list');
+      if (typeof refreshDynamicUI === 'function' && target) refreshDynamicUI(target);
+      return html;
+    } catch (error) {
+      if (typeof showState === 'function') showState('error-box');
+      return '';
+    }
+  };
+
+  try { loadScheduleOverview = window.loadScheduleOverview; } catch(_) {}
+})();
+</script>
+
 </body>
 </html>
-
-
-
 
