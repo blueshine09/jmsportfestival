@@ -1668,9 +1668,19 @@
     }
 
     .race-team-card.final-rank-3 {
-      border-color: #fdba74;
-      background: linear-gradient(180deg, #fff7ed 0%, #fffaf5 100%);
+      border-color: #b45309;
+      background: linear-gradient(180deg, #fff1eb 0%, #fde7dc 100%);
     }
+
+    .race-team-card.final-rank-4 {
+      border-color: #d1d5db;
+      background: linear-gradient(180deg, #ffffff 0%, #f9fafb 100%);
+    }
+
+    .mission-rank-badge.final-rank-1 { color: #92400e; font-weight: 800; }
+    .mission-rank-badge.final-rank-2 { color: #334155; font-weight: 800; }
+    .mission-rank-badge.final-rank-3 { color: #b45309; font-weight: 800; }
+    .mission-rank-badge.final-rank-4 { color: #4b5563; font-weight: 800; }
 
     .race-rank-chip {
       width: 30px;
@@ -1702,7 +1712,7 @@
     }
 
     .race-team-card.final-rank-3 .race-rank-chip {
-      background: #fb923c;
+      background: #b45309;
       color: #fff;
     }
 
@@ -8846,6 +8856,24 @@ margin-top:4px;
     letter-spacing:-0.02em;
     white-space:nowrap;
   }
+  .jump-result-panel .mission-inline-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    width:100%;
+    min-width:0;
+    flex-wrap:nowrap;
+  }
+  .jump-result-panel .mission-inline-row .race-team-name{
+    flex:1 1 auto;
+    min-width:0;
+  }
+  .jump-result-panel .mission-inline-badge{
+    flex:0 0 auto;
+    white-space:nowrap;
+    margin:0 0 0 auto;
+  }
   .jump-result-panel .race-team-note{
     margin-top:0 !important;
   }
@@ -9437,8 +9465,8 @@ margin-top:4px;
   }
 
   .gold-winner-panel .race-team-card.final-rank-3{
-    border-color: rgba(210, 147, 97, 0.52) !important;
-    background: linear-gradient(180deg, #fff8f1 0%, #fff1e6 100%) !important;
+    border-color: rgba(150, 75, 0, 0.58) !important;
+    background: linear-gradient(180deg, #fff0e7 0%, #f6dfd1 100%) !important;
   }
 
   .gold-winner-panel .race-rank-chip{
@@ -11347,6 +11375,58 @@ html {
   }
 </style>
 
+
+<style id="relay-subtab-height-normalize">
+  .relay-selector-shell{
+    padding: 0 !important;
+    gap: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .relay-segment.sub-tab-container{
+    padding: 3px !important;
+    margin-bottom: 18px !important;
+    gap: 3px !important;
+    border-radius: 18px !important;
+    min-height: 0 !important;
+  }
+  .relay-segment-btn.sub-tab{
+    min-height: 24px !important;
+    padding: 4px 14px !important;
+    border-radius: 12px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    line-height: 1 !important;
+  }
+  .relay-segment-btn.sub-tab .relay-btn-title,
+  .relay-segment-btn.sub-tab .sub-tab-label{
+    font-size: 1rem !important;
+    line-height: 1.1 !important;
+  }
+</style>
+
+<style id="relay-subtab-height-override-final">
+  .relay-selector-shell .relay-segment-btn.sub-tab{
+    min-height: 44px !important;
+    height: 44px !important;
+    padding: 8px 12px !important;
+    font-size: 0.92rem !important;
+    line-height: 1.1 !important;
+  }
+  .relay-selector-shell .relay-segment-btn.sub-tab .relay-btn-title,
+  .relay-selector-shell .relay-segment-btn.sub-tab .sub-tab-label{
+    font-size: 0.92rem !important;
+    line-height: 1.1 !important;
+  }
+  .relay-selector-shell .relay-segment.sub-tab-container{
+    padding: 3px !important;
+    gap: 3px !important;
+    margin-bottom: 14px !important;
+  }
+</style>
 </head>
 <body>
   <div class="app-container">
@@ -14106,12 +14186,12 @@ html {
 
       return `
         <div class="relay-selector-shell">
-          <div class="relay-segment" role="tablist" aria-label="이어달리기 대진표 구분">
-            <button type="button" class="relay-segment-btn ${classActive}" data-inline-click="loadRelayBracket('학급', this)">
-              <span class="relay-btn-title">학급</span>
+          <div class="relay-segment sub-tab-container" role="tablist" aria-label="이어달리기 대진표 구분">
+            <button type="button" class="relay-segment-btn sub-tab ${classActive}" data-inline-click="loadRelayBracket('학급', this)">
+              <span class="relay-btn-title sub-tab-label">학급</span>
             </button>
-            <button type="button" class="relay-segment-btn ${unionActive}" data-inline-click="loadRelayBracket('연합', this)">
-              <span class="relay-btn-title">연합</span>
+            <button type="button" class="relay-segment-btn sub-tab ${unionActive}" data-inline-click="loadRelayBracket('연합', this)">
+              <span class="relay-btn-title sub-tab-label">연합</span>
             </button>
           </div>
           ${gradeSelectorHTML}
@@ -14269,9 +14349,12 @@ html {
       const sport = String(sportTitle || '').trim();
       const isJump = sport.includes('8자 줄넘기') || sport.includes('단체줄넘기');
       const isMission = sport.includes('미션달리기');
+      const useJumpStyle = isJump || isMission;
       const rows = (filtered || []).filter((item) => normalizeCell(item?.col2));
       const decorated = rows.map((item, index) => {
-        const resultText = normalizeCell(item?.col3) || '기록 미입력';
+        const rawResultText = normalizeCell(item?.col3);
+        const hasResult = !!rawResultText && !/^(?:기록\s*미입력|순위\s*미입력|미입력|경기전)$/u.test(rawResultText);
+        const resultText = hasResult ? rawResultText : '';
         const detailText = normalizeCell(item?.col4);
         return {
           item,
@@ -14279,6 +14362,7 @@ html {
           team: normalizeCell(item?.col2) || `팀 ${index + 1}`,
           resultText,
           detailText,
+          hasResult,
           sortValue: parseRankingNumber(resultText, sport),
         };
       });
@@ -14295,11 +14379,7 @@ html {
         return a.index - b.index;
       });
 
-      const champion = decorated.find((entry, idx) => {
-        const raw = normalizeCell(entry.resultText);
-        if (!raw || /^(?:기록\s*미입력|미입력|경기전)$/u.test(raw)) return false;
-        return idx === 0;
-      })?.team || '결과 입력 대기';
+      const champion = decorated.find((entry, idx) => entry.hasResult && idx === 0)?.team || '결과 입력 대기';
       const desc = isJump
         ? '입력된 기록이 가장 높은 학급을 우승팀으로 표시합니다.'
         : '입력된 순위가 1위인 학급을 우승팀으로 표시합니다.';
@@ -14307,7 +14387,7 @@ html {
       const valueLabel = isJump ? '기록' : '순위';
 
       return `
-        <div class="bracket-panel${isJump ? ' compact-winner-panel' : ''}'>
+        <div class="bracket-panel${useJumpStyle ? ' compact-winner-panel' : ''}">
           <div class="race-bracket-board">
             <div class="race-stage-card final">
               <div class="race-stage-head">
@@ -14324,15 +14404,18 @@ html {
                   const statusClass = rank === 1 ? ' champion' : '';
                   const statusText = rank === 1 ? '우승' : `${rank}위`;
                   const subText = entry.detailText;
-                  const recordBadge = entry.resultText
+                  const recordBadge = entry.hasResult
                     ? `<div class="jump-record-badge"><span class="jump-record-badge-label">${escapeHtml(valueLabel)}</span><span class="jump-record-badge-value">${escapeHtml(entry.resultText)}</span></div>`
                     : '';
+                  const inlineNote = [entry.hasResult ? `${valueLabel} ${entry.resultText}` : '', entry.detailText].filter(Boolean).join(' · ');
                   return `
-                    <div class="race-team-card${rankClass}${isJump ? ' jump-record-card' : ''}">
+                    <div class="race-team-card${rankClass}${useJumpStyle ? ' jump-record-card' : ''}">
                       <div class="race-rank-chip">${rank}</div>
                       <div class="race-team-main">
                         <div class="race-team-name">${escapeHtml(entry.team)}</div>
-                        ${isJump ? `${recordBadge}${subText ? `<div class="race-team-note">${escapeHtml(subText)}</div>` : ''}` : `${[entry.resultText ? `${valueLabel} ${entry.resultText}` : '', entry.detailText].filter(Boolean).join(' · ') ? `<div class="race-team-note">${escapeHtml([entry.resultText ? `${valueLabel} ${entry.resultText}` : '', entry.detailText].filter(Boolean).join(' · '))}</div>` : ''}`}
+                        ${useJumpStyle
+                          ? `${recordBadge}${subText ? `<div class="race-team-note">${escapeHtml(subText)}</div>` : ''}`
+                          : `${inlineNote ? `<div class="race-team-note">${escapeHtml(inlineNote)}</div>` : ''}`}
                       </div>
                       <div class="race-team-status${statusClass}">${escapeHtml(statusText)}</div>
                     </div>
@@ -14340,7 +14423,7 @@ html {
                 }).join('')}
               </div>
             </div>
-            <div class="race-champion-banner${isJump ? ' compact-winner-banner' : ''}">
+            <div class="race-champion-banner${useJumpStyle ? ' compact-winner-banner' : ''}">
               <div class="race-champion-copy">
                 <div class="race-champion-label"><span class="trophy-icon" aria-hidden="true"></span>CHAMPION</div>
                 <div class="race-champion-name">${escapeHtml(champion)}</div>
@@ -16506,7 +16589,8 @@ ${guide}`, current || '');
     const s = txt(sport);
     if (!t) return s.includes('미션달리기') ? Number.POSITIVE_INFINITY : Number.NEGATIVE_INFINITY;
     if (s.includes('미션달리기')) {
-      const rank = t.match(/(\d+)\s*위/);
+      const cleaned = t.replace(/\s+/g, ' ').trim();
+      const rank = cleaned.match(/^(\d+)\s*(?:위)?$/) || cleaned.match(/(\d+)\s*위/);
       return rank ? Number(rank[1]) : Number.POSITIVE_INFINITY;
     }
     const num = t.replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);
@@ -16534,6 +16618,13 @@ ${guide}`, current || '');
     const sport = txt(sportLabel);
     const isMission = sport.includes('미션달리기');
     const isJump = sport.includes('8자 줄넘기') || sport.includes('단체줄넘기');
+    const isGroupJump = sport.includes('단체줄넘기');
+    const maxDecoratedRank = isMission ? 4 : (isGroupJump ? 4 : (isJump ? 2 : 3));
+    const decoratedRankClass = (rank, hasActualResult) => {
+      if (!hasActualResult || rank < 1 || rank > maxDecoratedRank) return '';
+      if (rank === 1) return ' champion final-rank-1';
+      return ` final-rank-${rank}`;
+    };
     const entries = (Array.isArray(rows) ? rows : [])
       .map((row, idx) => {
         const team = normalizeResultText(row && row.col2);
@@ -16569,25 +16660,40 @@ ${guide}`, current || '');
     const compactEntries = entries.filter((entry) => normalizeResultText(entry.team));
     const hasActualResult = compactEntries.some((entry) => {
       const rawValue = normalizeResultText(entry.value);
-      return Boolean(rawValue && !/^(?:기록\s*미입력|미입력|경기전)$/u.test(rawValue));
+      return Boolean(rawValue && !/^(?:기록\s*미입력|순위\s*미입력|미입력|경기전|결과입력대기)$/u.test(rawValue));
     });
     const badge = isJump ? '최고 기록 우승' : '1위 우승';
     const valueLabel = isJump ? '기록' : '순위';
     const champion = hasActualResult && compactEntries[0] ? compactEntries[0].team : '결과 입력 대기';
     const stageTitleHTML = (isMission || isJump) ? '' : `<div class="race-stage-title">${esc(sport)}</div>`;
-    const valueHTML = (entry) => isMission
-      ? ''
-      : `<span class="race-team-sub" style="margin:0;white-space:nowrap;">${esc(`${valueLabel} ${entry.value || '미입력'}`)}</span>`;
+    const missionStatusClass = (rank, hasActualResult) => decoratedRankClass(rank, hasActualResult);
+    const valueHTML = (entry, rank) => {
+      if (isMission) return '';
+      return `<span class="race-team-sub mission-rank-badge${isMission ? missionStatusClass(rank) : ''}" style="margin:0;white-space:nowrap;">${esc(`${valueLabel} ${entry.value || '미입력'}`)}</span>`;
+    };
 
     if (!compactEntries.length) {
       return `<div class="bracket-panel"><div class="race-bracket-board"><div class="race-stage-card final"><div class="race-stage-head"><div><div class="race-stage-kicker">RESULT</div>${stageTitleHTML || `<div class="race-stage-title">${esc(sport)}</div>`}</div><span class="race-stage-badge">${esc(badge)}</span></div><div class="race-stage-desc">결과 데이터가 아직 없습니다.</div></div></div></div>`;
     }
 
-    return `<div class="bracket-panel${isJump ? ' jump-result-panel compact-winner-panel' : ''}${(isJump || isMission) ? ' gold-winner-panel' : ''}"><div class="race-bracket-board"><div class="race-stage-card final"><div class="race-stage-head"><div><div class="race-stage-kicker">RESULT</div>${stageTitleHTML}</div><span class="race-stage-badge">${esc(badge)}</span></div><div class="champ-area" style="margin:0 0 18px;"><span class="champ-label"><span class="trophy-icon" aria-hidden="true"></span>우승</span><span class="champ-team-name">${esc(champion)}</span></div><div class="race-team-stack">${compactEntries.map((entry, index) => {
+    const wrapperClasses = [
+      'bracket-panel',
+      (isJump || isMission) ? 'jump-result-panel compact-winner-panel gold-winner-panel' : '',
+      isMission && hasActualResult ? 'mission-has-result' : ''
+    ].filter(Boolean).join(' ');
+
+    return `<div class="${wrapperClasses}" data-sport-label="${esc(sport)}"><div class="race-bracket-board"><div class="race-stage-card final"><div class="race-stage-head"><div><div class="race-stage-kicker">RESULT</div>${stageTitleHTML}</div><span class="race-stage-badge">${esc(badge)}</span></div><div class="champ-area" style="margin:0 0 18px;"><span class="champ-label"><span class="trophy-icon" aria-hidden="true"></span>우승</span><span class="champ-team-name">${esc(champion)}</span></div><div class="race-team-stack">${compactEntries.map((entry, index) => {
       const rank = index + 1;
-      const statusText = hasActualResult ? (rank === 1 ? '우승' : `${rank}위`) : '경기전';
-      const rankClasses = hasActualResult ? (rank === 1 ? ' champion final-rank-1' : rank === 2 ? ' final-rank-2' : rank === 3 ? ' final-rank-3' : '') : '';
-      return `<div class="race-team-card${rankClasses}${isJump ? ' jump-record-card' : ''}" style="display:flex;align-items:center;gap:14px;justify-content:space-between;"><div style="display:flex;align-items:center;gap:14px;min-width:0;flex:1;"><div class="race-rank-chip">${rank}</div><div class="race-team-name" style="margin:0;white-space:nowrap;">${esc(entry.team)}</div></div><div style="display:flex;align-items:center;gap:16px;justify-content:flex-end;flex-wrap:nowrap;white-space:nowrap;margin-left:12px;">${isJump ? `<span class="jump-record-badge"><span class="jump-record-badge-label">${esc(valueLabel)}</span><span class="jump-record-badge-value">${esc(entry.value || '미입력')}</span></span>` : valueHTML(entry)}${entry.detail ? `<span class="race-team-sub" style="margin:0;white-space:nowrap;">${esc(entry.detail)}</span>` : ''}<span class="race-status-badge${hasActualResult && rank === 1 ? ' is-qualified' : ''}">${esc(statusText)}</span></div></div>`;
+      const statusText = hasActualResult ? (rank === 1 ? '우승' : `${rank}위`) : (isMission ? '결과입력대기' : '경기전');
+      const rankClasses = decoratedRankClass(rank, hasActualResult);
+      const shouldShowInlineBadge = !isMission || hasActualResult;
+      const valueBadge = shouldShowInlineBadge
+        ? `<span class="jump-record-badge${(isJump || isMission) ? ' mission-inline-badge' : ''}"><span class="jump-record-badge-label">${esc(valueLabel)}</span><span class="jump-record-badge-value">${esc(entry.value || '미입력')}</span></span>`
+        : '';
+      const mainTopRow = (isJump || isMission)
+        ? `<div class="mission-inline-row"><div class="race-team-name" style="margin:0;white-space:nowrap;">${esc(entry.team)}</div>${valueBadge}</div>`
+        : `<div class="race-team-name" style="margin:0;white-space:nowrap;">${esc(entry.team)}</div>${(isJump || isMission) ? valueBadge : valueHTML(entry, rank)}`;
+      return `<div class="race-team-card${rankClasses}${(isJump || isMission) ? ' jump-record-card' : ''}${isMission ? missionStatusClass(rank, hasActualResult) : ''}" data-result-value="${esc(entry.value || '')}" data-sport-label="${esc(sport)}" style="display:flex;align-items:center;gap:14px;justify-content:space-between;"><div style="display:flex;align-items:center;gap:14px;min-width:0;flex:1;"><div class="race-rank-chip">${rank}</div><div class="race-team-main">${mainTopRow}${entry.detail ? `<div class="race-team-note">${esc(entry.detail)}</div>` : ''}</div></div><div style="display:flex;align-items:center;gap:16px;justify-content:flex-end;flex-wrap:nowrap;white-space:nowrap;margin-left:12px;"><span class="race-status-badge${hasActualResult && rank === 1 ? ' is-qualified' : ''}">${esc(statusText)}</span></div></div>`;
     }).join('')}</div></div></div></div>`;
   }
 
@@ -16595,6 +16701,11 @@ ${guide}`, current || '');
     if (!container) return;
     const stack = container.querySelector('.race-team-stack');
     if (!stack) return;
+    const sport = normalizeResultText(container.querySelector('.race-stage-title')?.textContent || container.querySelector('.race-stage-badge')?.textContent || container.getAttribute('data-sport-label') || '');
+    const isMission = sport.includes('미션달리기');
+    const isJump = sport.includes('8자 줄넘기') || sport.includes('단체줄넘기');
+    const isGroupJump = sport.includes('단체줄넘기');
+    const maxDecoratedRank = isMission ? 4 : (isGroupJump ? 4 : (isJump ? 2 : 3));
     const cards = Array.from(stack.querySelectorAll('.race-team-card'));
     const validCards = cards.filter((card) => normalizeResultText(card.querySelector('.race-team-name')?.textContent));
     cards.forEach((card) => {
@@ -16606,16 +16717,15 @@ ${guide}`, current || '');
       const status = card.querySelector('.race-status-badge, .race-team-status');
       if (chip) chip.textContent = String(rank);
       const hasActualResult = validCards.some((item) => {
-        const badgeValue = normalizeResultText(item.querySelector('.jump-record-badge-value')?.textContent || '');
-        const subText = normalizeResultText(item.querySelector('.race-team-sub')?.textContent || '');
-        const combined = `${badgeValue} ${subText}`.trim();
-        return Boolean(combined && !/^(?:기록\s*미입력|미입력|순위\s*미입력|경기전)$/u.test(combined));
+        const storedValue = normalizeResultText(item.getAttribute('data-result-value') || '');
+        return Boolean(storedValue && !/^(?:기록\s*미입력|순위\s*미입력|미입력|경기전|결과입력대기)$/u.test(storedValue));
       });
-      if (status) status.textContent = hasActualResult ? (rank === 1 ? '우승' : `${rank}위`) : '경기전';
-      card.classList.remove('final-rank-1','final-rank-2','final-rank-3','champion');
-      if (hasActualResult && rank === 1) card.classList.add('champion','final-rank-1');
-      else if (hasActualResult && rank === 2) card.classList.add('final-rank-2');
-      else if (hasActualResult && rank === 3) card.classList.add('final-rank-3');
+      if (status) status.textContent = hasActualResult ? (rank === 1 ? '우승' : `${rank}위`) : (isMission ? '결과입력대기' : '경기전');
+      card.classList.remove('final-rank-1','final-rank-2','final-rank-3','final-rank-4','champion');
+      if (hasActualResult && rank >= 1 && rank <= maxDecoratedRank) {
+        if (rank === 1) card.classList.add('champion','final-rank-1');
+        else card.classList.add(`final-rank-${rank}`);
+      }
     });
   }
 
@@ -16757,7 +16867,10 @@ ${guide}`, current || '');
   }
   function rxHeatCard(team, idx){
     const meta = rxMeta(team);
-    const status = meta.statusText || '경기전';
+    const rankNumMatch = (meta.rankText || '').match(/(\d+)/);
+    const rankNum = rankNumMatch ? parseInt(rankNumMatch[1], 10) : 999;
+    const autoAdvance = Number.isFinite(rankNum) && rankNum <= 2;
+    const status = meta.statusText || (autoAdvance ? '결승 진출' : (meta.rankText ? '예선 종료' : '경기전'));
     const isAdvance = status === '결승 진출';
     return `
       <div class="race-team-card ${isAdvance ? 'advance' : ''}">
@@ -16774,12 +16887,15 @@ ${guide}`, current || '');
   }
   function rxFinalCard(team, idx){
     const meta = rxMeta(team);
-    const rawRank = rxText(team && team.col4);
-    const hasRank = /^\d+$/.test(rawRank);
+    const rawRank = rxText(team && team.col3);
+    const parsedRank = rxRank(rawRank || (meta && meta.rankText) || '');
+    const rankMatch = parsedRank.match(/(\d+)/);
+    const rankNum = rankMatch ? parseInt(rankMatch[1], 10) : NaN;
+    const hasRank = Number.isFinite(rankNum);
     const labels = ['우승','준우승','3위','4위'];
-    const status = hasRank ? (labels[idx] || `${idx+1}위`) : '경기전';
-    const rankClass = hasRank && idx < 3 ? `final-rank-${idx+1}` : '';
-    const statusClass = hasRank && idx === 0 ? 'champion' : '';
+    const status = hasRank ? (labels[Math.max(0, rankNum - 1)] || `${rankNum}위`) : '경기전';
+    const rankClass = hasRank && rankNum <= 4 ? `final-rank-${rankNum}` : '';
+    const statusClass = hasRank && rankNum === 1 ? 'champion' : '';
     return `
       <div class="race-team-card ${rankClass}">
         <div class="race-rank-chip">${idx + 1}</div>
@@ -16789,7 +16905,7 @@ ${guide}`, current || '');
         </div>
         <div class="race-team-status-group">
           <div class="race-team-status ${statusClass}">${rxEsc(status)}</div>
-          ${hasRank && meta.rankText ? `<div class="race-rank-side-badge">${rxEsc(meta.rankText)}</div>` : ''}
+          ${hasRank ? `<div class="race-rank-side-badge">${rxEsc(parsedRank || `${rankNum}위`)}</div>` : ''}
         </div>
       </div>`;
   }
@@ -16803,10 +16919,17 @@ ${guide}`, current || '');
     const heats = [heat1, heat2].filter(arr => arr.length);
     let finalRows = manualFinalRows.filter(r => rxText(r && r.col2));
     if (!finalRows.length) {
-      finalRows = prelimRows.filter(r => rxMeta(r).statusText === '결승 진출');
+      finalRows = [...prelimRows].sort((a,b) => rxRankNum(a) - rxRankNum(b)).filter(r => rxRankNum(r) <= 2).slice(0,4);
     }
-    finalRows = finalRows.slice(0,4).sort((a,b) => rxRankNum(a) - rxRankNum(b));
-    const champion = (finalRows.find(r => rxRankNum(r) === 1) || {}).col2 || '결과 입력 대기';
+    finalRows = finalRows.slice(0,4).sort((a,b) => {
+      const ar = (() => { const m = rxRank(rxText(a && a.col3) || rxText(a && a.col4) || '').match(/(\d+)/); return m ? parseInt(m[1],10) : 999; })();
+      const br = (() => { const m = rxRank(rxText(b && b.col3) || rxText(b && b.col4) || '').match(/(\d+)/); return m ? parseInt(m[1],10) : 999; })();
+      return ar - br;
+    });
+    const champion = (finalRows.find(r => {
+      const m = rxRank(rxText(r && r.col3) || rxText(r && r.col4) || '').match(/(\d+)/);
+      return m && parseInt(m[1],10) === 1;
+    }) || {}).col2 || '결과 입력 대기';
     const heatCards = heats.map((teams, heatIndex) => `
       <div class="race-stage-card">
         <div class="race-stage-head">
@@ -16853,8 +16976,13 @@ ${guide}`, current || '');
       return originalLoad ? originalLoad(container, targetKey, sportLabel) : undefined;
     }
     try {
-      const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof getTabData === 'function' ? getTabData : null);
-      const data = fetcher ? await fetcher('대진표') : [];
+      let data = [];
+      if (typeof window.fetchTabData === 'function') {
+        data = await window.fetchTabData('대진표', { force: true });
+      } else {
+        const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof getTabData === 'function' ? getTabData : null);
+        data = fetcher ? await fetcher('대진표') : [];
+      }
       const rows = (Array.isArray(data) ? data : []).slice(1).filter((item) => rxKey(item && item.col1) === rxKey(targetKey));
       if (!rows.length) {
         container.innerHTML = rxEmpty('대진표 정보가 없습니다.', `${sportLabel || targetKey} 종목 대진표가 아직 등록되지 않았습니다.`);
@@ -17349,12 +17477,12 @@ ${guide}`, current || '');
       : "loadRelayRosterSplit('연합', this)";
     return `
       <div class="relay-selector-shell">
-        <div class="relay-segment" role="tablist" aria-label="이어달리기 ${label} 구분">
-          <button type="button" class="relay-segment-btn ${classActive}" data-inline-click="${onclickClass}">
-            <span class="relay-btn-title">학급</span>
+        <div class="relay-segment sub-tab-container" role="tablist" aria-label="이어달리기 ${label} 구분">
+          <button type="button" class="relay-segment-btn sub-tab ${classActive}" data-inline-click="${onclickClass}">
+            <span class="relay-btn-title sub-tab-label">학급</span>
           </button>
-          <button type="button" class="relay-segment-btn ${unionActive}" data-inline-click="${onclickUnion}">
-            <span class="relay-btn-title">연합</span>
+          <button type="button" class="relay-segment-btn sub-tab ${unionActive}" data-inline-click="${onclickUnion}">
+            <span class="relay-btn-title sub-tab-label">연합</span>
           </button>
         </div>
         <div id="${resultId}" class="relay-selector-result"></div>
