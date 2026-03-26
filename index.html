@@ -12739,6 +12739,8 @@ html {
       if (value === '팔시름') value = '팔씨름';
       if (/^피구남$|^남자피구$|^남피구$/.test(value)) value = '피구(남)';
       if (/^피구여$|^여자피구$|^여피구$/.test(value)) value = '피구(여)';
+      if (/^계주$/.test(value)) value = '이어달리기';
+      if (/^계주\((학급|연합)\)$/.test(value)) value = '이어달리기';
       if (/^이어달리기\((학급|연합)\)$/.test(value)) value = '이어달리기';
       return value;
     }
@@ -14244,6 +14246,9 @@ html {
       await loadBracketDataToContainer(resultBox, bracketKey, `이어달리기 학급 ${normalizedGrade}`);
     }
 
+    window.loadRelayBracket = loadRelayBracket;
+    window.loadRelayBracketGrade = loadRelayBracketGrade;
+
     function createMatchHTML(t1, t2) {
       return `<div class="match-unit">${createTeamRowHTML(t1)}${createTeamRowHTML(t2)}</div>`;
     }
@@ -15266,7 +15271,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         ${extraTopHtml}
         <div class="filter-btn-grid ${isScheduleView && currentDetailScheduleMode !== 'sport' ? 'is-hidden' : ''}" id="sport-filter-group">
           ${(mode === 'bracket' ? SPORTS_LIST.filter(sport => !BRACKET_HIDDEN_SPORTS.includes(sport)) : SPORTS_LIST).map(sport => `
-            <button type="button" class="filter-btn" data-inline-click="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
+            <button type="button" class="filter-btn" data-sport-grid-button="true" data-target-tab="${targetTab}" data-sport-name="${sport}" data-is-player-grid="${isPlayerGrid}" data-is-schedule-view="${isScheduleView}" data-mode="${mode}" data-inline-click="handleSportFilterClick(this, '${targetTab}', '${sport}', ${isPlayerGrid}, ${isScheduleView}, '${mode}')">${sport}</button>
           `).join('')}
         </div>
         <div id="sport-common-detail" class="sport-detail-content">
@@ -17562,6 +17567,13 @@ ${guide}`, current || '');
         return originalHandleSportFilterClick.apply(this, arguments);
       }
 
+      // 이어달리기 예외 처리는 세부일정/선수단 분할 보기에서만 가로챈다.
+      // 경기규칙 등 다른 모드에서는 원래 공통 핸들러를 그대로 사용해야
+      // active 상태가 중복으로 잡히지 않고 정상 렌더링된다.
+      if (!isScheduleView && !isPlayerGrid) {
+        return originalHandleSportFilterClick.apply(this, arguments);
+      }
+
       const container = document.getElementById('sport-common-detail');
       const isAlreadyActive = !!btn && btn.classList.contains('active');
       document.querySelectorAll('#sport-filter-group .filter-btn').forEach((b) => b.classList.remove('active'));
@@ -18306,6 +18318,21 @@ ${guide}`, current || '');
     if (v === 'false') return false;
     return v;
   }
+
+
+  document.addEventListener('click', function(event){
+    const fallbackBtn = event.target.closest('.filter-btn[data-sport-grid-button="true"]');
+    if (!fallbackBtn) return;
+    if (fallbackBtn.dataset.actionSpec) return;
+    const targetTab = fallbackBtn.dataset.targetTab || '';
+    const sport = fallbackBtn.dataset.sportName || '';
+    const isPlayerGrid = String(fallbackBtn.dataset.isPlayerGrid || '').toLowerCase() === 'true';
+    const isScheduleView = String(fallbackBtn.dataset.isScheduleView || '').toLowerCase() === 'true';
+    const mode = fallbackBtn.dataset.mode || 'default';
+    if (typeof window.handleSportFilterClick === 'function') {
+      window.handleSportFilterClick(fallbackBtn, targetTab, sport, isPlayerGrid, isScheduleView, mode);
+    }
+  }, true);
 
   document.addEventListener('click', function(event){
     const trigger = event.target.closest('[data-action-spec]');
@@ -19257,6 +19284,10 @@ document.addEventListener('click', function(e){
   try { loadScheduleOverview = window.loadScheduleOverview; } catch(_) {}
 })();
 </script>
+
+
+
+
 
 </body>
 </html>
