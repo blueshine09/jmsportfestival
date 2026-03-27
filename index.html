@@ -18428,11 +18428,15 @@ ${guide}`, current || '');
     setHtmlIfChanged(homeGridEl, gridHtml);
     setHtmlIfChanged(homeUtilityEl, '');
     requestIconRefresh();
-    try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(); } catch (_) {}
-    try { window.updateHomeTop3Board && window.updateHomeTop3Board(); } catch (_) {}
+    try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(true); } catch (_) {}
+    try { window.updateHomeTop3Board && window.updateHomeTop3Board(true); } catch (_) {}
+    setTimeout(() => {
+      try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(true); } catch (_) {}
+      try { window.updateHomeTop3Board && window.updateHomeTop3Board(true); } catch (_) {}
+    }, 120);
     requestIdleTask(() => {
-      try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(); } catch (_) {}
-      try { window.updateHomeTop3Board && window.updateHomeTop3Board(); } catch (_) {}
+      try { window.updateHomeLiveScheduleBoard && window.updateHomeLiveScheduleBoard(true); } catch (_) {}
+      try { window.updateHomeTop3Board && window.updateHomeTop3Board(true); } catch (_) {}
     }, 1500);
   };
 
@@ -23594,19 +23598,31 @@ document.addEventListener('click', function(e){
 
   if (typeof window.updateHomeLiveBoard === 'function') {
     const originalUpdateHomeLiveBoard = window.updateHomeLiveBoard;
-    window.updateHomeLiveBoard = function(){
+    window.updateHomeLiveBoard = function(force){
+      const hasMount = !!document.getElementById('home-live-schedule') || !!document.getElementById('home-live-top3') || !!document.getElementById('home-live-board');
+      if (force === true || !hasMount) {
+        return originalUpdateHomeLiveBoard.apply(this, arguments);
+      }
       return memoAsync('updateHomeLiveBoard', SHORT_TTL, () => originalUpdateHomeLiveBoard.apply(this, arguments));
     };
   }
   if (typeof window.updateHomeLiveScheduleBoard === 'function') {
     const originalUpdateHomeLiveScheduleBoard = window.updateHomeLiveScheduleBoard;
-    window.updateHomeLiveScheduleBoard = function(){
+    window.updateHomeLiveScheduleBoard = function(force){
+      const hasMount = !!document.getElementById('home-live-schedule');
+      if (force === true || !hasMount) {
+        return originalUpdateHomeLiveScheduleBoard.apply(this, arguments);
+      }
       return memoAsync('updateHomeLiveScheduleBoard', SHORT_TTL, () => originalUpdateHomeLiveScheduleBoard.apply(this, arguments));
     };
   }
   if (typeof window.updateHomeTop3Board === 'function') {
     const originalUpdateHomeTop3Board = window.updateHomeTop3Board;
-    window.updateHomeTop3Board = function(){
+    window.updateHomeTop3Board = function(force){
+      const hasMount = !!document.getElementById('home-live-top3');
+      if (force === true || !hasMount) {
+        return originalUpdateHomeTop3Board.apply(this, arguments);
+      }
       return memoAsync('updateHomeTop3Board', SHORT_TTL, () => originalUpdateHomeTop3Board.apply(this, arguments));
     };
   }
@@ -24308,6 +24324,122 @@ textarea{
   }
 }
 </style>
+
+
+<script id="startup-load-tuning-v1">
+(function(){
+  if (window.__startupLoadTuningV1__) return;
+  window.__startupLoadTuningV1__ = true;
+
+  const idle = (cb, timeout = 700) => {
+    if (typeof window.requestIdleCallback === 'function') {
+      return window.requestIdleCallback(cb, { timeout });
+    }
+    return setTimeout(cb, Math.min(timeout, 700));
+  };
+
+  const originalRequestIconRefresh = window.requestIconRefresh;
+  if (typeof originalRequestIconRefresh === 'function' && !window.__requestIconRefreshThrottled__) {
+    window.__requestIconRefreshThrottled__ = true;
+    let iconTimer = null;
+    window.requestIconRefresh = function throttledRequestIconRefresh(){
+      if (iconTimer) return;
+      iconTimer = setTimeout(() => {
+        iconTimer = null;
+        try { originalRequestIconRefresh(); } catch (_) {}
+      }, 120);
+    };
+  }
+
+  const originalRenderHomeMenu = window.renderHomeMenu;
+  if (typeof originalRenderHomeMenu === 'function' && !window.__renderHomeMenuDeferred__) {
+    window.__renderHomeMenuDeferred__ = true;
+    let firstRunDone = false;
+    window.renderHomeMenu = function deferredRenderHomeMenu(){
+      const args = arguments;
+      if (!firstRunDone && document.readyState !== 'complete') {
+        firstRunDone = true;
+        idle(() => {
+          try { originalRenderHomeMenu.apply(window, args); } catch (_) {}
+        }, 900);
+        return;
+      }
+      return originalRenderHomeMenu.apply(window, args);
+    };
+  }
+
+  const originalPrimeNoticeFeed = window.primeNoticeFeed;
+  if (typeof originalPrimeNoticeFeed === 'function' && !window.__primeNoticeFeedDeferred__) {
+    window.__primeNoticeFeedDeferred__ = true;
+    let primed = false;
+    window.primeNoticeFeed = function deferredPrimeNoticeFeed(){
+      if (!primed) {
+        primed = true;
+        return new Promise((resolve) => {
+          idle(async () => {
+            try { await originalPrimeNoticeFeed.apply(window, arguments); } catch (_) {}
+            resolve();
+          }, 1500);
+        });
+      }
+      return originalPrimeNoticeFeed.apply(window, arguments);
+    };
+  }
+
+  const originalUpdateHomeLiveBoard = window.updateHomeLiveBoard;
+  if (typeof originalUpdateHomeLiveBoard === 'function' && !window.__homeBoardCachePatch__) {
+    window.__homeBoardCachePatch__ = true;
+    let inflight = null;
+    const cache = { savedAt: 0, scheduleHtml: '', top3Html: '' };
+    window.updateHomeLiveBoard = async function cachedHomeLiveBoard(){
+      const scheduleMount = document.getElementById('home-live-schedule');
+      const top3Mount = document.getElementById('home-live-top3');
+      const age = Date.now() - cache.savedAt;
+
+      if (age < 60000 && cache.scheduleHtml && cache.top3Html) {
+        if (scheduleMount) scheduleMount.innerHTML = cache.scheduleHtml;
+        if (top3Mount) top3Mount.innerHTML = cache.top3Html;
+        return;
+      }
+      if (inflight) return inflight;
+      inflight = (async () => {
+        try {
+          await originalUpdateHomeLiveBoard.apply(window, arguments);
+          const currentScheduleMount = document.getElementById('home-live-schedule');
+          const currentTop3Mount = document.getElementById('home-live-top3');
+          if (currentScheduleMount && currentTop3Mount && currentScheduleMount.innerHTML && currentTop3Mount.innerHTML) {
+            cache.savedAt = Date.now();
+            cache.scheduleHtml = currentScheduleMount.innerHTML;
+            cache.top3Html = currentTop3Mount.innerHTML;
+          }
+        } finally {
+          inflight = null;
+        }
+      })();
+      return inflight;
+    };
+  }
+
+  const originalFetchTabDataCached = window.fetchTabDataCached;
+  if (typeof originalFetchTabDataCached === 'function' && !window.__fetchTabDataCachedFastPath__) {
+    window.__fetchTabDataCachedFastPath__ = true;
+    const sessionMem = new Map();
+    window.fetchTabDataCached = async function fastFetchTabDataCached(tabName, options){
+      const key = String(tabName || '').trim();
+      const force = !!(options && options.force);
+      const isFreshTab = key === '경기결과' || key === '점수' || key === '세부경기일정';
+      if (!force && !isFreshTab && sessionMem.has(key)) {
+        return sessionMem.get(key);
+      }
+      const data = await originalFetchTabDataCached.call(this, tabName, options);
+      if (!force && !isFreshTab && Array.isArray(data)) {
+        sessionMem.set(key, data);
+      }
+      return data;
+    };
+  }
+})();
+</script>
 
 </body>
 </html>
