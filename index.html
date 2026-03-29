@@ -14210,6 +14210,133 @@ button.active{
 }
 </style>
 
+
+<style id="sakura-accent-v28">
+  :root{
+    --sakura-petal: rgba(232, 157, 184, 0.34);
+    --sakura-petal-strong: rgba(222, 123, 161, 0.58);
+    --sakura-core: rgba(255, 241, 198, 0.78);
+  }
+  .logo,
+  .hero-card,
+  .schedule-card,
+  .roster-card,
+  .unified-info-card,
+  .teacher-link-card,
+  .sport-select-guide,
+  .modal-header,
+  .image-viewer-head,
+  .day-info-tag,
+  .hero-badge,
+  .sub-tab.active,
+  .filter-btn.active,
+  .grade-btn.active,
+  .schedule-grade-btn.active,
+  .schedule-day-btn.active,
+  .action-pill.player,
+  .action-pill.referee,
+  .seat-link-btn,
+  .seat-layout-btn {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .logo::after {
+    content: '✿';
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 0.72rem;
+    color: rgba(218, 118, 156, 0.82);
+    transform: translateY(-1px) rotate(10deg);
+  }
+
+  .hero-card::before,
+  .teacher-link-card::before,
+  .sport-select-guide::before,
+  .modal-header::before,
+  .image-viewer-head::before {
+    content: '';
+    position: absolute;
+    top: -22px;
+    right: -16px;
+    width: 78px;
+    height: 78px;
+    background:
+      radial-gradient(circle at 50% 50%, var(--sakura-core) 0 14%, transparent 15%),
+      radial-gradient(ellipse 36% 52% at 50% 8%, var(--sakura-petal) 0 60%, transparent 61%),
+      radial-gradient(ellipse 36% 52% at 85% 40%, var(--sakura-petal) 0 60%, transparent 61%),
+      radial-gradient(ellipse 36% 52% at 70% 84%, var(--sakura-petal) 0 60%, transparent 61%),
+      radial-gradient(ellipse 36% 52% at 30% 84%, var(--sakura-petal) 0 60%, transparent 61%),
+      radial-gradient(ellipse 36% 52% at 15% 40%, var(--sakura-petal) 0 60%, transparent 61%);
+    opacity: .55;
+    pointer-events: none;
+    transform: rotate(12deg);
+  }
+
+  .schedule-card::after,
+  .roster-card::after,
+  .unified-info-card::after {
+    content: '✿';
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-size: 0.78rem;
+    line-height: 1;
+    color: rgba(221, 144, 171, 0.5);
+    pointer-events: none;
+  }
+
+  .day-info-tag::after,
+  .hero-badge::after,
+  .sub-tab.active::after,
+  .filter-btn.active::after,
+  .grade-btn.active::after,
+  .schedule-grade-btn.active::after,
+  .schedule-day-btn.active::after,
+  .action-pill.player::after,
+  .action-pill.referee::after,
+  .seat-link-btn::after,
+  .seat-layout-btn::after {
+    content: '✿';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.62rem;
+    color: rgba(222, 123, 161, 0.55);
+    pointer-events: none;
+  }
+
+  .sub-tab.active,
+  .filter-btn.active,
+  .grade-btn.active,
+  .schedule-grade-btn.active,
+  .schedule-day-btn.active,
+  .action-pill.player,
+  .action-pill.referee,
+  .seat-link-btn,
+  .seat-layout-btn,
+  .day-info-tag,
+  .hero-badge {
+    padding-right: 22px;
+  }
+
+  .sticky-header::after {
+    content: '';
+    position: absolute;
+    right: 18px;
+    top: 10px;
+    width: 56px;
+    height: 24px;
+    pointer-events: none;
+    background:
+      radial-gradient(circle at 18% 55%, rgba(233, 165, 188, 0.34) 0 16%, transparent 17%),
+      radial-gradient(circle at 50% 32%, rgba(240, 183, 202, 0.28) 0 14%, transparent 15%),
+      radial-gradient(circle at 82% 62%, rgba(221, 145, 170, 0.3) 0 15%, transparent 16%);
+    filter: blur(0.2px);
+  }
+</style>
+
 </head>
 <body>
   <div class="app-container">
