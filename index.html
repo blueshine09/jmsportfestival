@@ -8984,7 +8984,9 @@ margin-top:4px;
   }
 
   .timeline-card-list .schedule-top-row{
-    align-items:flex-start !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
     gap:8px !important;
   }
 
@@ -8994,7 +8996,23 @@ margin-top:4px;
     gap:6px !important;
     flex:1 1 auto !important;
     min-width:0 !important;
-    flex-wrap:wrap !important;
+    flex-wrap:nowrap !important;
+  }
+
+  .timeline-card-list .schedule-sport-badge-top{
+    flex:0 0 auto !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    padding:6px 12px !important;
+    border-radius:999px !important;
+    background:linear-gradient(180deg, rgba(255,250,252,0.98) 0%, rgba(252,243,247,0.98) 100%) !important;
+    border:1px solid rgba(232,138,165,0.26) !important;
+    color:#c05f81 !important;
+    font-size:0.76rem !important;
+    font-weight:800 !important;
+    line-height:1 !important;
+    white-space:nowrap !important;
   }
 
   .timeline-card-list .schedule-match-title{
@@ -14462,6 +14480,262 @@ button.active{
   }
 </style>
 
+
+<style id="roster-referee-height-minus40-v56">
+  .roster-card-head{padding:6px 10px !important;}
+  .roster-title-wrap{gap:6px !important;}
+  .roster-class{font-size:0.86rem !important; line-height:1.25 !important;}
+  .roster-sport-badge{padding:4px 8px !important; font-size:0.66rem !important;}
+  .roster-player-list{padding:10px 11px !important; font-size:0.84rem !important; line-height:1.52 !important;}
+
+  .unified-info-card{padding:10px 11px !important;}
+  .unified-info-card-head{gap:8px !important; margin-bottom:5px !important;}
+  .unified-order-badge{min-width:24px !important; height:24px !important; font-size:0.82rem !important; border-radius:8px !important;}
+  .unified-info-label{font-size:0.7rem !important; margin-bottom:2px !important; line-height:1.1 !important;}
+  .unified-info-title{font-size:0.84rem !important; line-height:1.34 !important;}
+  .unified-info-body{margin-top:5px !important; font-size:0.82rem !important; line-height:1.48 !important;}
+  .unified-info-meta{gap:6px !important; margin-top:7px !important;}
+
+  .referee-line-card{padding:9px 10px !important;}
+  .referee-head-wrap{gap:8px !important;}
+  .referee-head-left{gap:6px !important;}
+  .referee-grade-text{font-size:0.84rem !important; line-height:1.34 !important;}
+  .referee-stage-badge{min-height:21px !important; padding:0 8px !important; font-size:0.68rem !important;}
+</style>
+
+<style id="roster-referee-height-rootfix-v57">
+  /* 실제 렌더링 카드 높이 추가 축소 */
+  .roster-stack, .unified-info-stack{gap:8px !important;}
+  .roster-card{border-radius:14px !important;}
+  .roster-card-head{padding:4px 8px !important; min-height:auto !important;}
+  .roster-title-wrap{gap:5px !important;}
+  .roster-class{font-size:0.8rem !important; line-height:1.18 !important;}
+  .roster-sport-badge{padding:3px 7px !important; font-size:0.62rem !important; min-height:auto !important;}
+  .roster-player-list{padding:7px 9px !important; font-size:0.8rem !important; line-height:1.38 !important;}
+
+  .unified-info-card{padding:8px 9px !important; border-radius:14px !important;}
+  .unified-info-card-head{gap:6px !important; margin-bottom:3px !important;}
+  .unified-order-badge{min-width:22px !important; height:22px !important; font-size:0.76rem !important; border-radius:7px !important;}
+  .unified-info-label{font-size:0.64rem !important; margin-bottom:1px !important; line-height:1.0 !important;}
+  .unified-info-title{font-size:0.79rem !important; line-height:1.22 !important;}
+  .unified-info-body{margin-top:3px !important; font-size:0.78rem !important; line-height:1.34 !important;}
+  .unified-info-meta{gap:5px !important; margin-top:5px !important;}
+
+  .referee-line-card{padding:7px 9px !important; border-radius:14px !important;}
+  .referee-head-wrap{gap:6px !important;}
+  .referee-head-left{gap:5px !important;}
+  .referee-grade-text{font-size:0.8rem !important; line-height:1.22 !important;}
+  .referee-stage-badge{min-height:18px !important; padding:0 7px !important; font-size:0.62rem !important;}
+
+  @media (max-width:430px){
+    .roster-player-list{font-size:0.78rem !important; line-height:1.34 !important;}
+    .unified-info-body{font-size:0.76rem !important; line-height:1.3 !important;}
+  }
+</style>
+
+<style id="v58-roster-referee-font-plus1">
+.roster-class,
+.referee-grade-text,
+.unified-info-title { font-size: 1.00rem !important; }
+.roster-player-list,
+.unified-info-body { font-size: 0.96rem !important; }
+.roster-sport-badge,
+.referee-stage-badge,
+.unified-info-label { font-size: 0.78rem !important; }
+</style>
+
+
+<style id="referee-all-sports-button-v62">
+  #sport-filter-group .filter-btn.is-empty-sport{opacity:1 !important;}
+</style>
+
+<style id="player-card-referee-actual-fix-v69">
+  .roster-referee-like-card{padding:0 !important; overflow:hidden !important;}
+  .roster-referee-like-card .roster-referee-like-head{padding:10px 12px !important; margin-bottom:0 !important; border-bottom:none !important; background:rgba(255,250,252,0.92) !important;}
+  .roster-referee-like-card .unified-order-badge{min-width:30px !important; height:30px !important; border-radius:10px !important;}
+  .roster-referee-like-card .referee-head-wrap{display:flex !important; align-items:center !important; justify-content:space-between !important; gap:10px !important; width:100% !important;}
+  .roster-referee-like-card .referee-head-left{min-width:0 !important; display:flex !important; align-items:center !important; gap:8px !important;}
+  .roster-referee-like-card .referee-grade-text{font-size:0.95rem !important; font-weight:900 !important; color:#5e4350 !important;}
+  .roster-referee-like-card .roster-sport-badge{background:rgba(217,107,139,0.10) !important; border:1px solid rgba(217,107,139,0.16) !important; color:#ad4f73 !important; font-size:0.72rem !important; font-weight:800 !important;}
+  .roster-referee-like-card .roster-referee-like-body{padding:10px 12px !important; display:block !important; font-size:0.86rem !important; line-height:1.55 !important; color:#6b4c59 !important; white-space:normal !important;}
+  .roster-referee-like-card .roster-player-name-list br{content:'';}
+  .roster-referee-like-stack{gap:10px !important;}
+</style>
+
+<style id="referee-card-height-plus10-v73">
+/* 심판진 정보 카드만 10% 정도 높이 증가 */
+.unified-info-card,
+.referee-line-card {
+  padding-top: 15px !important;
+  padding-bottom: 15px !important;
+}
+.unified-info-card-head {
+  margin-bottom: 10px !important;
+}
+.unified-info-body {
+  margin-top: 10px !important;
+  line-height: 1.76 !important;
+}
+.unified-info-meta {
+  margin-top: 12px !important;
+}
+.referee-line-card {
+  min-height: 60px !important;
+}
+.referee-head-wrap {
+  padding-top: 2px !important;
+  padding-bottom: 2px !important;
+}
+</style>
+
+
+<style id="referee-match-player-card-design-v76">
+  /* 심판진 정보 카드 디자인을 선수단 명단 카드와 동일하게 */
+  .unified-info-stack{
+    gap: 12px !important;
+  }
+
+  .unified-info-card,
+  .referee-line-card{
+    padding: 16px !important;
+    background: rgba(255,255,255,0.98) !important;
+    border: 1px solid var(--phase2-line-soft) !important;
+    border-radius: 24px !important;
+    box-shadow: var(--phase2-shadow-soft) !important;
+  }
+
+  .unified-info-card-head{
+    margin-bottom: 10px !important;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid var(--phase2-line-soft) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+  }
+
+  .unified-order-badge{
+    min-width: 32px !important;
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 10px !important;
+    background: #fcf2f6 !important;
+    border: 1px solid var(--phase2-line-soft) !important;
+    color: #7a4764 !important;
+    font-size: 0.92rem !important;
+    font-weight: 900 !important;
+    box-shadow: none !important;
+  }
+
+  .unified-info-label{
+    font-size: 0.76rem !important;
+    font-weight: 800 !important;
+    color: var(--phase2-sub) !important;
+    margin-bottom: 3px !important;
+  }
+
+  .unified-info-title,
+  .referee-grade-text{
+    font-size: 1rem !important;
+    line-height: 1.38 !important;
+    font-weight: 900 !important;
+    color: var(--phase2-text) !important;
+  }
+
+  .unified-info-body{
+    font-size: 0.95rem !important;
+    line-height: 1.65 !important;
+    color: var(--phase2-sub) !important;
+    margin-top: 0 !important;
+    white-space: pre-line !important;
+  }
+
+  .unified-info-meta{
+    margin-top: 10px !important;
+    gap: 8px !important;
+  }
+
+  .referee-stage-badge{
+    background: var(--phase2-blue-soft) !important;
+    color: var(--phase2-blue) !important;
+    border: 1px solid rgba(224,154,178,0.16) !important;
+    box-shadow: none !important;
+    min-height: auto !important;
+    padding: 5px 9px !important;
+    border-radius: 999px !important;
+    font-size: 0.7rem !important;
+    font-weight: 900 !important;
+  }
+
+  .referee-line-card{
+    min-height: unset !important;
+  }
+
+  .referee-head-wrap,
+  .referee-head-left{
+    align-items: center !important;
+    gap: 8px !important;
+  }
+</style>
+
+<style id="sport-select-guide-match-v77">
+/* Make the sport selection guide card match the referee/player empty guide card */
+.sport-select-guide{
+  background: linear-gradient(180deg,#fffdfd 0%, #fff6f9 100%) !important;
+  border: 1px dashed var(--final-border-strong, #ead7df) !important;
+  border-radius: 20px !important;
+  box-shadow: none !important;
+  padding: 28px 18px !important;
+  text-align: center !important;
+}
+.sport-select-guide-title{
+  display:block !important;
+  margin:0 0 6px 0 !important;
+  font-size:1.365rem !important;
+  font-weight:900 !important;
+  line-height:1.15 !important;
+  color:#1c1c1e !important;
+}
+.sport-select-guide-desc{
+  display:block !important;
+  margin:0 !important;
+  font-size:0.85rem !important;
+  line-height:1.6 !important;
+  color:var(--role-muted, #8f6d7a) !important;
+  word-break:keep-all !important;
+}
+.sport-select-guide::before,
+.sport-select-guide::after{display:none !important; content:none !important;}
+</style>
+
+<style id="v81-font-tune">
+/* 종목 선택 안내 제목 폰트 크기 통일 */
+.sport-select-guide-title,
+.section-empty-guide strong {
+  font-size: 1.02rem !important;
+  line-height: 1.35 !important;
+  letter-spacing: -0.02em !important;
+}
+
+/* 선수단 명단 카드 폰트 +1 */
+.player-referee-style-card .roster-player-list,
+.player-referee-style-card .player-referee-style-body,
+.player-referee-style-card .referee-meta-main,
+.player-referee-style-card .referee-meta-sub {
+  font-size: 1rem !important;
+  line-height: 1.62 !important;
+}
+
+.player-referee-style-card .roster-class,
+.player-referee-style-card .player-referee-style-title {
+  font-size: 0.98rem !important;
+}
+
+.player-referee-style-card .roster-sport-badge,
+.player-referee-style-card .player-referee-style-badge {
+  font-size: 0.76rem !important;
+}
+</style>
+
 </head>
 <body>
   <div class="app-container">
@@ -14648,6 +14922,7 @@ button.active{
 
     const STORAGE_CACHE_PREFIX = 'sports-festival-cache-v26:';
     const STORAGE_CACHE_TTL_MS = 1000 * 60 * 10;
+    const LIVE_DYNAMIC_TABS = new Set(['점수','세부경기일정','장소안내','선수단','심판','대진표']);
 
     function requestIdleTask(callback, timeout = 1200) {
       if (typeof window.requestIdleCallback === 'function') {
@@ -14681,33 +14956,44 @@ button.active{
     }
 
     async function fetchTabData(tabName, { force = false } = {}) {
-      if (!force && tabDataCache[tabName]) {
-        return Promise.resolve(tabDataCache[tabName]);
+      const key = String(tabName || '').trim();
+      const isLiveTab = LIVE_DYNAMIC_TABS.has(key);
+      if (isLiveTab) force = true;
+
+      if (!force && tabDataCache[key]) {
+        return Promise.resolve(tabDataCache[key]);
       }
 
       if (!force) {
-        const persisted = readPersistedTabCache(tabName);
+        const persisted = readPersistedTabCache(key);
         if (persisted) {
-          tabDataCache[tabName] = persisted;
+          tabDataCache[key] = persisted;
           return Promise.resolve(persisted);
         }
+      } else if (isLiveTab) {
+        try { delete tabDataCache[key]; } catch (_) {}
+        try { localStorage.removeItem(getStorageCacheKey(key)); } catch (_) {}
       }
 
-      const request = fetch(`${SCRIPT_URL}?tab=${encodeURIComponent(tabName)}`, { cache: 'no-store' }).then(async (res) => {
+      const requestUrl = isLiveTab
+        ? `${SCRIPT_URL}?tab=${encodeURIComponent(key)}&_ts=${Date.now()}`
+        : `${SCRIPT_URL}?tab=${encodeURIComponent(key)}`;
+
+      const request = fetch(requestUrl, { cache: 'no-store' }).then(async (res) => {
         if (!res.ok) throw new Error('Network response was not ok');
         const json = await res.json();
         return sanitizeTabularData(json);
       });
 
-      tabDataCache[tabName] = request;
+      tabDataCache[key] = request;
 
       try {
         const data = await request;
-        tabDataCache[tabName] = data;
-        writePersistedTabCache(tabName, data);
+        tabDataCache[key] = data;
+        if (!isLiveTab) writePersistedTabCache(key, data);
         return data;
       } catch (error) {
-        delete tabDataCache[tabName];
+        delete tabDataCache[key];
         throw error;
       }
     }
@@ -16226,14 +16512,14 @@ button.active{
       if (targetTab === '선수단') {
         return {
           title: '종목을 선택해 주세요.',
-          desc: '종목 버튼을 누르면 해당 종목의 선수단 정보가 카드형으로 열립니다.'
+          desc: ''
         };
       }
 
       if (targetTab === '심판') {
         return {
           title: '종목을 선택해 주세요.',
-          desc: '종목 버튼을 누르면 해당 종목의 심판 정보가 카드형으로 열립니다.'
+          desc: ''
         };
       }
 
@@ -16257,7 +16543,6 @@ button.active{
       return `
         <div id="sport-select-guide" class="sport-select-guide">
           <h3 class="sport-select-guide-title">${guideText.title}</h3>
-          <p class="sport-select-guide-desc">${guideText.desc}</p>
         </div>
       `;
     }
@@ -16888,7 +17173,7 @@ function showRefereeFromSchedule(sport, refContent) {
     }
 
     function buildPlayerCardsHTML(filtered, sport, includeHero = false) {
-      const cacheKey = `${sport}__${includeHero ? 'hero' : 'list'}__${filtered.map(item => `${item.col2 || ''}|${item.col3 || ''}`).join('||')}`;
+      const cacheKey = `${sport}__refereeLike__${includeHero ? 'hero' : 'list'}__${filtered.map(item => `${item.col2 || ''}|${item.col3 || ''}`).join('||')}`;
       if (playerHtmlCache[cacheKey]) return playerHtmlCache[cacheKey];
 
       const heroHtml = includeHero
@@ -16903,8 +17188,8 @@ function showRefereeFromSchedule(sport, refContent) {
 
       const html = `
         ${heroHtml}
-        
-        <div class="roster-stack" id="${targetId}">
+
+        <div class="unified-info-stack roster-referee-like-stack" id="${targetId}">
           ${filtered.map(item => {
             const classSource = stripTrueFalseText(item.col2 || '');
             const classVal = classSource.split('-')[1] || '';
@@ -16913,14 +17198,23 @@ function showRefereeFromSchedule(sport, refContent) {
             const searchText = normalizeSearchText(`${classSource} ${displayClassName} ${sport} ${playerText}`);
 
             return `
-              <div class="roster-card" data-search-item="true" data-search-text="${escapeHtml(searchText)}">
-                <div class="roster-card-head">
-                  <div class="roster-title-wrap">
-                    <span class="roster-class">${escapeHtml(displayClassName)}</span>
+              <div class="unified-info-card roster-referee-like-card" data-search-item="true" data-search-text="${escapeHtml(searchText)}">
+                <div class="unified-info-card-head roster-referee-like-head">
+                  <div class="unified-order-badge">팀</div>
+                  <div style="flex:1; min-width:0;">
+                    <div class="referee-head-wrap">
+                      <div class="referee-head-left">
+                        <span class="referee-grade-text">${escapeHtml(displayClassName)}</span>
+                      </div>
+                      <div class="referee-head-right">
+                        <span class="referee-meta-badge roster-sport-badge">${escapeHtml(sport)}</span>
+                      </div>
+                    </div>
                   </div>
-                  <span class="roster-sport-badge">${escapeHtml(sport)}</span>
                 </div>
-                <div class="roster-player-list">${nl2brSafe(playerText)}</div>
+                <div class="unified-info-body referee-body-row roster-referee-like-body">
+                  <span class="referee-body-name roster-player-name-list">${nl2brSafe(playerText)}</span>
+                </div>
               </div>
             `;
           }).join('')}
@@ -16991,7 +17285,7 @@ function showRefereeFromSchedule(sport, refContent) {
       }
 
       container.innerHTML = buildPlayerCardsHTML(filtered, sport, includeHero);
-      const rosterStack = container.querySelector('.roster-stack');
+      const rosterStack = container.querySelector('.roster-stack, .unified-info-stack');
       const targetId = rosterStack?.id;
       if (targetId) {
         prepareSearchItems(targetId);
@@ -17036,7 +17330,6 @@ function showRefereeFromSchedule(sport, refContent) {
                             <span class="referee-grade-text">${escapeHtml(refereeGradeLabel || refereeHeaderTitle)}</span>
                           </div>
                           <div class="referee-head-right">
-                            ${location ? `<span class="meta-pill location referee-meta-badge">${escapeHtml(location)}</span>` : ''}
                             ${refereeStageLabel ? `<span class="referee-stage-badge referee-meta-badge">${escapeHtml(refereeStageLabel)}</span>` : ''}
                           </div>
                         </div>`
@@ -17045,7 +17338,9 @@ function showRefereeFromSchedule(sport, refContent) {
                   </div>
                 </div>
 
-                <div class="unified-info-body">${nl2brSafe(formattedBody)}</div>
+                ${isRefereeContext
+                  ? `<div class="unified-info-body referee-body-row"><span class="referee-body-name">${nl2brSafe(formattedBody)}</span>${location ? `<span class="meta-pill location referee-body-location">${escapeHtml(location)}</span>` : ''}</div>`
+                  : `<div class="unified-info-body">${nl2brSafe(formattedBody)}</div>`}
 
                 ${!isRefereeContext && location ? `
                   <div class="unified-info-meta">
@@ -18410,6 +18705,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
               <div class="schedule-title-row">
                 <div class="schedule-match-title">${escapeHtml(matchInfo)}</div>
               </div>
+              ${sport ? `<span class="schedule-sport-badge-top">${escapeHtml(sport)}</span>` : ''}
             </div>
             <div class="schedule-bottom-row">
               <div class="schedule-bottom-left">
@@ -20580,7 +20876,7 @@ ${guide}`, current || '');
       const searchText = typeof normalizeSearchText === 'function'
         ? normalizeSearchText(`${classSource} ${displayClassName} ${sport} ${playerText}`)
         : `${classSource} ${displayClassName} ${sport} ${playerText}`;
-      return `<div class="roster-card" data-search-item="true" data-search-text="${escapeHtml(searchText)}"><div class="roster-card-head"><div class="roster-title-wrap"><span class="roster-class">${escapeHtml(displayClassName)}</span></div><span class="roster-sport-badge">${escapeHtml(sport)}</span></div><div class="roster-player-list">${nl2brSafe(playerText)}</div></div>`;
+      return `<div class="roster-card player-referee-style-card" data-search-item="true" data-search-text="${escapeHtml(searchText)}"><div class="roster-card-head player-referee-style-head"><div class="player-referee-style-meta"><span class="roster-class">${escapeHtml(displayClassName)}</span></div><span class="roster-sport-badge">${escapeHtml(sport)}</span></div><div class="roster-player-list player-referee-style-body">${nl2brSafe(playerText)}</div></div>`;
     }).join('')}</div>`;
   }
   function renderCards(container, rows, sport, includeHero=false){
@@ -20590,7 +20886,7 @@ ${guide}`, current || '');
       return;
     }
     container.innerHTML = buildHtml(cleanRows, sport, includeHero);
-    const rosterStack = container.querySelector('.roster-stack');
+    const rosterStack = container.querySelector('.roster-stack, .unified-info-stack');
     const targetId = rosterStack && rosterStack.id;
     if (targetId) {
       if (typeof prepareSearchItems === 'function') prepareSearchItems(targetId);
@@ -21396,8 +21692,8 @@ ${guide}`, current || '');
             : `${sport} ${label} ${body} ${location}`;
 
           return `
-            <div class="roster-card referee-roster-card referee-roster-card-inline" data-search-item="true" data-search-text="${esc(searchText)}">
-              <div class="roster-card-head referee-meta-head">
+            <div class="roster-card player-referee-style-card referee-roster-card referee-roster-card-inline" data-search-item="true" data-search-text="${esc(searchText)}">
+              <div class="roster-card-head player-referee-style-head referee-meta-head">
                 <div class="referee-inline-meta">
                   <span class="roster-class">${esc(gradeLabel)}</span>
                   ${location ? `<span class="referee-roster-location">${esc(location)}</span>` : ''}
@@ -21405,7 +21701,7 @@ ${guide}`, current || '');
                 </div>
                 <span class="roster-sport-badge">${esc(badgeText)}</span>
               </div>
-              <div class="roster-player-list">${nl2brSafe(body)}</div>
+              <div class="roster-player-list player-referee-style-body">${nl2brSafe(body)}</div>
             </div>
           `;
         }).join('')}
@@ -26443,9 +26739,9 @@ textarea{
   window.__speedOptimizerV49__ = true;
 
   const FAST_PREFIX = 'sports-fast-v49:';
-  const DYNAMIC_TTL = 30 * 1000;
+  const DYNAMIC_TTL = 0;
   const STATIC_TTL = 10 * 60 * 1000;
-  const BG_REFRESH_GAP = 15 * 1000;
+  const BG_REFRESH_GAP = 0;
   const DYNAMIC_TABS = new Set(['점수','세부경기일정','장소안내','선수단','심판','대진표']);
   const mem = new Map();
   const inflight = new Map();
@@ -26612,8 +26908,444 @@ textarea{
   box-shadow: 0 4px 10px rgba(217,107,139,0.08) !important;
 }
 </style>
-</body>
-</html>
+
+<style id="roster-referee-card-height-trim-v55">
+  .roster-stack{
+    gap: 10px !important;
+  }
+  .unified-info-stack{
+    gap: 8px !important;
+  }
+  .roster-card-head{
+    padding: 10px 12px !important;
+    margin-bottom: 8px !important;
+    padding-bottom: 8px !important;
+  }
+  .roster-player-list{
+    padding: 11px 12px !important;
+    line-height: 1.58 !important;
+  }
+  .unified-info-card{
+    padding: 11px !important;
+  }
+  .unified-info-card-head{
+    gap: 8px !important;
+    margin-bottom: 6px !important;
+  }
+  .unified-info-body{
+    margin-top: 6px !important;
+    line-height: 1.55 !important;
+  }
+  .referee-line-card{
+    padding: 11px 13px !important;
+  }
+  .referee-head-wrap{
+    gap: 8px !important;
+  }
+  .referee-head-left{
+    gap: 6px !important;
+  }
+  .referee-grade-text{
+    line-height: 1.38 !important;
+  }
+</style>
+
+<style id="referee-schedule-auto-v59-style">
+.referee-schedule-stack{
+  display:flex !important;
+  flex-direction:column !important;
+  gap:8px !important;
+}
+.referee-schedule-card{
+  background: rgba(255,255,255,0.86) !important;
+  border: 1px solid #ead7df !important;
+  border-radius: 16px !important;
+  padding: 10px 12px !important;
+  box-shadow: 0 6px 16px rgba(166, 120, 143, 0.07) !important;
+}
+.referee-schedule-top{
+  display:flex !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+  gap:6px !important;
+  margin-bottom:7px !important;
+  min-width:0 !important;
+}
+.referee-chip{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:24px !important;
+  padding:4px 9px !important;
+  border-radius:999px !important;
+  font-size:.72rem !important;
+  line-height:1 !important;
+  font-weight:800 !important;
+  white-space:nowrap !important;
+  border:1px solid #ead7df !important;
+  background:#fff7fa !important;
+  color:#9a5d74 !important;
+}
+.referee-chip.time{
+  background:#fff5f8 !important;
+  color:#ad5878 !important;
+}
+.referee-chip.stage{
+  background:#fdeff4 !important;
+  color:#bf6d8a !important;
+}
+.referee-chip.sport{
+  background:#fff7f9 !important;
+  color:#8e596d !important;
+}
+.referee-chip.location{
+  background:#fff8fb !important;
+  color:#8d6674 !important;
+}
+.referee-match-text{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  font-size:.86rem !important;
+  line-height:1.3 !important;
+  font-weight:800 !important;
+  color:#4f2d3b !important;
+  word-break:keep-all !important;
+}
+.referee-schedule-bottom{
+  display:flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  min-width:0 !important;
+}
+.referee-name-label{
+  flex:0 0 auto !important;
+  font-size:.74rem !important;
+  font-weight:800 !important;
+  color:#b36b87 !important;
+}
+.referee-name-text{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  font-size:.84rem !important;
+  line-height:1.34 !important;
+  font-weight:700 !important;
+  color:#5d3c49 !important;
+  word-break:keep-all !important;
+}
+</style>
+
+<script id="referee-schedule-auto-v59">
+(function(){
+  if (window.__refereeScheduleAutoV59__) return;
+  window.__refereeScheduleAutoV59__ = true;
+
+  function txt(v){
+    try { return typeof stripTrueFalseText === 'function' ? stripTrueFalseText(v || '').trim() : String(v || '').trim(); }
+    catch(_) { return String(v || '').trim(); }
+  }
+  function esc(v){
+    try { return typeof escapeHtml === 'function' ? escapeHtml(v) : String(v ?? ''); }
+    catch(_) { return String(v ?? ''); }
+  }
+  function searchNorm(v){
+    try { return typeof normalizeSearchText === 'function' ? normalizeSearchText(v) : String(v || '').replace(/\s+/g,'').toLowerCase(); }
+    catch(_) { return String(v || '').replace(/\s+/g,'').toLowerCase(); }
+  }
+  function stageLabelFromItem(item){
+    try {
+      if (typeof getScheduleStageInfo === 'function') {
+        const info = getScheduleStageInfo(item.col7, item.col3);
+        return info && info.label ? info.label : '';
+      }
+    } catch(_) {}
+    const text = `${txt(item?.col7)} ${txt(item?.col3)}`;
+    if (text.includes('준결승') || text.includes('4강')) return '준결승';
+    if (text.includes('결승')) return '결승';
+    if (text.includes('예선')) return '예선';
+    return '';
+  }
+  function getDetailRows(raw){
+    return Array.isArray(raw) ? raw.slice(1) : [];
+  }
+  let cachePromise = null;
+  async function getRefereeScheduleRows(){
+    if (cachePromise) return cachePromise;
+    cachePromise = (async () => {
+      const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof fetchTabDataCached === 'function' ? fetchTabDataCached : null);
+      if (!fetcher) return [];
+      const raw = await fetcher('세부경기일정');
+      return getDetailRows(raw).filter(item => {
+        const sport = txt(item.col1);
+        const time = txt(item.col2);
+        const match = txt(item.col3);
+        const location = txt(item.col4);
+        const referee = txt(item.col5);
+        const hasTime = /\d{1,2}\s*[:.]\s*\d{2}/.test(time);
+        return !!sport && !!referee && hasTime && (!!match || !!location);
+      }).map(item => {
+        const sport = txt(item.col1);
+        const time = txt(item.col2) || '시간미정';
+        const match = txt(item.col3) || '경기 정보 없음';
+        const location = txt(item.col4) || '장소미정';
+        const referee = txt(item.col5) || '심판 정보 없음';
+        const stage = stageLabelFromItem(item);
+        const topText = [time, stage, match, sport, location].filter(Boolean).join(' ');
+        const searchText = searchNorm([sport, time, stage, match, location, referee].join(' '));
+        return { item, sport, time, stage, match, location, referee, topText, searchText };
+      });
+    })();
+    return cachePromise;
+  }
+
+  function sortSports(sports){
+    const base = Array.isArray(window.SPORTS_LIST) ? window.SPORTS_LIST : [];
+    return [...sports].sort((a,b) => {
+      const ia = base.indexOf(a);
+      const ib = base.indexOf(b);
+      if (ia >= 0 && ib >= 0) return ia - ib;
+      if (ia >= 0) return -1;
+      if (ib >= 0) return 1;
+      return String(a).localeCompare(String(b), 'ko');
+    });
+  }
+
+  function buildRefereeScheduleCardsHTML(rows, sport){
+    if (!rows || !rows.length) {
+      return createEmptyGuideHTML('등록된 심판 정보가 없습니다.', `${sport || '선택한 종목'} 경기의 심판 정보가 아직 등록되지 않았습니다.`);
+    }
+    const sorted = [...rows].sort((a,b) => {
+      try {
+        const am = typeof parseScheduleStartMinutes === 'function' ? parseScheduleStartMinutes(a.time) : 0;
+        const bm = typeof parseScheduleStartMinutes === 'function' ? parseScheduleStartMinutes(b.time) : 0;
+        if (am !== bm) return am - bm;
+      } catch(_) {}
+      return String(a.match).localeCompare(String(b.match), 'ko');
+    });
+
+    return `<div class="referee-schedule-stack">${sorted.map(row => `
+      <div class="referee-schedule-card" data-search-item="true" data-search-text="${esc(row.searchText)}">
+        <div class="referee-schedule-top">
+          <span class="referee-chip time">${esc(row.time)}</span>
+          ${row.stage ? `<span class="referee-chip stage">${esc(row.stage)}</span>` : ''}
+          <div class="referee-match-text">${esc(row.match)}</div>
+          <span class="referee-chip sport">${esc(row.sport)}</span>
+        </div>
+        <div class="referee-schedule-bottom">
+          <div class="referee-name-text"><span class="referee-name-label">심판</span> ${typeof nl2brSafe === 'function' ? nl2brSafe(row.referee) : esc(row.referee)}</div>
+          <span class="referee-chip location">${esc(row.location)}</span>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  async function hydrateRefereeButtons(){
+    const group = document.getElementById('sport-filter-group');
+    if (!group) return;
+    const detail = document.getElementById('sport-common-detail');
+    const rows = await getRefereeScheduleRows();
+    const baseSports = Array.isArray(SPORTS_LIST) && SPORTS_LIST.length
+      ? SPORTS_LIST.slice()
+      : ['풋살', '축구', '피구(남)', '피구(여)', '빅발리볼', '발야구', '줄다리기', '이어달리기', '8자 줄넘기', '단체줄넘기', '미션달리기', '팔씨름'];
+    const excludedSports = new Set(['공식행사']);
+    const sportsFromRows = rows
+      .map(row => String(row.sport || '').trim())
+      .filter(Boolean)
+      .filter(sport => !excludedSports.has(sport));
+    const orderedBaseSports = baseSports
+      .map(sport => String(sport || '').trim())
+      .filter(Boolean)
+      .filter(sport => !excludedSports.has(sport));
+    const extraSports = sportsFromRows.filter(sport => !orderedBaseSports.includes(sport));
+    const sports = [...orderedBaseSports, ...extraSports];
+    if (!sports.length) {
+      group.innerHTML = '';
+      if (detail) detail.innerHTML = createEmptyGuideHTML('등록된 심판 일정이 없습니다.', '세부경기일정 시트의 시간, 대진, 장소, 심판 정보를 확인해 주세요.');
+      return;
+    }
+    const sportsFromRowsSet = new Set(sportsFromRows);
+    group.innerHTML = sports.map(sport => {
+      const hasRows = sportsFromRowsSet.has(sport);
+      return `
+      <button type="button" class="filter-btn${hasRows ? '' : ' is-empty-sport'}" data-sport-grid-button="true" data-target-tab="심판" data-sport-name="${esc(sport)}" data-is-player-grid="false" data-is-schedule-view="false" data-mode="default" data-inline-click="handleSportFilterClick(this, '심판', '${esc(sport)}', false, false, 'default')">${esc(sport)}</button>`;
+    }).join('');
+  }
+
+  const originalRenderSportGrid = window.renderSportGrid;
+  if (typeof originalRenderSportGrid === 'function') {
+    window.renderSportGrid = function(targetTab, isPlayerGrid, isScheduleView, mode){
+      const result = originalRenderSportGrid.apply(this, arguments);
+      const resolvedMode = mode || 'default';
+      if (targetTab === '심판' && !isScheduleView && resolvedMode === 'default') {
+        Promise.resolve().then(hydrateRefereeButtons);
+        const detail = document.getElementById('sport-common-detail');
+        if (detail) {
+          detail.innerHTML = createEmptyGuideHTML('종목을 선택해 주세요.', '세부경기일정 시트에서 자동으로 만든 심판 카드가 열립니다.');
+        }
+      }
+      return result;
+    };
+  }
+
+  const originalHandleSportFilterClick = window.handleSportFilterClick;
+  if (typeof originalHandleSportFilterClick === 'function') {
+    window.handleSportFilterClick = async function(btn, targetTab, sport, isPlayerGrid, isScheduleView, mode){
+      const resolvedMode = mode || 'default';
+      if (!(targetTab === '심판' && !isScheduleView && resolvedMode === 'default')) {
+        return originalHandleSportFilterClick.apply(this, arguments);
+      }
+      const container = document.getElementById('sport-common-detail');
+      if (!container) return;
+      const isAlreadyActive = btn.classList.contains('active');
+      document.querySelectorAll('#sport-filter-group .filter-btn').forEach(b => b.classList.remove('active'));
+      if (isAlreadyActive) {
+        if (typeof resetSportDetailArea === 'function') resetSportDetailArea(targetTab, false, false, resolvedMode);
+        return;
+      }
+      btn.classList.add('active');
+      container.innerHTML = '<div class="loader" style="font-size:0.8rem; padding:20px;">심판 일정 불러오는 중...</div>';
+      try {
+        const rows = await getRefereeScheduleRows();
+        const filtered = rows.filter(row => {
+          try { return typeof sportEquals === 'function' ? sportEquals(row.sport, sport) : row.sport === sport; }
+          catch(_) { return row.sport === sport; }
+        });
+        container.innerHTML = buildRefereeScheduleCardsHTML(filtered, sport);
+        const stack = container.querySelector('.referee-schedule-stack');
+        if (stack && typeof prepareSearchItems === 'function') {
+          const stackId = `ref-auto-${Date.now()}`;
+          stack.id = stackId;
+          prepareSearchItems(stackId);
+          if (typeof updateSearchInputState === 'function') updateSearchInputState(stackId);
+        }
+      } catch (e) {
+        container.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 심판 일정을 불러올 수 없습니다.</div>';
+      }
+    };
+  }
+
+  const originalGetGlobalSearchIndex = window.getGlobalSearchIndex || (typeof getGlobalSearchIndex === 'function' ? getGlobalSearchIndex : null);
+  if (originalGetGlobalSearchIndex) {
+    const wrapped = async function(tabName, mode){
+      if (mode !== 'referee') return originalGetGlobalSearchIndex.apply(this, arguments);
+      const rows = await getRefereeScheduleRows();
+      return rows.map(row => ({
+        item: {
+          col1: row.sport,
+          col2: `${row.time}${row.stage ? ' ' + row.stage : ''}`,
+          col3: row.referee,
+          col4: `${row.match} / ${row.location}`,
+          __autoRefereeSchedule: true,
+          __row: row
+        },
+        searchText: row.searchText
+      }));
+    };
+    window.getGlobalSearchIndex = wrapped;
+    try { getGlobalSearchIndex = wrapped; } catch(_) {}
+  }
+
+  const originalRenderGlobalRefereeSearchResults = window.renderGlobalRefereeSearchResults || (typeof renderGlobalRefereeSearchResults === 'function' ? renderGlobalRefereeSearchResults : null);
+  const newRenderGlobalRefereeSearchResults = function(container, filtered){
+    if (!filtered || !filtered.length) {
+      container.innerHTML = createEmptyGuideHTML('검색 결과가 없습니다.', '입력한 이름 또는 역할과 일치하는 심판 정보를 찾지 못했습니다. 다른 검색어로 다시 확인해 주세요.');
+      return;
+    }
+    const autoRows = filtered.filter(entry => {
+      const row = entry && (entry.__row || (entry.item && entry.item.__row));
+      const flag = entry && (entry.__autoRefereeSchedule || (entry.item && entry.item.__autoRefereeSchedule));
+      return !!(flag && row);
+    }).map(entry => entry.__row || (entry.item && entry.item.__row));
+    if (!autoRows.length && originalRenderGlobalRefereeSearchResults) {
+      return originalRenderGlobalRefereeSearchResults.apply(this, arguments);
+    }
+    container.innerHTML = buildRefereeScheduleCardsHTML(autoRows, '');
+  };
+  window.renderGlobalRefereeSearchResults = newRenderGlobalRefereeSearchResults;
+  try { renderGlobalRefereeSearchResults = newRenderGlobalRefereeSearchResults; } catch(_) {}
+})();
+</script>
+
+
+<style id="v60-referee-location-bottom-right">
+  .unified-info-card .unified-info-body.referee-body-row{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:8px !important;
+    flex-wrap:nowrap !important;
+  }
+  .unified-info-card .unified-info-body.referee-body-row .referee-body-name{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+    display:block !important;
+  }
+  .unified-info-card .unified-info-body.referee-body-row .referee-body-location{
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+    max-width:none !important;
+  }
+</style>
+
+<style id="v61-referee-schedule-bottom-layout">
+  .referee-schedule-bottom{
+    display:flex !important;
+    align-items:center !important;
+    justify-content:space-between !important;
+    gap:8px !important;
+    flex-wrap:nowrap !important;
+  }
+  .referee-name-text{
+    min-width:0 !important;
+    flex:1 1 auto !important;
+    overflow:hidden !important;
+    text-overflow:ellipsis !important;
+    white-space:nowrap !important;
+  }
+  .referee-schedule-bottom .referee-chip.location{
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+  }
+</style>
+
+<style id="player-card-match-referee-style-v66">
+.player-referee-style-card{
+  border-radius:18px !important;
+  overflow:hidden !important;
+}
+.player-referee-style-card .player-referee-style-head{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:space-between !important;
+  gap:10px !important;
+  padding:9px 10px !important;
+  background:transparent !important;
+  border-bottom:1px solid rgba(234,215,223,0.7) !important;
+}
+.player-referee-style-card .player-referee-style-meta{
+  min-width:0 !important;
+  flex:1 1 auto !important;
+  display:flex !important;
+  align-items:center !important;
+  gap:6px !important;
+}
+.player-referee-style-card .player-referee-style-head .roster-class{
+  font-size:0.88rem !important;
+  line-height:1.2 !important;
+}
+.player-referee-style-card .player-referee-style-head .roster-sport-badge{
+  flex:0 0 auto !important;
+}
+.player-referee-style-card .player-referee-style-body{
+  padding:8px 10px !important;
+  font-size:0.82rem !important;
+  line-height:1.42 !important;
+  margin-top:0 !important;
+}
+</style>
+
 <style id="score-hero-blue-line-rootfix-v47">
 .realtime-score-page .score-hero-head,
 .realtime-score-page .hero-card.tone-indigo.score-hero-card .score-hero-head,
@@ -26653,3 +27385,367 @@ textarea{
   vertical-align:middle !important;
 }
 </style>
+
+
+<style id="player-cards-actual-referee-like-v68">
+  .roster-referee-like-stack{
+    display:flex !important;
+    flex-direction:column !important;
+    gap:10px !important;
+  }
+  .roster-referee-like-card{
+    padding:12px 13px !important;
+    border-radius:18px !important;
+  }
+  .roster-referee-like-card .roster-sport-badge{
+    margin-left:auto !important;
+  }
+  .roster-referee-like-head{
+    margin-bottom:8px !important;
+  }
+  .roster-referee-like-card .unified-order-badge{
+    background: rgba(236,170,188,0.18) !important;
+    color:#9b5569 !important;
+  }
+  .roster-referee-like-card .unified-info-label{
+    color:#b06a7f !important;
+  }
+  .roster-referee-like-card .referee-grade-text{
+    font-size:0.96rem !important;
+    font-weight:900 !important;
+    color:#4f2f3a !important;
+  }
+  .roster-referee-like-body{
+    font-size:0.9rem !important;
+    line-height:1.6 !important;
+    color:#5f4750 !important;
+    margin-top:0 !important;
+  }
+</style>
+
+
+<style id="player-cards-no-middle-divider-v70">
+  .roster-referee-like-card{padding:10px 11px !important; overflow:hidden !important;}
+  .roster-referee-like-card .roster-referee-like-head{padding:8px 10px 4px !important; margin-bottom:0 !important; border-bottom:none !important; box-shadow:none !important; background:transparent !important;}
+  .roster-referee-like-card .roster-referee-like-body{padding:2px 10px 10px !important; margin-top:0 !important; border-top:none !important; box-shadow:none !important; background:transparent !important;}
+  .roster-referee-like-card .roster-player-name-list{display:block !important; margin-top:0 !important;}
+  .roster-referee-like-card::before,
+  .roster-referee-like-card::after,
+  .roster-referee-like-card .roster-referee-like-head::before,
+  .roster-referee-like-card .roster-referee-like-head::after,
+  .roster-referee-like-card .roster-referee-like-body::before,
+  .roster-referee-like-card .roster-referee-like-body::after{display:none !important; content:none !important;}
+</style>
+
+<style id="player-card-divider-rootfix-v71">
+.player-referee-style-card .roster-card-head,
+.player-referee-style-card .player-referee-style-head{
+  border-bottom:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  background-image:none !important;
+}
+.player-referee-style-card .roster-card-head::before,
+.player-referee-style-card .roster-card-head::after,
+.player-referee-style-card .player-referee-style-head::before,
+.player-referee-style-card .player-referee-style-head::after,
+.player-referee-style-card .roster-player-list::before,
+.player-referee-style-card .roster-player-list::after,
+.player-referee-style-card .player-referee-style-body::before,
+.player-referee-style-card .player-referee-style-body::after{
+  content:none !important;
+  display:none !important;
+}
+.player-referee-style-card .roster-player-list,
+.player-referee-style-card .player-referee-style-body{
+  border-top:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  background-image:none !important;
+}
+</style>
+
+
+<style id="player-cards-height-minus20-v72">
+.player-referee-style-card{
+  border-radius:16px !important;
+}
+.player-referee-style-card .roster-card-head,
+.player-referee-style-card .player-referee-style-head{
+  padding:7px 8px !important;
+  gap:8px !important;
+  min-height:auto !important;
+}
+.player-referee-style-card .player-referee-style-meta{
+  gap:4px !important;
+}
+.player-referee-style-card .roster-class,
+.player-referee-style-card .player-referee-style-head .roster-class{
+  font-size:0.84rem !important;
+  line-height:1.12 !important;
+}
+.player-referee-style-card .roster-sport-badge,
+.player-referee-style-card .player-referee-style-head .roster-sport-badge{
+  padding:4px 8px !important;
+  font-size:0.64rem !important;
+  line-height:1 !important;
+}
+.player-referee-style-card .roster-player-list,
+.player-referee-style-card .player-referee-style-body{
+  padding:6px 8px !important;
+  font-size:0.74rem !important;
+  line-height:1.22 !important;
+  margin-top:0 !important;
+}
+.player-referee-style-card .roster-player-list br,
+.player-referee-style-card .player-referee-style-body br{
+  line-height:1.12 !important;
+}
+</style>
+
+
+<style id="referee-card-height-plus-more-v74">
+/* 심판진 정보 카드만 추가 높이 */
+.unified-info-card,
+.referee-line-card{
+  padding-top: 18px !important;
+  padding-bottom: 18px !important;
+}
+.unified-info-card-head{
+  margin-bottom: 12px !important;
+}
+.unified-info-body{
+  margin-top: 10px !important;
+  line-height: 1.8 !important;
+}
+.referee-line-card{
+  min-height: 74px !important;
+}
+.referee-head-wrap{
+  min-height: 38px !important;
+}
+</style>
+
+
+<style id="player-referee-card-height-visible-v75">
+/* 선수단 정보 카드는 눈에 띄게 더 낮게 */
+.player-referee-style-card{
+  border-radius:16px !important;
+}
+.player-referee-style-card .roster-card-head,
+.player-referee-style-card .player-referee-style-head{
+  padding:6px 8px !important;
+  min-height:auto !important;
+  gap:6px !important;
+  border-bottom:none !important;
+}
+.player-referee-style-card .roster-class{
+  font-size:0.82rem !important;
+  line-height:1.08 !important;
+}
+.player-referee-style-card .roster-sport-badge{
+  padding:3px 7px !important;
+  font-size:0.62rem !important;
+  line-height:1 !important;
+}
+.player-referee-style-card .roster-player-list,
+.player-referee-style-card .player-referee-style-body{
+  padding:4px 8px 6px !important;
+  font-size:0.72rem !important;
+  line-height:1.16 !important;
+  margin-top:0 !important;
+}
+.player-referee-style-card .roster-player-list br,
+.player-referee-style-card .player-referee-style-body br{
+  line-height:1.08 !important;
+}
+/* 심판진 정보 카드는 눈에 띄게 더 높게 */
+.unified-info-card{
+  padding:20px 18px !important;
+  border-radius:20px !important;
+}
+.unified-info-card-head{
+  gap:12px !important;
+  margin-bottom:14px !important;
+}
+.unified-info-title{
+  line-height:1.58 !important;
+}
+.unified-info-body{
+  margin-top:12px !important;
+  line-height:1.9 !important;
+}
+.referee-line-card{
+  padding:18px 16px !important;
+  min-height:84px !important;
+  line-height:1.72 !important;
+}
+.referee-head-wrap{
+  min-height:42px !important;
+  gap:10px !important;
+}
+</style>
+
+<style id="referee-cards-actual-match-player-shell-v78">
+/* 심판진 정보 카드의 실제 렌더 클래스(referee-roster-card-inline)를 선수단 카드 껍데기와 동일하게 맞춤 */
+.referee-roster-card-inline{
+  border-radius:16px !important;
+  background:rgba(255,250,252,0.96) !important;
+  border:1px solid #ead7df !important;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04) !important;
+  overflow:hidden !important;
+}
+.referee-roster-card-inline::before,
+.referee-roster-card-inline::after{
+  content:none !important;
+  display:none !important;
+}
+.referee-roster-card-inline .roster-card-head,
+.referee-roster-card-inline .roster-card-head.referee-meta-head{
+  padding:6px 8px !important;
+  gap:6px !important;
+  min-height:auto !important;
+  border-bottom:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  background:transparent !important;
+  background-image:none !important;
+  align-items:flex-start !important;
+}
+.referee-roster-card-inline .roster-card-head::before,
+.referee-roster-card-inline .roster-card-head::after,
+.referee-roster-card-inline .referee-meta-head::before,
+.referee-roster-card-inline .referee-meta-head::after,
+.referee-roster-card-inline .roster-player-list::before,
+.referee-roster-card-inline .roster-player-list::after{
+  content:none !important;
+  display:none !important;
+}
+.referee-roster-card-inline .referee-inline-meta{
+  gap:4px !important;
+}
+.referee-roster-card-inline .roster-class{
+  font-size:0.82rem !important;
+  line-height:1.08 !important;
+}
+.referee-roster-card-inline .roster-sport-badge{
+  padding:3px 7px !important;
+  font-size:0.62rem !important;
+  line-height:1 !important;
+}
+.referee-roster-card-inline .roster-player-list{
+  padding:4px 8px 6px !important;
+  margin-top:0 !important;
+  border-top:none !important;
+  box-shadow:none !important;
+  outline:none !important;
+  background:transparent !important;
+  background-image:none !important;
+  font-size:0.72rem !important;
+  line-height:1.16 !important;
+}
+.referee-roster-card-inline .roster-player-list br{
+  line-height:1.08 !important;
+}
+</style>
+
+
+<style id="player-referee-guide-title-sync-v79">
+#sport-common-detail .sport-select-guide-title,
+#sport-common-detail .section-empty-guide strong{
+  color:#51323f !important;
+}
+#sport-common-detail .sport-select-guide-desc,
+#sport-common-detail .section-empty-guide span{
+  display:none !important;
+}
+</style>
+
+
+<style id="referee-match-player-shell-v80">
+/* 실제 심판 카드가 선수단 카드와 같은 카드 껍데기를 직접 타도록 정리 */
+.referee-roster-card-inline.player-referee-style-card{
+  border-radius:16px !important;
+  background:rgba(255,250,252,0.96) !important;
+  border:1px solid #ead7df !important;
+  box-shadow:0 1px 2px rgba(0,0,0,0.04) !important;
+  overflow:hidden !important;
+}
+.referee-roster-card-inline.player-referee-style-card .roster-card-head.player-referee-style-head.referee-meta-head{
+  padding:6px 8px !important;
+  gap:6px !important;
+  min-height:auto !important;
+  border-bottom:none !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  background-image:none !important;
+}
+.referee-roster-card-inline.player-referee-style-card .roster-player-list.player-referee-style-body{
+  padding:4px 8px 6px !important;
+  margin-top:0 !important;
+  border-top:none !important;
+  box-shadow:none !important;
+  background:transparent !important;
+  background-image:none !important;
+}
+</style>
+
+
+<style id="timeline-sport-badge-right-v82">
+  .timeline-card-list .schedule-top-row{
+    align-items:center !important;
+  }
+  .timeline-card-list .schedule-sport-badge-top{
+    margin-left:8px !important;
+  }
+  @media (max-width: 640px){
+    .timeline-card-list .schedule-sport-badge-top{
+      font-size:0.7rem !important;
+      padding:5px 10px !important;
+    }
+  }
+</style>
+
+
+<script id="live-sheet-refresh-v83">
+(function(){
+  if (window.__liveSheetRefreshV83__) return;
+  window.__liveSheetRefreshV83__ = true;
+  const LIVE_TABS = new Set(['점수','세부경기일정','장소안내','선수단','심판','대진표']);
+  const PREFIXES = ['sports-festival-cache-v26:', 'sports-fast-v49:'];
+  function clearLiveCaches(tabName){
+    const key = String(tabName || '').trim();
+    try {
+      PREFIXES.forEach(prefix => {
+        try { localStorage.removeItem(prefix + key); } catch(_) {}
+        try { sessionStorage.removeItem(prefix + key); } catch(_) {}
+      });
+    } catch(_) {}
+  }
+  if (typeof window.fetchTabDataCached === 'function') {
+    const orig = window.fetchTabDataCached;
+    window.fetchTabDataCached = function(tabName){
+      const key = String(tabName || '').trim();
+      if (LIVE_TABS.has(key) && typeof window.fetchTabData === 'function') {
+        clearLiveCaches(key);
+        return Promise.resolve(window.fetchTabData(key, { force: true }));
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+  if (typeof window.getTabData === 'function') {
+    const orig = window.getTabData;
+    window.getTabData = function(tabName){
+      const key = String(tabName || '').trim();
+      if (LIVE_TABS.has(key) && typeof window.fetchTabData === 'function') {
+        clearLiveCaches(key);
+        return Promise.resolve(window.fetchTabData(key, { force: true }));
+      }
+      return orig.apply(this, arguments);
+    };
+  }
+})();
+</script>
+
+</body>
+</html>
