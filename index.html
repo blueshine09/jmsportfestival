@@ -8042,6 +8042,14 @@ margin-top:4px;
     .home-live-card.compact{padding:10px 10px 8px;}
     .home-live-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
     .home-live-badge{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;background: rgba(236,72,153,0.12);color: var(--role-selected);font-size:0.62rem;font-weight:900;letter-spacing:0.04em;}
+    .home-live-header-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+    .home-live-badge-time{font-size:0.8rem;font-weight:800;color:var(--text-main);}
+    .home-live-parallel-wrap{margin-top:10px;}
+    .home-live-parallel-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(244,227,233,0.92);background:rgba(255,255,255,0.78);border-radius:16px;padding:12px 14px;box-shadow:0 4px 10px rgba(120, 88, 107, 0.05);cursor:pointer;color:var(--text-main);}
+    .home-live-parallel-text{font-size:0.88rem;font-weight:800;color:var(--text-main);}
+    .home-live-parallel-icon{font-size:0.95rem;font-weight:900;color:var(--text-sub);transition:transform .18s ease;}
+    .home-live-parallel-toggle[aria-expanded="true"] .home-live-parallel-icon{transform:rotate(180deg);}
+
     .home-live-label{font-size:0.68rem;font-weight:800;color:var(--role-muted);}
     .home-live-main{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
     .home-live-main.compact{gap:6px;}
@@ -14907,7 +14915,7 @@ button.active{
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzpYVhwKI6KNXxAYwD0kWrelFKQeR5PtmFzRkgAqy9MgxITnbw7hSai0-Pt3hscQuzQ/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzTHEmx14tvPp0iUY4bioWLSSAKf61G49AkIkqDJIv_fSROL2APyxu_TvXLzilz3J8Q/exec';
     const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyO8wWbpEl_q4CqEDBiw41BqADPK-vVcr6CsRzuUcxKY3EdKEgrriRyE8DVszIpVW91/exec';
     const NOTICE_TEXT = '※ 세부 경기 시간은 진행 상황에 따라 변동 될 수 있으니 안내 방송에 귀 기울여 주시고, 세부 경기 일정을 확인해 주세요.';
     const SPORTS_LIST = ['풋살', '축구', '피구(남)', '피구(여)', '빅발리볼', '발야구', '줄다리기', '이어달리기', '8자 줄넘기', '단체줄넘기', '미션달리기', '팔씨름'];
@@ -19028,21 +19036,64 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return match ? `${match[1]}학년` : '';
     }
 
+    function classScheduleExtractClassKeysFromFreeText(text = '', fallbackGrade = '') {
+      const source = safeText(text);
+      if (!source) return [];
+      const result = [];
+      const defaultGrade = safeText(fallbackGrade) || currentClassScheduleGrade || '';
+
+      source.replace(/([123])\s*-\s*(\d+)/g, (_, gradeNo, classNo) => {
+        result.push(`${gradeNo}-${classNo}`);
+        return _;
+      });
+
+      source.replace(/([123])학년\s*[:：]?\s*(\d+)반/g, (_, gradeNo, classNo) => {
+        result.push(`${gradeNo}-${classNo}`);
+        return _;
+      });
+
+      source.replace(/([123])학년/g, () => '');
+
+      const gradeMatch = source.match(/([123])학년/);
+      const grade = gradeMatch ? `${gradeMatch[1]}학년` : defaultGrade;
+
+      source.replace(/(\d+)반/g, (_, classNo) => {
+        const key = classScheduleMakeClassKey(grade, `${classNo}반`);
+        if (key) result.push(key);
+        return _;
+      });
+
+      source.replace(/\(?(\d+)\s*\/\s*(\d+)\s*승자\)?/g, (_, a, b) => {
+        const key1 = classScheduleMakeClassKey(grade, `${a}반`);
+        const key2 = classScheduleMakeClassKey(grade, `${b}반`);
+        if (key1) result.push(key1);
+        if (key2) result.push(key2);
+        return _;
+      });
+
+      return Array.from(new Set(result.filter(Boolean)));
+    }
+
     function inferClassKeysFromMatchInfo(matchInfo = '', allianceRows = [], fallbackGrade = '') {
       const text = safeText(matchInfo);
+      if (!text) return [];
+
+      const directKeys = classScheduleExtractClassKeysFromFreeText(text, fallbackGrade);
       const vs = classScheduleSplitVs(text);
-      if (!vs) return [];
+      if (!vs) return directKeys;
+
       if (classScheduleIsAllianceTeamName(vs.left) || classScheduleIsAllianceTeamName(vs.right)) {
-        return [
+        return Array.from(new Set([
+          ...directKeys,
           ...getAllianceClassKeysForTeamName(vs.left, allianceRows),
           ...getAllianceClassKeysForTeamName(vs.right, allianceRows)
-        ].filter(Boolean);
+        ].filter(Boolean)));
       }
 
       const gradeMatch = text.match(/([123])학년/);
       const grade = gradeMatch ? `${gradeMatch[1]}학년` : (safeText(fallbackGrade) || currentClassScheduleGrade);
       const sides = [vs.left, vs.right];
-      const classKeys = [];
+      const classKeys = [...directKeys];
 
       sides.forEach(side => {
         const cleaned = String(side || '').replace(/^([123])학년\s*[:：]?\s*/, '').trim();
@@ -19072,16 +19123,22 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return Array.from(new Set(classKeys.filter(Boolean)));
     }
 
+    function getDefaultClassKeysForGrade(grade = '1학년') {
+      const gradeNo = String(grade || '1학년').match(/[123]/);
+      const prefix = gradeNo ? gradeNo[0] : '1';
+      return Array.from({ length: 7 }, (_, index) => `${prefix}-${index + 1}`);
+    }
+
     function getAvailableClassesForGrade(rows = [], grade = '1학년', allianceRows = []) {
       const set = new Set();
 
       (rows || []).forEach(item => {
         const row = classScheduleCanonicalizeScheduleRow(item);
         if (!row) return;
-        const matchInfo = row.col3 || '';
-        const fallbackGrade = classScheduleExtractGradeFromRow(row);
+        const matchInfo = [row.classKeys || '', row.col3 || '', row.col6 || '', row.col7 || '', row.col1 || ''].filter(Boolean).join(' | ');
+        const fallbackGrade = classScheduleExtractGradeFromRow(row) || grade;
         inferClassKeysFromMatchInfo(matchInfo, allianceRows, fallbackGrade).forEach(key => {
-          if (key.startsWith(`${grade.charAt(0)}-`)) set.add(key);
+          if (key.startsWith(`${String(grade).charAt(0)}-`)) set.add(key);
         });
       });
 
@@ -19091,7 +19148,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         return an - bn;
       });
 
-      return sorted;
+      return sorted.length ? sorted : getDefaultClassKeysForGrade(grade);
     }
 
     async function fetchFirstAvailableTab(tabNames = [], { force = false } = {}) {
@@ -19136,22 +19193,28 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       html += `</div>`;
 
       html += `<div class="filter-btn-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom:14px;" id="class-schedule-filter-group">`;
-      if (!classes.length) {
-        html += `<div class="section-empty-guide" style="grid-column:1/-1; padding:18px 12px;"><strong style="font-size:1rem; line-height:1.2;">선택 가능한 반이 없습니다.</strong><span>${currentClassScheduleGrade} 일정 데이터와 연합팀 구성을 확인해 주세요.</span></div>`;
-      } else {
-        classes.forEach(key => {
-          const classNo = String(key).split('-')[1] || '';
-          html += `<button type="button" class="filter-btn ${effectiveClass === key ? 'active' : ''}" data-inline-click="setClassScheduleClass('${key}', this)">${classNo}반</button>`;
-        });
-      }
+      classes.forEach(key => {
+        const classNo = String(key).split('-')[1] || '';
+        html += `<button type="button" class="filter-btn ${effectiveClass === key ? 'active' : ''}" data-inline-click="setClassScheduleClass('${key}', this)">${classNo}반</button>`;
+      });
       html += `</div>`;
+      if (!(rows || []).length) {
+        html += `<div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px;"><p class="info-notice-text">일정 데이터를 아직 읽지 못해도 학년과 반 버튼은 먼저 표시되도록 조정했습니다. 버튼은 보이지만 일정 카드가 비어 있으면 시트 연결 상태를 다시 확인해 주세요.</p></div>`;
+      }
 
       const filtered = effectiveClass
         ? (rows || []).filter(item => {
             const row = classScheduleCanonicalizeScheduleRow(item);
             if (!row) return false;
             const fallbackGrade = classScheduleExtractGradeFromRow(row);
-            return inferClassKeysFromMatchInfo(row.col3 || '', allianceRows, fallbackGrade).includes(effectiveClass);
+            const combinedText = [
+              row.classKeys || '',
+              row.col3 || '',
+              row.col6 || '',
+              row.col7 || '',
+              row.col1 || ''
+            ].filter(Boolean).join(' | ');
+            return inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade).includes(effectiveClass);
           })
         : [];
 
@@ -19183,7 +19246,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
           });
         } catch (_) {}
 
-        const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true });
+        const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true }).catch(() => []);
         const allianceData = await fetchFirstAvailableTab(['연합팀 구성', '[연합팀 구성]'], { force: true }).catch(() => []);
 
         const rows = (Array.isArray(allData) ? allData : [])
@@ -19198,8 +19261,10 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         bindScheduleActionButtons(container);
       } catch (error) {
         console.error('[반별보기 오류]', error);
-        const message = error && error.message ? String(error.message) : '알 수 없는 오류';
-        container.innerHTML = createEmptyGuideHTML('반별 일정을 불러오지 못했습니다.', `오류: ${escapeHtml(message)}`);
+        const safeRows = [];
+        const safeAllianceRows = [];
+        container.innerHTML = buildClassSchedulePickerHTML(safeRows, safeAllianceRows);
+        bindScheduleActionButtons(container);
       }
     }
 
@@ -19523,6 +19588,8 @@ async function loadBracketByGrade(sport, grade, btn = null) {
           favoriteSport,
           stageInfo: null,
           nextLabel: '',
+          parallelRows: [],
+          parallelCount: 0,
           targetRow: null,
           nextRow: null
         };
@@ -19542,15 +19609,20 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       const countdownText = current
         ? `종료까지 ${formatMinuteDiff(range.end - nowMinutes)}`
         : `시작까지 ${formatMinuteDiff(range.start - nowMinutes)}`;
+      const sameStartRows = sorted.filter(item => item !== target && parseScheduleStartMinutes(item.col2) === range.start);
+      const titleParts = [target.col1 || '', target.col2 || '시간미정'].filter(Boolean);
+      const metaParts = [target.col4 || '', target.col7 || ''].filter(Boolean);
       return {
-        title: '',
-        desc: `${target.col2 || '시간미정'} · ${target.col3 || '일정명 미정'}`,
-        meta: target.col4 || '',
+        title: titleParts.join(' · '),
+        desc: `${target.col3 || '일정명 미정'}`,
+        meta: metaParts.join(' · '),
         isLive: !!current,
         countdownText,
         favoriteSport,
         stageInfo: getScheduleStageInfo(target.col7, target.col3),
-        nextLabel: followUp ? `${followUp.col2 || '시간미정'} · ${followUp.col3 || '다음 일정 확인'}` : '',
+        nextLabel: followUp ? `${followUp.col2 || '시간미정'} · ${followUp.col1 || '다음 종목'} · ${followUp.col3 || '다음 일정 확인'}` : '',
+        parallelRows: sameStartRows,
+        parallelCount: sameStartRows.length,
         targetRow: target,
         nextRow: followUp
       };
@@ -19582,23 +19654,20 @@ ${guide}`, current || '');
         const summary = targetDay === 'day2'
           ? getFestivalScheduleSummary(day2Rows, '2일차', favoriteSport)
           : getFestivalScheduleSummary(day1Rows, '1일차', favoriteSport);
-        const secondary = targetDay === 'day2'
-          ? getFestivalScheduleSummary(day1Rows, '1일차 돌아보기', favoriteSport)
-          : getFestivalScheduleSummary(day2Rows, '2일차 미리보기', favoriteSport);
         const candidates = extractFavoriteSportCandidates([].concat(day1Rows, day2Rows));
         const badgeText = summary.isLive ? 'LIVE' : 'NOW';
+        const parallelText = summary.parallelCount > 0 ? `대표 1건 외 ${summary.parallelCount}건 동시 진행` : '';
 
         mount.innerHTML = `
           <div class="home-live-card compact">
             <div class="home-live-header">
               <span class="home-live-badge">${escapeHtml(badgeText)}</span>
-              
             </div>
             <div class="home-live-main compact">
               <div class="home-live-content">
-                <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc)}</div>
+                <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}" style="white-space:pre-line;">${escapeHtml((summary.title ? summary.title + '\n' : '') + (summary.desc || ''))}</div>
                 ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
-                <div class="home-live-title">${escapeHtml(summary.title)}</div>
+                ${parallelText ? `<div class="home-live-meta compact">${escapeHtml(parallelText)}</div>` : ''}
                 <div class="home-live-actions compact">
                   <button type="button" class="home-live-link compact" data-inline-click="activateMainTab('일정')">전체 일정 보기</button>
                 </div>
@@ -20298,21 +20367,59 @@ ${guide}`, current || '');
 
   function buildHomeLiveScheduleHtml(summary) {
     const badgeText = summary.isLive ? 'LIVE' : 'NOW';
+    const badgeTime = String((summary.targetRow && summary.targetRow.col2) || '').trim();
     const nextLabel = String(summary.nextLabel || '').trim();
     const nextHtml = nextLabel
       ? `<div class="home-live-next"><span class="home-live-next-label">다음 일정</span>${escapeHtml(nextLabel)}</div>`
       : '';
+    const parallelRows = Array.isArray(summary.parallelRows) ? summary.parallelRows : [];
+    const parallelId = `parallel-${Math.random().toString(36).slice(2, 10)}`;
+    const parallelSummary = summary.parallelCount > 0
+      ? `대표 1건 외 ${summary.parallelCount}건`
+      : '';
+    const parallelHtml = parallelRows.length
+      ? `
+        <div class="home-live-parallel-wrap">
+          <button type="button" class="home-live-parallel-toggle" aria-expanded="false" aria-controls="${parallelId}" onclick="(function(btn){const panel=document.getElementById('${parallelId}'); if(!panel) return; const expanded=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', expanded ? 'false' : 'true'); panel.hidden = expanded; })(this)">
+            <span class="home-live-parallel-text">${escapeHtml(parallelSummary)}</span>
+            <span class="home-live-parallel-icon">▾</span>
+          </button>
+          <div id="${parallelId}" class="home-live-info-list" hidden>
+            ${parallelRows.map(item => `
+              <div class="home-live-info-item">
+                <div>
+                  <div class="home-live-info-label">동시 진행</div>
+                  <div class="home-live-info-value" style="text-align:left;">${escapeHtml(item.col1 || '종목 미정')} · ${escapeHtml(item.col3 || '일정명 미정')}</div>
+                </div>
+                <div class="home-live-info-value">${escapeHtml(item.col4 || '장소 미정')}</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `
+      : '';
+
+    const visibleTitle = String(summary.title || '').trim();
+    const visibleDesc = String(summary.desc || '').trim();
+    const combinedBody = visibleTitle
+      ? (visibleDesc ? `${visibleTitle}
+${visibleDesc}` : visibleTitle)
+      : visibleDesc;
 
     return `
       <div class="home-live-card compact ios-live-card">
         <div class="home-live-header">
-          <span class="home-live-badge">${escapeHtml(badgeText)}</span>
+          <div class="home-live-header-left">
+            <span class="home-live-badge">${escapeHtml(badgeText)}</span>
+            ${badgeTime ? `<span class="home-live-badge-time">${escapeHtml(badgeTime)}</span>` : ''}
+          </div>
         </div>
         <div class="home-live-main compact">
           <div class="home-live-content">
             <div class="home-live-primary-row">
-              <div class="home-live-body ${String(summary.desc || '').trim() === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}">${escapeHtml(summary.desc || '')}</div>
+              <div class="home-live-body ${combinedBody === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}" style="white-space:pre-line;">${escapeHtml(combinedBody)}</div>
               ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
+              ${parallelHtml}
             </div>
             ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
             <div class="home-live-actions compact">
@@ -22760,6 +22867,8 @@ ${guide}`, current || '');
     [/^openImageViewerFromDataset\(this\)$/, () => ({ action: 'openImageViewerFromDataset', passElement: true })],
     [/^handleImageViewerBackdrop\(event\)$/, () => ({ action: 'handleImageViewerBackdrop', passEvent: true })],
     [/^handleScheduleDetailModeChange\('([^']+)',\s*this\)$/, m => ({ action: 'handleScheduleDetailModeChange', args: [m[1]], passElement: true })],
+    [/^setClassScheduleGrade\('([^']+)',\s*this\)$/, m => ({ action: 'setClassScheduleGrade', args: [m[1]], passElement: true })],
+    [/^setClassScheduleClass\('([^']+)',\s*this\)$/, m => ({ action: 'setClassScheduleClass', args: [m[1]], passElement: true })],
     [/^handleSportFilterClick\(this,\s*'([^']+)',\s*'([^']+)',\s*(true|false),\s*(true|false),\s*'([^']+)'\)$/, m => ({ action: 'handleSportFilterClick', args: [m[1], m[2], m[3] === 'true', m[4] === 'true', m[5]], passElement: true, elementFirst: true })],
     [/^event\.stopPropagation\(\);\s*updateScheduleGradeFilter\('([^']+)',\s*'([^']*)',\s*'([^']*)',\s*this\)$/, m => ({ action: 'updateScheduleGradeFilter', args: [m[1], m[2], m[3]], passElement: true, stop: true })],
     [/^event\.stopPropagation\(\);\s*updateGradeFilter\('([^']+)',\s*'([^']*)',\s*null,\s*'([^']*)',\s*this\)$/, m => ({ action: 'updateGradeFilter', args: [m[1], m[2], null, m[3]], passElement: true, stop: true })],
