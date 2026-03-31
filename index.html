@@ -19194,11 +19194,16 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         html += `<div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px;"><p class="info-notice-text">일정 데이터를 아직 읽지 못해도 학년과 반 버튼은 먼저 표시되도록 조정했습니다. 버튼은 보이지만 일정 카드가 비어 있으면 시트 연결 상태를 다시 확인해 주세요.</p></div>`;
       }
 
+      const gradePrefix = String(currentClassScheduleGrade || '').match(/[123]/);
+      const effectiveClassNo = effectiveClass ? String(effectiveClass).split('-')[1] || '' : '';
+      const effectiveGradeNo = gradePrefix ? gradePrefix[0] : '';
+
       const filtered = effectiveClass
         ? (rows || []).filter(item => {
             const row = classScheduleCanonicalizeScheduleRow(item);
             if (!row) return false;
-            const fallbackGrade = classScheduleExtractGradeFromRow(row);
+
+            const fallbackGrade = classScheduleExtractGradeFromRow(row) || currentClassScheduleGrade;
             const combinedText = [
               row.classKeys || '',
               row.col3 || '',
@@ -19206,7 +19211,23 @@ async function loadBracketByGrade(sport, grade, btn = null) {
               row.col7 || '',
               row.col1 || ''
             ].filter(Boolean).join(' | ');
-            return inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade).includes(effectiveClass);
+
+            const inferredKeys = inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade);
+            if (inferredKeys.includes(effectiveClass)) return true;
+
+            const matchText = safeText(row.col3);
+            const gradeText = safeText(row.col6 || fallbackGrade);
+            const normalized = `${matchText} | ${gradeText}`;
+
+            if (effectiveGradeNo && effectiveClassNo) {
+              if (new RegExp(`(?:^|[^\d])${effectiveGradeNo}\s*-\s*${effectiveClassNo}(?:[^\d]|$)`).test(normalized)) return true;
+              if (new RegExp(`${effectiveGradeNo}학년\s*[:：]?\s*${effectiveClassNo}반`).test(normalized)) return true;
+              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`(?:^|[^\d])${effectiveClassNo}반(?:[^\d]|$)`).test(matchText)) return true;
+              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`\(?${effectiveClassNo}\s*\/\s*\d+\s*승자\)?|\(?\d+\s*\/\s*${effectiveClassNo}\s*승자\)?`).test(matchText)) return true;
+              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`(?:^|[^\d])${effectiveClassNo}(?:[^\d]|$)`).test(matchText) && /반|승자|vs|VS/.test(matchText)) return true;
+            }
+
+            return false;
           })
         : [];
 
