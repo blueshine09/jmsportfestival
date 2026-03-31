@@ -19174,7 +19174,12 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         try {
           ['세부경기일정','세부일정','연합팀 구성','[연합팀 구성]'].forEach((key) => {
             try { delete tabDataCache[key]; } catch (_) {}
-            try { localStorage.removeItem(getStorageCacheKey(key)); } catch (_) {}
+            try {
+              const storageKey = typeof getStorageCacheKey === 'function'
+                ? getStorageCacheKey(key)
+                : `tabCache:${key}`;
+              localStorage.removeItem(storageKey);
+            } catch (_) {}
           });
         } catch (_) {}
 
