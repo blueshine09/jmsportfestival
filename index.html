@@ -8042,14 +8042,6 @@ margin-top:4px;
     .home-live-card.compact{padding:10px 10px 8px;}
     .home-live-header{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
     .home-live-badge{display:inline-flex;align-items:center;justify-content:center;padding:4px 8px;border-radius:999px;background: rgba(236,72,153,0.12);color: var(--role-selected);font-size:0.62rem;font-weight:900;letter-spacing:0.04em;}
-    .home-live-header-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-    .home-live-badge-time{font-size:0.8rem;font-weight:800;color:var(--text-main);}
-    .home-live-parallel-wrap{margin-top:10px;}
-    .home-live-parallel-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid rgba(244,227,233,0.92);background:rgba(255,255,255,0.78);border-radius:16px;padding:12px 14px;box-shadow:0 4px 10px rgba(120, 88, 107, 0.05);cursor:pointer;color:var(--text-main);}
-    .home-live-parallel-text{font-size:0.88rem;font-weight:800;color:var(--text-main);}
-    .home-live-parallel-icon{font-size:0.95rem;font-weight:900;color:var(--text-sub);transition:transform .18s ease;}
-    .home-live-parallel-toggle[aria-expanded="true"] .home-live-parallel-icon{transform:rotate(180deg);}
-
     .home-live-label{font-size:0.68rem;font-weight:800;color:var(--role-muted);}
     .home-live-main{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;}
     .home-live-main.compact{gap:6px;}
@@ -20367,34 +20359,24 @@ ${guide}`, current || '');
 
   function buildHomeLiveScheduleHtml(summary) {
     const badgeText = summary.isLive ? 'LIVE' : 'NOW';
-    const badgeTime = String((summary.targetRow && summary.targetRow.col2) || '').trim();
     const nextLabel = String(summary.nextLabel || '').trim();
     const nextHtml = nextLabel
       ? `<div class="home-live-next"><span class="home-live-next-label">다음 일정</span>${escapeHtml(nextLabel)}</div>`
       : '';
     const parallelRows = Array.isArray(summary.parallelRows) ? summary.parallelRows : [];
-    const parallelId = `parallel-${Math.random().toString(36).slice(2, 10)}`;
-    const parallelSummary = summary.parallelCount > 0
-      ? `대표 1건 외 ${summary.parallelCount}건`
-      : '';
     const parallelHtml = parallelRows.length
       ? `
-        <div class="home-live-parallel-wrap">
-          <button type="button" class="home-live-parallel-toggle" aria-expanded="false" aria-controls="${parallelId}" onclick="(function(btn){const panel=document.getElementById('${parallelId}'); if(!panel) return; const expanded=btn.getAttribute('aria-expanded')==='true'; btn.setAttribute('aria-expanded', expanded ? 'false' : 'true'); panel.hidden = expanded; })(this)">
-            <span class="home-live-parallel-text">${escapeHtml(parallelSummary)}</span>
-            <span class="home-live-parallel-icon">▾</span>
-          </button>
-          <div id="${parallelId}" class="home-live-info-list" hidden>
-            ${parallelRows.map(item => `
-              <div class="home-live-info-item">
-                <div>
-                  <div class="home-live-info-label">동시 진행</div>
-                  <div class="home-live-info-value" style="text-align:left;">${escapeHtml(item.col1 || '종목 미정')} · ${escapeHtml(item.col3 || '일정명 미정')}</div>
-                </div>
-                <div class="home-live-info-value">${escapeHtml(item.col4 || '장소 미정')}</div>
+        <div class="home-live-info-list">
+          ${parallelRows.slice(0, 3).map(item => `
+            <div class="home-live-info-item">
+              <div>
+                <div class="home-live-info-label">동시 진행</div>
+                <div class="home-live-info-value" style="text-align:left;">${escapeHtml(item.col1 || '종목 미정')} · ${escapeHtml(item.col3 || '일정명 미정')}</div>
               </div>
-            `).join('')}
-          </div>
+              <div class="home-live-info-value">${escapeHtml(item.col4 || '장소 미정')}</div>
+            </div>
+          `).join('')}
+          ${parallelRows.length > 3 ? `<div class="home-live-info-item"><div class="home-live-info-label">추가 경기</div><div class="home-live-info-value">외 ${parallelRows.length - 3}건</div></div>` : ''}
         </div>
       `
       : '';
@@ -20409,17 +20391,14 @@ ${visibleDesc}` : visibleTitle)
     return `
       <div class="home-live-card compact ios-live-card">
         <div class="home-live-header">
-          <div class="home-live-header-left">
-            <span class="home-live-badge">${escapeHtml(badgeText)}</span>
-            ${badgeTime ? `<span class="home-live-badge-time">${escapeHtml(badgeTime)}</span>` : ''}
-          </div>
+          <span class="home-live-badge">${escapeHtml(badgeText)}</span>
         </div>
         <div class="home-live-main compact">
           <div class="home-live-content">
             <div class="home-live-primary-row">
               <div class="home-live-body ${combinedBody === '오늘 예정된 일정이 없습니다' ? 'home-live-body-empty' : ''}" style="white-space:pre-line;">${escapeHtml(combinedBody)}</div>
               ${summary.meta ? `<div class="home-live-meta compact">${escapeHtml(summary.meta)}</div>` : ''}
-              ${parallelHtml}
+              ${summary.parallelCount > 0 ? `<div class="home-live-meta compact">${escapeHtml(`대표 1건 외 ${summary.parallelCount}건 동시 진행`)}</div>` : ''}
             </div>
             ${nextHtml ? `<div class="home-live-stage-wrap">${nextHtml}</div>` : ''}
             <div class="home-live-actions compact">
