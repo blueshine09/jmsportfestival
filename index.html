@@ -13743,7 +13743,6 @@ document.addEventListener('DOMContentLoaded', function(){
 }
 </style>
 
-
 <style id="unified-surface-tone-v12">
 :root {
   --surface-page: linear-gradient(180deg, #fbf8fa 0%, #f7f2f5 100%);
@@ -13874,7 +13873,6 @@ body,
   background-color: rgba(255,255,255,0.72) !important;
 }
 </style>
-
 
 <style id="sakura-button-unify-v13">
 :root{
@@ -14069,7 +14067,6 @@ button.active{
   }
 </style>
 
-
 <style id="surface-unify-fix-v16">
   .sport-select-guide,
   .info-notice-box,
@@ -14108,7 +14105,6 @@ button.active{
     color: #513843 !important;
   }
 </style>
-
 
 <style id="card-surface-balance-v17">
   .schedule-stack,
@@ -14246,7 +14242,6 @@ button.active{
 }
 </style>
 
-
 <style id="sakura-accent-v28">
   :root{
     --sakura-petal: rgba(232, 157, 184, 0.34);
@@ -14373,7 +14368,6 @@ button.active{
   }
 </style>
 
-
 <style id="loading-real-fix-v33">
 .loader,
 #loader,
@@ -14422,8 +14416,6 @@ button.active{
   }
 </style>
 
-
-
 <style id="bracket-border-tone-fix-v38">
 .rule-summary-box,
 .bracket-shell,
@@ -14466,7 +14458,6 @@ button.active{
 }
 </style>
 
-
 <style id="score-hero-innerline-remove-v46">
   .score-hero-head,
   .score-hero-head::before,
@@ -14479,7 +14470,6 @@ button.active{
     content: none !important;
   }
 </style>
-
 
 <style id="roster-referee-height-minus40-v56">
   .roster-card-head{padding:6px 10px !important;}
@@ -14544,7 +14534,6 @@ button.active{
 .unified-info-label { font-size: 0.78rem !important; }
 </style>
 
-
 <style id="referee-all-sports-button-v62">
   #sport-filter-group .filter-btn.is-empty-sport{opacity:1 !important;}
 </style>
@@ -14587,7 +14576,6 @@ button.active{
   padding-bottom: 2px !important;
 }
 </style>
-
 
 <style id="referee-match-player-card-design-v76">
   /* 심판진 정보 카드 디자인을 선수단 명단 카드와 동일하게 */
@@ -14736,7 +14724,6 @@ button.active{
 }
 </style>
 
-
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-NFD0NKT4HP"></script>
   <script>
@@ -14746,6 +14733,115 @@ button.active{
 
     gtag('config', 'G-NFD0NKT4HP');
   </script>
+
+<style id="schedule-view-button-width-tweak">
+  .schedule-view-actions{
+    gap: 8px !important;
+  }
+  .schedule-view-toggle{
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  .schedule-view-toggle-btn{
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding: 0 18px !important;
+  }
+  .schedule-guide-action{
+    flex: 0 0 auto !important;
+  }
+  .schedule-guide-btn,
+  .schedule-guide-btn.seat-link-btn{
+    padding: 0 10px !important;
+    min-width: 104px !important;
+    font-size: 0.88rem !important;
+  }
+  @media (max-width: 480px){
+    .schedule-view-actions{
+      gap: 6px !important;
+    }
+    .schedule-view-toggle-btn{
+      padding: 0 14px !important;
+      font-size: 0.82rem !important;
+    }
+    .schedule-guide-btn,
+    .schedule-guide-btn.seat-link-btn{
+      min-width: 92px !important;
+      padding: 0 8px !important;
+      font-size: 0.82rem !important;
+    }
+    .schedule-guide-btn i{
+      width: 13px !important;
+      height: 13px !important;
+    }
+  }
+</style>
+
+<style id="schedule-guide-structure-fix14">
+  /* 제목 줄과 경기장 안내를 같은 줄로 강제 정렬 */
+  .schedule-view-toolbar{
+    position: relative !important;
+  }
+  .schedule-view-header{
+    position: relative !important;
+    display: block !important;
+    min-height: 40px !important;
+    margin-bottom: 12px !important;
+  }
+  .schedule-view-title{
+    display: block !important;
+    margin: 0 !important;
+    line-height: 40px !important;
+    min-height: 40px !important;
+  }
+  .schedule-guide-action.schedule-guide-action--top{
+    position: absolute !important;
+    top: 0 !important;
+    right: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+  .schedule-guide-action.schedule-guide-action--top .schedule-guide-btn,
+  .schedule-guide-action.schedule-guide-action--top .schedule-guide-btn.seat-link-btn{
+    margin: 0 !important;
+    width: auto !important;
+    min-width: auto !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 14px !important;
+    gap: 4px !important;
+    box-shadow: 0 4px 10px rgba(217,107,139,0.06) !important;
+  }
+  .schedule-guide-action.schedule-guide-action--top .schedule-guide-btn i{
+    width: 12px !important;
+    height: 12px !important;
+  }
+  .schedule-view-actions.schedule-view-actions--stacked{
+    margin-top: 0 !important;
+  }
+</style>
+
+
+<style id="schedule-gap-reduce-fix">
+  .schedule-view-header{
+    margin-bottom: 6px !important;
+  }
+  .schedule-view-actions.schedule-view-actions--stacked{
+    margin-top: 2px !important;
+  }
+  .schedule-view-toolbar{
+    padding-bottom: 12px !important;
+  }
+</style>
+
 </head>
 <body>
   <div class="app-container">
@@ -14811,7 +14907,7 @@ button.active{
   </div>
 
   <script>
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3AHUP0MMXi8bfmKNkJ2v5uIKwQ5-aFVxbn9KK2ZL7wX7VOmetI5mG0HK2ESgiL7eI/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzpYVhwKI6KNXxAYwD0kWrelFKQeR5PtmFzRkgAqy9MgxITnbw7hSai0-Pt3hscQuzQ/exec';
     const FEEDBACK_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyO8wWbpEl_q4CqEDBiw41BqADPK-vVcr6CsRzuUcxKY3EdKEgrriRyE8DVszIpVW91/exec';
     const NOTICE_TEXT = '※ 세부 경기 시간은 진행 상황에 따라 변동 될 수 있으니 안내 방송에 귀 기울여 주시고, 세부 경기 일정을 확인해 주세요.';
     const SPORTS_LIST = ['풋살', '축구', '피구(남)', '피구(여)', '빅발리볼', '발야구', '줄다리기', '이어달리기', '8자 줄넘기', '단체줄넘기', '미션달리기', '팔씨름'];
@@ -14932,7 +15028,7 @@ button.active{
 
     const STORAGE_CACHE_PREFIX = 'sports-festival-cache-v26:';
     const STORAGE_CACHE_TTL_MS = 1000 * 60 * 10;
-    const LIVE_DYNAMIC_TABS = new Set(['점수','세부경기일정','장소안내','선수단','심판','대진표']);
+    const LIVE_DYNAMIC_TABS = new Set(['점수','세부경기일정','세부일정','연합팀 구성','[연합팀 구성]','장소안내','선수단','심판','대진표']);
 
     function requestIdleTask(callback, timeout = 1200) {
       if (typeof window.requestIdleCallback === 'function') {
@@ -16672,9 +16768,12 @@ button.active{
       }).join('');
     }
 
-    function buildScheduleCardsHTML(filtered, sport) {
+    function buildScheduleCardsHTML(filtered, sport, options = {}) {
+      const showSportBadge = !!options.showSportBadge;
+      const emptyTitle = options.emptyTitle || '조회된 일정이 없습니다.';
+      const emptyDesc = options.emptyDesc || `${sport} 종목의 세부 일정이 아직 등록되지 않았습니다.`;
       if (!filtered || filtered.length === 0) {
-        return createEmptyGuideHTML('조회된 일정이 없습니다.', `${sport} 종목의 세부 일정이 아직 등록되지 않았습니다.`);
+        return createEmptyGuideHTML(emptyTitle, emptyDesc);
       }
 
       return `
@@ -16684,6 +16783,7 @@ button.active{
             const matchInfo = item.col3 || '등록된 경기 정보가 없습니다.';
             const location = item.col4 || '장소미정';
             const time = item.col2 || '시간미정';
+            const itemSport = item.col1 || sport || '';
             const stageInfo = getScheduleStageInfo(item.col7, matchInfo);
             const dayLabel = getScheduleDayLabel(item);
             const dayKey = getScheduleDayKey(item);
@@ -16696,6 +16796,7 @@ button.active{
                       <div class="schedule-time-badge">${escapeHtml(time)}</div>
                       <div class="schedule-match-title">${escapeHtml(matchInfo)}</div>
                     </div>
+                    ${showSportBadge && itemSport ? `<span class="schedule-stage-badge prelim">${escapeHtml(itemSport)}</span>` : ''}
                     ${dayLabel ? `<span class="schedule-day-badge ${dayKey} schedule-day-badge-top">${escapeHtml(dayLabel)}</span>` : ''}
                   </div>
                   <div class="schedule-bottom-row detail-meta-row">
@@ -16712,13 +16813,13 @@ button.active{
                         type="button"
                         class="action-pill player"
                         data-role="player"
-                        data-action-spec='{"action":"showPlayerFromSchedule","args":["${escapeHtml(String(sport || ''))}","${escapeHtml(String(matchInfo || ''))}"],"stop":true}'
+                        data-action-spec='{"action":"showPlayerFromSchedule","args":["${escapeHtml(String(itemSport || ''))}","${escapeHtml(String(matchInfo || ''))}"],"stop":true}'
                       >선수단</button>
                       <button
                         type="button"
                         class="action-pill referee"
                         data-role="referee"
-                        data-action-spec='{"action":"showRefereeFromSchedule","args":["${escapeHtml(String(sport || ''))}","${escapeHtml(String(rawRefData || ''))}"],"stop":true}'
+                        data-action-spec='{"action":"showRefereeFromSchedule","args":["${escapeHtml(String(itemSport || ''))}","${escapeHtml(String(rawRefData || ''))}"],"stop":true}'
                       >심판</button>
                     </div>
                   </div>
@@ -18669,6 +18770,8 @@ async function loadBracketByGrade(sport, grade, btn = null) {
 
     /* ===== UI refinement patch v22 ===== */
     let currentDetailScheduleMode = null;
+    let currentClassScheduleGrade = '1학년';
+    let currentClassScheduleClass = '';
 
     function parseScheduleStartMinutes(value = '') {
       const text = String(value || '').trim();
@@ -18798,6 +18901,323 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return buildTimelineForRows(validRows);
     }
 
+    const __CLASS_SCHEDULE_TEAM_ALIAS__ = {
+      '빨': '빨', '빨강': '빨', '레드': '빨',
+      '주': '주', '주황': '주', '오렌지': '주',
+      '노': '노', '노랑': '노', '옐로': '노',
+      '핑': '핑', '핑크': '핑',
+      '파': '파', '파랑': '파', '블루': '파',
+      '남': '남', '남색': '남', '네이비': '남',
+      '검': '검', '검정': '검', '검은색': '검', '블랙': '검'
+    };
+    const __CLASS_SCHEDULE_ALLIANCE_SET__ = new Set(['빨','주','노','핑','파','남','검']);
+
+    function classScheduleSafeText(v){
+      return String(v == null ? '' : v).trim();
+    }
+
+    function classScheduleNormalize(v){
+      return classScheduleSafeText(v).replace(/\s+/g, '');
+    }
+
+    function classScheduleNormalizeTeamName(name){
+      const raw = classScheduleNormalize(name)
+        .replace(/연합$/,'')
+        .replace(/팀$/,'')
+        .replace(/조$/,'');
+      return __CLASS_SCHEDULE_TEAM_ALIAS__[raw] || raw;
+    }
+
+    function classScheduleIsAllianceTeamName(name){
+      return __CLASS_SCHEDULE_ALLIANCE_SET__.has(classScheduleNormalizeTeamName(name));
+    }
+
+    function classScheduleSplitVs(text){
+      const raw = classScheduleSafeText(text);
+      const parts = raw.split(/\s*(?:vs|VS|v\.?s\.?|대|:|：)\s*/);
+      if (parts.length !== 2) return null;
+      return {
+        left: parts[0].trim(),
+        right: parts[1].trim()
+      };
+    }
+
+    function classScheduleMakeClassKey(grade, classText){
+      const g = classScheduleNormalize(grade);
+      const c = classScheduleNormalize(classText);
+      const gradeNo =
+        g.startsWith('1학년') ? '1' :
+        g.startsWith('2학년') ? '2' :
+        g.startsWith('3학년') ? '3' : '';
+      const classNoMatch = c.match(/^(\d+)반$/);
+      if (!gradeNo || !classNoMatch) return '';
+      return `${gradeNo}-${classNoMatch[1]}`;
+    }
+
+    function classScheduleGetCell(row, keys = []) {
+      const source = row && typeof row === 'object' ? row : {};
+      for (const key of keys) {
+        const value = source[key];
+        if (value != null && String(value).trim() !== '') return String(value).trim();
+      }
+      return '';
+    }
+
+    function classScheduleCanonicalizeScheduleRow(row) {
+      if (!row || typeof row !== 'object') return null;
+      return {
+        ...row,
+        col1: classScheduleGetCell(row, ['col1', '종목', 'A']),
+        col2: classScheduleGetCell(row, ['col2', '시간', 'B']),
+        col3: classScheduleGetCell(row, ['col3', '내용', 'C']),
+        col4: classScheduleGetCell(row, ['col4', '장소', 'D']),
+        col5: classScheduleGetCell(row, ['col5', '심판', 'E']),
+        col6: classScheduleGetCell(row, ['col6', '학년/대상', 'F']),
+        col7: classScheduleGetCell(row, ['col7', '구분', 'G']),
+        col8: classScheduleGetCell(row, ['col8', '이미지주소', 'H']),
+        col9: classScheduleGetCell(row, ['col9', '설명', 'I'])
+      };
+    }
+
+    function classScheduleCanonicalizeAllianceRow(row) {
+      if (!row || typeof row !== 'object') return null;
+      return {
+        ...row,
+        col1: classScheduleGetCell(row, ['col1', '팀', 'A']),
+        col2: classScheduleGetCell(row, ['col2', '1학년', 'B']),
+        col3: classScheduleGetCell(row, ['col3', '2학년', 'C']),
+        col4: classScheduleGetCell(row, ['col4', '3학년', 'D'])
+      };
+    }
+
+    function classScheduleIsRenderableItem(item) {
+      const row = classScheduleCanonicalizeScheduleRow(item);
+      if (!row) return false;
+      const time = row.col2;
+      const match = row.col3;
+      const location = row.col4;
+      const referee = row.col5;
+      const stage = row.col7;
+      const hasTimePattern = /\d{1,2}\s*[:.]\s*\d{2}/.test(time);
+      const hasMeaningfulMeta = [match, location, referee, stage].some(value => {
+        const normalized = String(value || '').replace(/\s+/g, ' ').trim();
+        if (!normalized) return false;
+        return !/^\d+$/.test(normalized);
+      });
+      return hasTimePattern && hasMeaningfulMeta;
+    }
+
+    function getAllianceClassKeysForTeamName(teamName, allianceRows = []) {
+      const normalizedTeam = classScheduleNormalizeTeamName(teamName);
+      const row = (allianceRows || []).find(item => classScheduleNormalizeTeamName(item.col1 || item['팀'] || '') === normalizedTeam);
+      if (!row) return [];
+      const result = [];
+      if (safeText(row.col2 || row['1학년'])) result.push(classScheduleMakeClassKey('1학년', safeText(row.col2 || row['1학년'])));
+      if (safeText(row.col3 || row['2학년'])) result.push(classScheduleMakeClassKey('2학년', safeText(row.col3 || row['2학년'])));
+      if (safeText(row.col4 || row['3학년'])) result.push(classScheduleMakeClassKey('3학년', safeText(row.col4 || row['3학년'])));
+      return result.filter(Boolean);
+    }
+
+    function classScheduleExtractGradeFromRow(row = null) {
+      const source = [
+        row && (row.col6 || row['학년/대상'] || row['학년'] || row['대상']),
+        row && (row.col3 || row['내용']),
+        row && (row.col1 || row['종목'])
+      ].map(v => safeText(v)).join(' ');
+      const match = source.match(/([123])학년/);
+      return match ? `${match[1]}학년` : '';
+    }
+
+    function inferClassKeysFromMatchInfo(matchInfo = '', allianceRows = [], fallbackGrade = '') {
+      const text = safeText(matchInfo);
+      const vs = classScheduleSplitVs(text);
+      if (!vs) return [];
+      if (classScheduleIsAllianceTeamName(vs.left) || classScheduleIsAllianceTeamName(vs.right)) {
+        return [
+          ...getAllianceClassKeysForTeamName(vs.left, allianceRows),
+          ...getAllianceClassKeysForTeamName(vs.right, allianceRows)
+        ].filter(Boolean);
+      }
+
+      const gradeMatch = text.match(/([123])학년/);
+      const grade = gradeMatch ? `${gradeMatch[1]}학년` : (safeText(fallbackGrade) || currentClassScheduleGrade);
+      const sides = [vs.left, vs.right];
+      const classKeys = [];
+
+      sides.forEach(side => {
+        const cleaned = String(side || '').replace(/^([123])학년\s*[:：]?\s*/, '').trim();
+
+        const fixedClass = cleaned.match(/^(\d+)반$/);
+        if (fixedClass) {
+          const key = classScheduleMakeClassKey(grade, `${fixedClass[1]}반`);
+          if (key) classKeys.push(key);
+          return;
+        }
+
+        const fixedDash = cleaned.match(/^([123])-(\d+)$/);
+        if (fixedDash) {
+          classKeys.push(`${fixedDash[1]}-${fixedDash[2]}`);
+          return;
+        }
+
+        const winner = cleaned.match(/^\(?(\d+)\s*\/\s*(\d+)\s*승자\)?$/);
+        if (winner) {
+          const key1 = classScheduleMakeClassKey(grade, `${winner[1]}반`);
+          const key2 = classScheduleMakeClassKey(grade, `${winner[2]}반`);
+          if (key1) classKeys.push(key1);
+          if (key2) classKeys.push(key2);
+        }
+      });
+
+      return Array.from(new Set(classKeys.filter(Boolean)));
+    }
+
+    function getAvailableClassesForGrade(rows = [], grade = '1학년', allianceRows = []) {
+      const set = new Set();
+
+      (rows || []).forEach(item => {
+        const row = classScheduleCanonicalizeScheduleRow(item);
+        if (!row) return;
+        const matchInfo = row.col3 || '';
+        const fallbackGrade = classScheduleExtractGradeFromRow(row);
+        inferClassKeysFromMatchInfo(matchInfo, allianceRows, fallbackGrade).forEach(key => {
+          if (key.startsWith(`${grade.charAt(0)}-`)) set.add(key);
+        });
+      });
+
+      const sorted = Array.from(set).sort((a,b) => {
+        const an = parseInt(String(a).split('-')[1] || '999', 10);
+        const bn = parseInt(String(b).split('-')[1] || '999', 10);
+        return an - bn;
+      });
+
+      return sorted;
+    }
+
+    async function fetchFirstAvailableTab(tabNames = [], { force = false } = {}) {
+      const names = Array.isArray(tabNames) ? tabNames : [tabNames];
+      let lastError = null;
+
+      for (const rawName of names) {
+        const tabName = String(rawName || '').trim();
+        if (!tabName) continue;
+        try {
+          if (typeof fetchTabData === 'function') {
+            const data = await fetchTabData(tabName, { force });
+            if (Array.isArray(data)) return data;
+          } else if (typeof window.fetchTabDataCached === 'function') {
+            const data = await window.fetchTabDataCached(tabName);
+            if (Array.isArray(data)) return data;
+          } else if (typeof fetchTabDataCached === 'function') {
+            const data = await fetchTabDataCached(tabName);
+            if (Array.isArray(data)) return data;
+          } else if (typeof window.getTabData === 'function') {
+            const data = await window.getTabData(tabName);
+            if (Array.isArray(data)) return data;
+          }
+        } catch (error) {
+          lastError = error;
+        }
+      }
+
+      if (lastError) throw lastError;
+      return [];
+    }
+
+    function buildClassSchedulePickerHTML(rows = [], allianceRows = []) {
+      const classes = getAvailableClassesForGrade(rows, currentClassScheduleGrade, allianceRows);
+      const effectiveClass = classes.includes(currentClassScheduleClass) ? currentClassScheduleClass : (classes[0] || '');
+      if (!currentClassScheduleClass || currentClassScheduleClass !== effectiveClass) currentClassScheduleClass = effectiveClass;
+
+      let html = `<div class="player-grade-tabs">`;
+      ['1학년','2학년','3학년'].forEach(g => {
+        html += `<button class="grade-btn ${currentClassScheduleGrade === g ? 'active' : ''}" type="button" data-inline-click="setClassScheduleGrade('${g}', this)">${g}</button>`;
+      });
+      html += `</div>`;
+
+      html += `<div class="filter-btn-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom:14px;" id="class-schedule-filter-group">`;
+      if (!classes.length) {
+        html += `<div class="section-empty-guide" style="grid-column:1/-1; padding:18px 12px;"><strong style="font-size:1rem; line-height:1.2;">선택 가능한 반이 없습니다.</strong><span>${currentClassScheduleGrade} 일정 데이터와 연합팀 구성을 확인해 주세요.</span></div>`;
+      } else {
+        classes.forEach(key => {
+          const classNo = String(key).split('-')[1] || '';
+          html += `<button type="button" class="filter-btn ${effectiveClass === key ? 'active' : ''}" data-inline-click="setClassScheduleClass('${key}', this)">${classNo}반</button>`;
+        });
+      }
+      html += `</div>`;
+
+      const filtered = effectiveClass
+        ? (rows || []).filter(item => {
+            const row = classScheduleCanonicalizeScheduleRow(item);
+            if (!row) return false;
+            const fallbackGrade = classScheduleExtractGradeFromRow(row);
+            return inferClassKeysFromMatchInfo(row.col3 || '', allianceRows, fallbackGrade).includes(effectiveClass);
+          })
+        : [];
+
+      html += `<div id="class-schedule-result">` + buildScheduleCardsHTML(
+        filtered,
+        `${currentClassScheduleGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''}`,
+        {
+          showSportBadge: true,
+          emptyTitle: '등록된 일정이 없습니다.',
+          emptyDesc: `${currentClassScheduleGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`
+        }
+      ) + `</div>`;
+
+      return html;
+    }
+
+    async function renderClassScheduleView(container) {
+      container.innerHTML = '<div class="loader" style="font-size:0.9rem; padding:22px;">반별 일정 불러오는 중...</div>';
+      try {
+        try {
+          ['세부경기일정','세부일정','연합팀 구성','[연합팀 구성]'].forEach((key) => {
+            try { delete tabDataCache[key]; } catch (_) {}
+            try { localStorage.removeItem(getStorageCacheKey(key)); } catch (_) {}
+          });
+        } catch (_) {}
+
+        const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true });
+        const allianceData = await fetchFirstAvailableTab(['연합팀 구성', '[연합팀 구성]'], { force: true }).catch(() => []);
+
+        const rows = (Array.isArray(allData) ? allData : [])
+          .map(classScheduleCanonicalizeScheduleRow)
+          .filter(classScheduleIsRenderableItem);
+
+        const allianceRows = (Array.isArray(allianceData) ? allianceData : [])
+          .map(classScheduleCanonicalizeAllianceRow)
+          .filter(row => row && classScheduleSafeText(row.col1));
+
+        container.innerHTML = buildClassSchedulePickerHTML(rows, allianceRows);
+        bindScheduleActionButtons(container);
+      } catch (error) {
+        console.error('[반별보기 오류]', error);
+        const message = error && error.message ? String(error.message) : '알 수 없는 오류';
+        container.innerHTML = createEmptyGuideHTML('반별 일정을 불러오지 못했습니다.', `오류: ${escapeHtml(message)}`);
+      }
+    }
+
+    async function setClassScheduleGrade(grade, btn = null) {
+      currentClassScheduleGrade = ['1학년','2학년','3학년'].includes(String(grade || '').trim()) ? String(grade).trim() : '1학년';
+      currentClassScheduleClass = '';
+      const container = document.getElementById('sport-common-detail');
+      if (container && currentDetailScheduleMode === 'class') {
+        await renderClassScheduleView(container);
+      }
+    }
+
+    async function setClassScheduleClass(classKey, btn = null) {
+      currentClassScheduleClass = String(classKey || '').trim();
+      const container = document.getElementById('sport-common-detail');
+      if (container && currentDetailScheduleMode === 'class') {
+        await renderClassScheduleView(container);
+      }
+    }
+
+    window.setClassScheduleGrade = setClassScheduleGrade;
+    window.setClassScheduleClass = setClassScheduleClass;
+
     async function renderScheduleDetailByMode() {
       const container = document.getElementById('sport-common-detail');
       const sportFilterGroup = document.getElementById('sport-filter-group');
@@ -18825,11 +19245,16 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         return;
       }
 
-      container.innerHTML = '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">보기 방식을 선택해 주세요.</strong><span>상단에서 종목별 보기 또는 시간순 보기를 누르면 아래에 일정이 열립니다.</span></div>';
+      if (currentDetailScheduleMode === 'class') {
+        await renderClassScheduleView(container);
+        return;
+      }
+
+      container.innerHTML = '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">보기 방식을 선택해 주세요.</strong><span>상단에서 종목별 보기, 시간순 보기 또는 반별 보기를 누르면 아래에 일정이 열립니다.</span></div>';
     }
 
     async function handleScheduleDetailModeChange(mode, btn = null) {
-      currentDetailScheduleMode = mode === 'timeline' ? 'timeline' : 'sport';
+      currentDetailScheduleMode = mode === 'timeline' ? 'timeline' : (mode === 'class' ? 'class' : 'sport');
       document.querySelectorAll('.schedule-view-toggle-btn').forEach(button => {
         button.classList.toggle('active', button.dataset.mode === currentDetailScheduleMode);
       });
@@ -18872,25 +19297,29 @@ async function loadBracketByGrade(sport, grade, btn = null) {
           <div class="schedule-view-toolbar" id="schedule-view-toolbar">
             <div class="schedule-view-header">
               <div class="schedule-view-title">세부일정 보기</div>
-              <div class="schedule-view-actions">
-                <div class="schedule-view-toggle" role="tablist" aria-label="세부일정 보기 방식">
+              <div class="schedule-guide-action schedule-guide-action--top">
+                <button type="button" class="seat-link-btn schedule-guide-btn" data-inline-click="openDetailScheduleGuide(this)">
+                  <i data-lucide="map"></i>
+                  경기장 안내
+                </button>
+              </div>
+            </div>
+            <div class="schedule-view-actions schedule-view-actions--stacked">
+              <div class="schedule-view-toggle schedule-view-toggle--full" role="tablist" aria-label="세부일정 보기 방식">
                   <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'sport' ? 'active' : ''}" data-mode="sport" data-inline-click="handleScheduleDetailModeChange('sport', this)">종목별 보기</button>
                   <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'timeline' ? 'active' : ''}" data-mode="timeline" data-inline-click="handleScheduleDetailModeChange('timeline', this)">시간순 보기</button>
-                </div>
-                <div class="schedule-guide-action">
-                  <button type="button" class="seat-link-btn schedule-guide-btn" data-inline-click="openDetailScheduleGuide(this)">
-                    <i data-lucide="map"></i>
-                    경기장 안내
-                  </button>
+                  <button type="button" class="schedule-view-toggle-btn ${currentDetailScheduleMode === 'class' ? 'active' : ''}" data-mode="class" data-inline-click="handleScheduleDetailModeChange('class', this)">반별 보기</button>
                 </div>
               </div>
             </div>
-            <div class="schedule-view-desc">원하는 보기 방식을 선택하면 종목별 카드 또는 시간순 목록으로 세부일정을 바로 확인할 수 있습니다.</div>
+            <div class="schedule-view-desc"></div>
           </div>
         `;
         detailDefaultHtml = currentDetailScheduleMode === 'sport'
           ? '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">종목을 선택해 주세요.</strong><span>종목 버튼을 누르면 해당 종목의 세부 일정이 카드형으로 열립니다.</span></div>'
-          : '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">보기 방식을 선택해 주세요.</strong><span>상단에서 종목별 보기 또는 시간순 보기를 누르면 아래에 일정이 열립니다.</span></div>';
+          : currentDetailScheduleMode === 'class'
+            ? '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">학년과 반을 선택해 주세요.</strong><span>반별 보기에서 원하는 학년과 학급을 고르면 해당 반 일정만 카드형으로 열립니다.</span></div>'
+            : '<div class="section-empty-guide"><strong style="font-size:1.365rem !important; line-height:1.15;">보기 방식을 선택해 주세요.</strong><span>상단에서 종목별 보기, 시간순 보기 또는 반별 보기를 누르면 아래에 일정이 열립니다.</span></div>';
       } else {
         currentSportSearchContext = null;
       }
@@ -19641,6 +20070,12 @@ ${guide}`, current || '');
       return originalClearSearchInput(targetId);
     }
   };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', prefetchRosterFilterData, { once: true });
+  } else {
+    prefetchRosterFilterData();
+  }
 })();
 </script>
 
@@ -26645,7 +27080,6 @@ textarea{
 }
 </style>
 
-
 <style id="schedule-gap-root-realfix-v30">
 /* v30: 파일 끝에서 최종 적용. 일정 카드 사이 배경이 transparent로 다시 덮이는 문제 수정 */
 .main-content{
@@ -26699,7 +27133,6 @@ textarea{
 }
 </style>
 
-
 <style id="feedback-modal-sakura-v44">
 #feedback-modal{background: rgba(58, 38, 48, 0.28) !important;}
 .feedback-sheet{background: rgba(255, 248, 251, 0.92) !important;border: 1px solid rgba(228, 196, 208, 0.72) !important;box-shadow: 0 24px 80px rgba(124, 88, 103, 0.16) !important;}
@@ -26715,7 +27148,6 @@ textarea{
 .feedback-primary{background: #d98aa1 !important;color: #fff !important;box-shadow: 0 10px 24px rgba(217, 138, 161, 0.22) !important;}
 </style>
 
-
 <style id="score-hero-inner-surface-fix-v45">
 .realtime-score-page .hero-card.tone-indigo.score-hero-card,
 .realtime-score-page .score-hero-card {
@@ -26730,7 +27162,6 @@ textarea{
   background: transparent !important;
 }
 </style>
-
 
 <style id="player-referee-pill-unify-v48">
   .schedule-card .schedule-action-row .action-pill.player,
@@ -26875,7 +27306,6 @@ textarea{
   }
 })();
 </script>
-
 
 <style id="score-inline-badge-height-fix-v50">
 .realtime-score-page .score-title-line .score-inline-badge,
@@ -27275,7 +27705,6 @@ textarea{
 })();
 </script>
 
-
 <style id="v60-referee-location-bottom-right">
   .unified-info-card .unified-info-body.referee-body-row{
     display:flex !important;
@@ -27396,7 +27825,6 @@ textarea{
 }
 </style>
 
-
 <style id="player-cards-actual-referee-like-v68">
   .roster-referee-like-stack{
     display:flex !important;
@@ -27432,7 +27860,6 @@ textarea{
     margin-top:0 !important;
   }
 </style>
-
 
 <style id="player-cards-no-middle-divider-v70">
   .roster-referee-like-card{padding:10px 11px !important; overflow:hidden !important;}
@@ -27475,7 +27902,6 @@ textarea{
 }
 </style>
 
-
 <style id="player-cards-height-minus20-v72">
 .player-referee-style-card{
   border-radius:16px !important;
@@ -27513,7 +27939,6 @@ textarea{
 }
 </style>
 
-
 <style id="referee-card-height-plus-more-v74">
 /* 심판진 정보 카드만 추가 높이 */
 .unified-info-card,
@@ -27535,7 +27960,6 @@ textarea{
   min-height: 38px !important;
 }
 </style>
-
 
 <style id="player-referee-card-height-visible-v75">
 /* 선수단 정보 카드는 눈에 띄게 더 낮게 */
@@ -27659,7 +28083,6 @@ textarea{
 }
 </style>
 
-
 <style id="player-referee-guide-title-sync-v79">
 #sport-common-detail .sport-select-guide-title,
 #sport-common-detail .section-empty-guide strong{
@@ -27670,7 +28093,6 @@ textarea{
   display:none !important;
 }
 </style>
-
 
 <style id="referee-match-player-shell-v80">
 /* 실제 심판 카드가 선수단 카드와 같은 카드 껍데기를 직접 타도록 정리 */
@@ -27700,7 +28122,6 @@ textarea{
 }
 </style>
 
-
 <style id="timeline-sport-badge-right-v82">
   .timeline-card-list .schedule-top-row{
     align-items:center !important;
@@ -27714,8 +28135,54 @@ textarea{
       padding:5px 10px !important;
     }
   }
-</style>
 
+/* schedule detail buttons reflow fix */
+.schedule-view-actions.schedule-view-actions--stacked{
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:stretch !important;
+  gap:10px !important;
+  width:100% !important;
+}
+.schedule-guide-action.schedule-guide-action--top{
+  width:100% !important;
+  margin-left:0 !important;
+  justify-content:flex-start !important;
+  height:auto !important;
+  min-height:0 !important;
+}
+.schedule-guide-action.schedule-guide-action--top .schedule-guide-btn{
+  display:inline-flex !important;
+  width:auto !important;
+  min-width:0 !important;
+}
+.schedule-view-toggle.schedule-view-toggle--full{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  width:100% !important;
+  height:auto !important;
+  min-height:0 !important;
+  padding:4px !important;
+  gap:4px !important;
+  box-sizing:border-box !important;
+}
+.schedule-view-toggle.schedule-view-toggle--full .schedule-view-toggle-btn{
+  width:100% !important;
+  min-width:0 !important;
+  height:42px !important;
+  min-height:42px !important;
+  padding:0 6px !important;
+  font-size:0.9rem !important;
+  white-space:nowrap !important;
+}
+@media (max-width:640px){
+  .schedule-view-toggle.schedule-view-toggle--full .schedule-view-toggle-btn{
+    font-size:0.82rem !important;
+    letter-spacing:-0.03em !important;
+  }
+}
+
+</style>
 
 <script id="live-sheet-refresh-v83">
 (function(){
@@ -27757,5 +28224,380 @@ textarea{
 })();
 </script>
 
+<script id="match-roster-filter-patch-v1">
+(function(){
+  if (window.__matchRosterFilterPatchV1__) return;
+  window.__matchRosterFilterPatchV1__ = true;
+
+  let __rosterFilterDataCache = {
+    rosterRaw: null,
+    allianceRaw: null,
+    rosterRows: null,
+    allianceRows: null,
+    loadingPromise: null
+  };
+
+  const TEAM_ALIAS = {
+    '빨': '빨', '빨강': '빨', '레드': '빨',
+    '주': '주', '주황': '주', '오렌지': '주',
+    '노': '노', '노랑': '노', '옐로': '노',
+    '핑': '핑', '핑크': '핑',
+    '파': '파', '파랑': '파', '블루': '파',
+    '남': '남', '남색': '남', '네이비': '남',
+    '검': '검', '검정': '검', '검은색': '검', '블랙': '검'
+  };
+  const ALLIANCE_TEAM_SET = new Set(['빨','주','노','핑','파','남','검']);
+
+  function safeText(v){ return String(v == null ? '' : v).trim(); }
+  function normalize(v){ return safeText(v).replace(/\s+/g, ''); }
+
+  function escapeHtml(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function sportMatch(a, b){
+    if (typeof window.sportEquals === 'function') {
+      try { return window.sportEquals(a, b); } catch (_) {}
+    }
+    return normalize(a) === normalize(b);
+  }
+
+  
+
+  
+
+  
+
+  
+
+  function normalizeClassKey(v){
+    const raw = normalize(v);
+    if (/^[123]-\d+$/.test(raw)) return raw;
+    const m = raw.match(/^([123])학년:?(\d+)반$/);
+    if (m) return `${m[1]}-${m[2]}`;
+    return raw;
+  }
+
+  function parseNames(raw){
+    return safeText(raw).split(',').map(s => s.trim()).filter(Boolean);
+  }
+
+  function normalizeRosterRows(rows){
+    return (Array.isArray(rows) ? rows : []).map(item => ({
+      raw: item,
+      sport: safeText(item.col1 || item['종목'] || ''),
+      classKey: normalizeClassKey(item.col2 || item['학급'] || ''),
+      classLabel: safeText(item.col2 || item['학급'] || ''),
+      playersRaw: safeText(item.col3 || item['선수명단'] || ''),
+      players: parseNames(item.col3 || item['선수명단'] || '')
+    })).filter(row => row.sport);
+  }
+
+  function normalizeAllianceRows(rows){
+    return (Array.isArray(rows) ? rows : []).map(item => ({
+      team: normalizeTeamName(item.col1 || item['팀'] || ''),
+      grade1: safeText(item.col2 || item['1학년'] || ''),
+      grade2: safeText(item.col3 || item['2학년'] || ''),
+      grade3: safeText(item.col4 || item['3학년'] || '')
+    })).filter(row => row.team);
+  }
+
+  function detectMatchType(matchInfo){
+    const text = safeText(matchInfo);
+    const vs = splitVs(text);
+    if (vs && (isAllianceTeamName(vs.left) || isAllianceTeamName(vs.right))) return 'alliance';
+    if (/(주황|빨강|노랑|핑크|파랑|남색|검정|주|빨|노|핑|파|남|검)(팀|연합)?/i.test(text)) return 'alliance';
+    if (/(주황|빨강|노랑|핑크|파랑|남색|검정|주|빨|노|핑|파|남|검)(팀|연합)?/.test(text)) return 'alliance';
+    if (/반/.test(text)) return 'class';
+    return 'unknown';
+  }
+
+  function getAllianceTeamClassMeta(allianceRows, teamName){
+    const team = normalizeTeamName(teamName);
+    const row = allianceRows.find(r => r.team === team);
+    if (!row) return [];
+    const result = [];
+    if (row.grade1) result.push({ grade: '1학년', classText: row.grade1, classKey: makeClassKey('1학년', row.grade1) });
+    if (row.grade2) result.push({ grade: '2학년', classText: row.grade2, classKey: makeClassKey('2학년', row.grade2) });
+    if (row.grade3) result.push({ grade: '3학년', classText: row.grade3, classKey: makeClassKey('3학년', row.grade3) });
+    return result.filter(x => x.classKey);
+  }
+
+  function parseClassSide(sideText, fallbackGrade){
+    const original = safeText(sideText);
+    const cleaned = original.replace(/^([123])학년\s*:\s*/,'').trim();
+
+    const fixedClass = cleaned.match(/^(\d+)반$/);
+    if (fixedClass) {
+      const classText = `${fixedClass[1]}반`;
+      return { type: 'fixed', label: original, grade: fallbackGrade, classText, classKey: makeClassKey(fallbackGrade, classText) };
+    }
+
+    const fixedDash = cleaned.match(/^([123])-(\d+)$/);
+    if (fixedDash) {
+      return { type: 'fixed', label: original, grade: `${fixedDash[1]}학년`, classText: `${fixedDash[2]}반`, classKey: `${fixedDash[1]}-${fixedDash[2]}` };
+    }
+
+    const winner = cleaned.match(/^\(?(\d+)\s*\/\s*(\d+)\s*승자\)?$/);
+    if (winner) {
+      return {
+        type: 'pending',
+        label: original,
+        grade: fallbackGrade,
+        candidates: [
+          makeClassKey(fallbackGrade, `${winner[1]}반`),
+          makeClassKey(fallbackGrade, `${winner[2]}반`)
+        ].filter(Boolean)
+      };
+    }
+
+    return { type: 'unknown', label: original, grade: fallbackGrade };
+  }
+
+  function getCurrentSelectedGrade(){
+    try {
+      if (safeText(window.currentScheduleGrade)) return safeText(window.currentScheduleGrade);
+      const activeBtn = document.querySelector('.schedule-grade-btn.active, .grade-btn.active');
+      if (activeBtn) return safeText(activeBtn.textContent || '');
+    } catch (_) {}
+    return '';
+  }
+
+  function parseClassMatch(matchInfo){
+    const vs = splitVs(matchInfo);
+    if (!vs) return null;
+    const gradeMatch = safeText(matchInfo).match(/([123])학년/);
+    const grade = gradeMatch ? `${gradeMatch[1]}학년` : getCurrentSelectedGrade();
+    return { left: parseClassSide(vs.left, grade), right: parseClassSide(vs.right, grade) };
+  }
+
+  function buildRosterResult(sport, matchInfo, rosterRows, allianceRows){
+    const result = {
+      success: true,
+      sport,
+      matchInfo,
+      matchType: detectMatchType(matchInfo),
+      sections: [],
+      pending: [],
+      message: ''
+    };
+
+    if (result.matchType === 'alliance') {
+      const vs = splitVs(matchInfo);
+      if (!vs) {
+        result.success = false;
+        result.message = '경기 정보를 해석하지 못했습니다.';
+        return result;
+      }
+
+      const leftMeta = getAllianceTeamClassMeta(allianceRows, vs.left);
+      const rightMeta = getAllianceTeamClassMeta(allianceRows, vs.right);
+
+      const makeSection = (label, metaList) => ({
+        label,
+        classes: metaList.map(meta => {
+          const roster = rosterRows.find(row => sportMatch(row.sport, sport) && row.classKey === meta.classKey);
+          return {
+            grade: meta.grade,
+            classText: meta.classText,
+            classKey: meta.classKey,
+            players: roster ? roster.players : []
+          };
+        })
+      });
+
+      result.sections = [makeSection(vs.left, leftMeta), makeSection(vs.right, rightMeta)];
+      return result;
+    }
+
+    if (result.matchType === 'class') {
+      const parsed = parseClassMatch(matchInfo);
+      if (!parsed) {
+        result.success = false;
+        result.message = '학급 경기 정보를 해석하지 못했습니다.';
+        return result;
+      }
+
+      function buildClassSection(side){
+        if (side.type === 'pending') {
+          result.pending.push(side);
+          return { label: side.label, classes: [] };
+        }
+        if (side.type !== 'fixed' || !side.classKey) return { label: side.label, classes: [] };
+        const roster = rosterRows.find(row => sportMatch(row.sport, sport) && row.classKey === side.classKey);
+        return {
+          label: side.label,
+          classes: [{
+            grade: side.grade,
+            classText: side.classText,
+            classKey: side.classKey,
+            players: roster ? roster.players : []
+          }]
+        };
+      }
+
+      result.sections = [buildClassSection(parsed.left), buildClassSection(parsed.right)];
+      return result;
+    }
+
+    result.success = false;
+    result.message = '경기 유형을 판별하지 못했습니다.';
+    return result;
+  }
+
+  async function loadRosterFilterData() {
+    if (__rosterFilterDataCache.rosterRows && __rosterFilterDataCache.allianceRows) {
+      return {
+        rosterRows: __rosterFilterDataCache.rosterRows,
+        allianceRows: __rosterFilterDataCache.allianceRows
+      };
+    }
+
+    if (__rosterFilterDataCache.loadingPromise) {
+      return __rosterFilterDataCache.loadingPromise;
+    }
+
+    __rosterFilterDataCache.loadingPromise = (async () => {
+      const fetchTab = async (tabName) => {
+        if (typeof window.fetchTabDataCached === 'function') {
+          return await window.fetchTabDataCached(tabName);
+        }
+        const url = `${typeof SCRIPT_URL !== 'undefined' ? SCRIPT_URL : ''}?tab=${encodeURIComponent(tabName)}`;
+        const res = await fetch(url);
+        return await res.json();
+      };
+
+      const [rosterData, allianceData] = await Promise.all([
+        fetchTab('선수단'),
+        fetchTab('연합팀 구성').catch(() => [])
+      ]);
+
+      __rosterFilterDataCache.rosterRaw = Array.isArray(rosterData) ? rosterData : [];
+      __rosterFilterDataCache.allianceRaw = Array.isArray(allianceData) ? allianceData : [];
+      __rosterFilterDataCache.rosterRows = normalizeRosterRows(__rosterFilterDataCache.rosterRaw.slice(1));
+      __rosterFilterDataCache.allianceRows = normalizeAllianceRows(__rosterFilterDataCache.allianceRaw.slice(1));
+
+      return {
+        rosterRows: __rosterFilterDataCache.rosterRows,
+        allianceRows: __rosterFilterDataCache.allianceRows
+      };
+    })();
+
+    try {
+      return await __rosterFilterDataCache.loadingPromise;
+    } finally {
+      __rosterFilterDataCache.loadingPromise = null;
+    }
+  }
+
+  function prefetchRosterFilterData() {
+    loadRosterFilterData().catch(() => {});
+  }
+
+  function buildRosterHtml(result){
+    if (!result || !result.success) {
+      return `<div class="section-empty-guide"><strong>선수단을 불러오지 못했습니다.</strong><span>${escapeHtml(result?.message || '경기 정보를 다시 확인해 주세요.')}</span></div>`;
+    }
+
+    const titleMeta = safeText(result.matchInfo)
+      ? `<div style="margin-bottom:10px;font-size:0.82rem;color:var(--text-sub);font-weight:700;">${escapeHtml(result.matchInfo)}</div>`
+      : '';
+
+    const sectionsHtml = (result.sections || []).map(section => {
+      const classCards = (section.classes || []).map(klass => `
+        <div class="roster-card player-referee-style-card" style="margin-top:10px;">
+          <div class="roster-card-head player-referee-style-head">
+            <div class="player-referee-style-meta">
+              <span class="roster-class">${escapeHtml(`${klass.grade} ${klass.classText}`.trim())}</span>
+            </div>
+            <span class="roster-sport-badge">${escapeHtml(result.sport)}</span>
+          </div>
+          <div class="roster-player-list player-referee-style-body">${klass.players.length ? escapeHtml(klass.players.join(', ')) : '등록된 선수 정보가 없습니다.'}</div>
+        </div>
+      `).join('');
+
+      return `
+        <div class="unified-info-card" style="padding:14px;">
+          <div class="unified-info-card-head" style="margin-bottom:0;">
+            <div class="unified-order-badge">팀</div>
+            <div>
+              <div class="unified-info-label">선수단</div>
+              <div class="unified-info-title">${escapeHtml(section.label)}</div>
+            </div>
+          </div>
+          ${classCards || '<div class="unified-info-body">해당 경기로 연결된 반의 선수 명단이 없습니다.</div>'}
+        </div>
+      `;
+    }).join('');
+
+    const pendingHtml = (result.pending || []).length ? `
+      <div class="info-notice-box" style="margin-top:10px;">
+        <p class="info-notice-text">${result.pending.map(item => `${item.label}는 승자 확정 후 표시됩니다.`).join(' / ')}</p>
+      </div>
+    ` : '';
+
+    return `
+      ${titleMeta}
+      <div class="unified-info-stack">${sectionsHtml}</div>
+      ${pendingHtml}
+    `;
+  }
+
+  function shouldUseMatchRoster(type, sport, matchInfo){
+    return type === '선수단' && safeText(matchInfo).includes('vs');
+  }
+
+  if (typeof window.openDetailInfo === 'function') {
+    const originalOpenDetailInfo = window.openDetailInfo;
+    window.openDetailInfo = async function(type, sport, matchInfo = '') {
+      if (!shouldUseMatchRoster(type, sport, matchInfo)) {
+        return originalOpenDetailInfo.apply(this, arguments);
+      }
+
+      const modal = document.getElementById('detail-modal');
+      const title = document.getElementById('detail-modal-title');
+      const content = document.getElementById('detail-modal-content');
+      if (!modal || !title || !content) {
+        return originalOpenDetailInfo.apply(this, arguments);
+      }
+
+      title.textContent = `${sport} 선수단 정보`;
+      content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
+      modal.style.display = 'flex';
+
+      try {
+        const { rosterRows, allianceRows } = await loadRosterFilterData();
+        const result = buildRosterResult(sport, matchInfo, rosterRows, allianceRows);
+        content.innerHTML = buildRosterHtml(result);
+
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          try { window.lucide.createIcons(); } catch (_) {}
+        }
+      } catch (error) {
+        content.innerHTML = '<div class="loader">⚠️ 데이터를 불러오지 못했습니다.</div>';
+      }
+    };
+  }
+})();
+</script>
+
+<style id="schedule-guide-right-align-fix">
+.schedule-guide-action.schedule-guide-action--top{
+  display:flex !important;
+  justify-content:flex-end !important;
+  align-items:center !important;
+  width:100% !important;
+}
+.schedule-guide-action.schedule-guide-action--top .schedule-guide-btn,
+.schedule-guide-action.schedule-guide-action--top .schedule-guide-btn.seat-link-btn{
+  margin-left:auto !important;
+  margin-right:0 !important;
+}
+</style>
 </body>
 </html>
