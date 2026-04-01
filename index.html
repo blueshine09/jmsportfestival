@@ -18789,6 +18789,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       rows: null,
       allianceRows: null
     };
+    let classScheduleHasRequestedClassData = false;
 
     function parseScheduleStartMinutes(value = '') {
       const text = String(value || '').trim();
@@ -19277,32 +19278,48 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       } catch (_) {}
 
 
+      const hasRequestedClassData = classScheduleHasRequestedClassData === true;
       const resultEmptyTitle = isLoading
-        ? (selectedGrade ? '반을 선택해 주세요.' : '학년과 반을 선택해 주세요.')
+        ? '반별 일정 불러오는 중...'
         : selectedGrade && effectiveClass
-          ? '등록된 일정이 없습니다.'
+          ? (hasRequestedClassData ? '등록된 일정이 없습니다.' : '반을 선택해 주세요.')
           : selectedGrade
             ? '반을 선택해 주세요.'
             : '학년과 반을 선택해 주세요.';
       const resultEmptyDesc = isLoading
-        ? (selectedGrade
-            ? '데이터를 불러오는 중입니다. 불러오기가 끝나면 반 버튼을 눌러 주세요.'
-            : '반별 보기에서 학년을 누른 뒤 반을 선택하면 해당 반 일정이 열립니다.')
+        ? '선택한 반의 일정을 불러오는 중입니다.'
         : selectedGrade && effectiveClass
-          ? `${selectedGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`
+          ? (hasRequestedClassData
+              ? `${selectedGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`
+              : '반 버튼을 누르면 해당 반 일정이 열립니다.')
           : selectedGrade
             ? '선택한 학년의 반 버튼을 누르면 해당 반 일정이 열립니다.'
             : '반별 보기에서 학년을 누른 뒤 반을 선택하면 해당 반 일정이 열립니다.';
 
-      html += `<div id="class-schedule-result">` + buildScheduleCardsHTML(
-        filtered,
-        `${selectedGrade || '학년 미선택'} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''}`,
-        {
-          showSportBadge: true,
-          emptyTitle: resultEmptyTitle,
-          emptyDesc: resultEmptyDesc
-        }
-      ) + `</div>`;
+      let classScheduleResultHtml = '';
+      if (!selectedGrade) {
+        classScheduleResultHtml = createEmptyGuideHTML('학년과 반을 선택해 주세요.', '반별 보기에서 학년을 먼저 누른 뒤 반을 선택하면 해당 반 일정이 열립니다.');
+      } else if (!effectiveClass) {
+        classScheduleResultHtml = createEmptyGuideHTML('반을 선택해 주세요.', '선택한 학년의 반 버튼을 누르면 해당 반 일정이 열립니다.');
+      } else if (isLoading) {
+        classScheduleResultHtml = createEmptyGuideHTML('반별 일정 불러오는 중...', '선택한 반의 일정을 불러오는 중입니다.');
+      } else if (!hasRequestedClassData) {
+        classScheduleResultHtml = createEmptyGuideHTML('반을 선택해 주세요.', '반 버튼을 누르면 해당 반 일정이 열립니다.');
+      } else if (!filtered || filtered.length === 0) {
+        classScheduleResultHtml = createEmptyGuideHTML('등록된 일정이 없습니다.', `${selectedGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`);
+      } else {
+        classScheduleResultHtml = buildScheduleCardsHTML(
+          filtered,
+          `${selectedGrade || '학년 미선택'} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''}`,
+          {
+            showSportBadge: true,
+            emptyTitle: resultEmptyTitle,
+            emptyDesc: resultEmptyDesc
+          }
+        );
+      }
+
+      html += `<div id="class-schedule-result">${classScheduleResultHtml}</div>`;
 
       return html;
     }
@@ -19402,6 +19419,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
     async function setClassScheduleGrade(grade, btn = null) {
       currentClassScheduleGrade = ['1학년','2학년','3학년'].includes(String(grade || '').trim()) ? String(grade).trim() : '';
       currentClassScheduleClass = '';
+      classScheduleHasRequestedClassData = false;
       const container = document.getElementById('sport-common-detail');
       if (container && currentDetailScheduleMode === 'class') {
         await renderClassScheduleView(container, {
@@ -19416,11 +19434,46 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       const nextClassKey = String(classKey || '').trim();
       if (!currentClassScheduleGrade || !nextClassKey) return;
       currentClassScheduleClass = nextClassKey;
+      classScheduleHasRequestedClassData = true;
       const container = document.getElementById('sport-common-detail');
       if (container && currentDetailScheduleMode === 'class') {
         const hasCachedRows = Array.isArray(classScheduleViewCache.rows) && Array.isArray(classScheduleViewCache.allianceRows);
+
+        if (!hasCachedRows) {
+          try {
+            const classButtons = container.querySelectorAll('#class-schedule-filter-group .filter-btn');
+            classButtons.forEach((el) => {
+              const label = String(el.textContent || '').trim();
+              const classNo = String(nextClassKey).replace(/^class-/, '');
+              el.classList.toggle('active', label === `${classNo}반`);
+            });
+
+            const loaderHost = container.querySelector('#class-schedule-inline-loader');
+            if (loaderHost) {
+              loaderHost.innerHTML = '<p class="info-notice-text">반별 일정 불러오는 중...</p>';
+              loaderHost.style.display = '';
+            } else {
+              const filterGroup = container.querySelector('#class-schedule-filter-group');
+              if (filterGroup) {
+                const loaderBox = document.createElement('div');
+                loaderBox.id = 'class-schedule-inline-loader';
+                loaderBox.className = 'info-notice-box';
+                loaderBox.style.marginTop = '-4px';
+                loaderBox.style.marginBottom = '14px';
+                loaderBox.innerHTML = '<p class="info-notice-text">반별 일정 불러오는 중...</p>';
+                filterGroup.insertAdjacentElement('afterend', loaderBox);
+              }
+            }
+
+            const resultEl = container.querySelector('#class-schedule-result');
+            if (resultEl) {
+              resultEl.innerHTML = createEmptyGuideHTML('반별 일정 불러오는 중...', '선택한 반의 일정을 불러오는 중입니다.');
+            }
+          } catch (_) {}
+        }
+
         await renderClassScheduleView(container, {
-          showLoader: !hasCachedRows,
+          showLoader: false,
           forceReload: false,
           loadData: !hasCachedRows
         });
@@ -19470,6 +19523,7 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       if (currentDetailScheduleMode === 'class') {
         currentClassScheduleGrade = '';
         currentClassScheduleClass = '';
+        classScheduleHasRequestedClassData = false;
       }
       document.querySelectorAll('.schedule-view-toggle-btn').forEach(button => {
         button.classList.toggle('active', button.dataset.mode === currentDetailScheduleMode);
