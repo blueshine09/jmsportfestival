@@ -20226,10 +20226,19 @@ ${guide}`, current || '');
     }
   };
 
+  function runRosterPrefetchWhenReady(){
+    try {
+      const fn = (typeof window !== 'undefined' && typeof window.prefetchRosterFilterData === 'function')
+        ? window.prefetchRosterFilterData
+        : (typeof prefetchRosterFilterData === 'function' ? prefetchRosterFilterData : null);
+      if (typeof fn === 'function') return fn();
+    } catch (_) {}
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', prefetchRosterFilterData, { once: true });
+    document.addEventListener('DOMContentLoaded', () => setTimeout(runRosterPrefetchWhenReady, 0), { once: true });
   } else {
-    prefetchRosterFilterData();
+    setTimeout(runRosterPrefetchWhenReady, 0);
   }
 })();
 </script>
@@ -28680,6 +28689,7 @@ textarea{
   function prefetchRosterFilterData() {
     loadRosterFilterData().catch(() => {});
   }
+  try { if (typeof window !== 'undefined') window.prefetchRosterFilterData = prefetchRosterFilterData; } catch (_) {}
 
   function buildRosterHtml(result){
     if (!result || !result.success) {
