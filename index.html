@@ -16911,7 +16911,6 @@ button.active{
                       <div class="schedule-time-badge">${escapeHtml(time)}</div>
                       <div class="schedule-match-title">${escapeHtml(matchInfo)}</div>
                     </div>
-                    ${showSportBadge && itemSport ? `<span class="schedule-stage-badge prelim">${escapeHtml(itemSport)}</span>` : ''}
                     ${dayLabel ? `<span class="schedule-day-badge ${dayKey} schedule-day-badge-top">${escapeHtml(dayLabel)}</span>` : ''}
                   </div>
                   <div class="schedule-bottom-row detail-meta-row">
@@ -16922,6 +16921,7 @@ button.active{
                       class="meta-pill location schedule-location-btn"
                       data-action-spec='{"action":"openLocationGuideModal","args":["${escapeHtml(String(location || ""))}"],"stop":true}'
                     >${escapeHtml(location)}</button>
+                      ${showSportBadge && itemSport ? `<span class="meta-pill sport">${escapeHtml(itemSport)}</span>` : ''}
                     </div>
                     <div class="meta-right">
                       <button
@@ -19050,8 +19050,18 @@ async function loadBracketByGrade(sport, grade, btn = null) {
 
       const availableDays = Array.from(new Set(validRows.map(getScheduleDayKey).filter(Boolean)));
       if (availableDays.length >= 2) {
-        const dayTabsHtml = buildScheduleDayTabsHTML(validRows, '.');
-        const panelsHtml = wrapSchedulePanelsByDay(validRows, (dayRows) => buildTimelineForRows(dayRows));
+        const undatedRows = validRows.filter(item => !getScheduleDayKey(item));
+        const normalizedRows = undatedRows.length
+          ? validRows.map(item => {
+              if (getScheduleDayKey(item)) return item;
+              return {
+                ...item,
+                col8: item.col8 || (availableDays.includes('day1') ? '1일차' : '2일차')
+              };
+            })
+          : validRows;
+        const dayTabsHtml = buildScheduleDayTabsHTML(normalizedRows, '.');
+        const panelsHtml = wrapSchedulePanelsByDay(normalizedRows, (dayRows) => buildTimelineForRows(dayRows));
         return `${dayTabsHtml}<div class="timeline-day-panels">${panelsHtml}</div>`;
       }
 
@@ -19272,6 +19282,40 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return Array.from(new Set(classKeys.filter(Boolean)));
     }
 
+
+    function classScheduleAllianceKeysForRow(row = null, allianceRows = [], fallbackGrade = '') {
+      if (!row) return [];
+      const texts = [row.col3, row.col6, row.col7, row.col1, row.col5].map(v => safeText(v)).filter(Boolean);
+      const result = [];
+      texts.forEach(text => {
+        const vs = classScheduleSplitVs(text);
+        if (vs) {
+          result.push(...getAllianceClassKeysForTeamName(vs.left, allianceRows));
+          result.push(...getAllianceClassKeysForTeamName(vs.right, allianceRows));
+        }
+        const freeKeys = classScheduleExtractClassKeysFromFreeText(text, fallbackGrade);
+        if (freeKeys.length) result.push(...freeKeys);
+      });
+      return Array.from(new Set(result.filter(Boolean)));
+    }
+
+    function rowMatchesSelectedClass(item, selectedClass = '', allianceRows = [], fallbackGrade = '') {
+      if (!selectedClass) return false;
+      const row = classScheduleCanonicalizeScheduleRow(item);
+      if (!row) return false;
+      const combinedText = [row.classKeys || '', row.col3 || '', row.col6 || '', row.col7 || '', row.col1 || '', row.col5 || ''].filter(Boolean).join(' | ');
+      const inferred = inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade);
+      if (inferred.includes(selectedClass)) return true;
+      const allianceKeys = classScheduleAllianceKeysForRow(row, allianceRows, fallbackGrade);
+      if (allianceKeys.includes(selectedClass)) return true;
+      const m = selectedClass.match(/^(\d+)-(\d+)$/);
+      if (m) {
+        const gradeLabel = `${m[1]}학년`;
+        const classLabel = `${m[2]}반`;
+        const directText = `${combinedText} ${row.col4 || ''}`;
+      }
+      return false;
+    }
     function getDefaultClassKeysForGrade(grade = '1학년') {
       const gradeNo = String(grade || '1학년').match(/[123]/);
       const prefix = gradeNo ? gradeNo[0] : '1';
@@ -19284,9 +19328,11 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       (rows || []).forEach(item => {
         const row = classScheduleCanonicalizeScheduleRow(item);
         if (!row) return;
-        const matchInfo = [row.classKeys || '', row.col3 || '', row.col6 || '', row.col7 || '', row.col1 || ''].filter(Boolean).join(' | ');
         const fallbackGrade = classScheduleExtractGradeFromRow(row) || grade;
-        inferClassKeysFromMatchInfo(matchInfo, allianceRows, fallbackGrade).forEach(key => {
+        const matchInfo = [row.classKeys || '', row.col3 || '', row.col6 || '', row.col7 || '', row.col1 || '', row.col5 || ''].filter(Boolean).join(' | ');
+        const inferred = inferClassKeysFromMatchInfo(matchInfo, allianceRows, fallbackGrade);
+        const allianceInferred = classScheduleAllianceKeysForRow(row, allianceRows, fallbackGrade);
+        [...inferred, ...allianceInferred].forEach(key => {
           if (key.startsWith(`${String(grade).charAt(0)}-`)) set.add(key);
         });
       });
@@ -19386,15 +19432,8 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         ? (rows || []).filter(item => {
             const row = classScheduleCanonicalizeScheduleRow(item);
             if (!row) return false;
-            const fallbackGrade = classScheduleExtractGradeFromRow(row);
-            const combinedText = [
-              row.classKeys || '',
-              row.col3 || '',
-              row.col6 || '',
-              row.col7 || '',
-              row.col1 || ''
-            ].filter(Boolean).join(' | ');
-            return inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade).includes(effectiveClass);
+            const fallbackGrade = classScheduleExtractGradeFromRow(row) || selectedGrade;
+            return rowMatchesSelectedClass(row, effectiveClass, allianceRows, fallbackGrade);
           })
         : [];
 
@@ -20201,7 +20240,7 @@ ${guide}`, current || '');
     return null;
   }
 
-  function buildSafeScheduleCardsHTML(filtered, sport){
+  function buildSafeScheduleCardsHTML(filtered, sport, options = {}){
     const rows = uniqueRows(filtered).filter((item) => {
       const time = normalizeCell(item.col2);
       const match = normalizeCell(item.col3);
@@ -20222,9 +20261,11 @@ ${guide}`, current || '');
           const matchInfo = normalizeCell(item.col3) || '등록된 경기 정보가 없습니다.';
           const location = normalizeCell(item.col4) || '장소미정';
           const time = normalizeCell(item.col2) || '시간미정';
+          const itemSport = normalizeCell(item.col1) || normalizeCell(sport) || '';
           const stageInfo = scheduleStage(item.col7, matchInfo);
           const dayLabel = typeof getScheduleDayLabel === 'function' ? getScheduleDayLabel(item) : '';
           const dayKey = typeof getScheduleDayKey === 'function' ? getScheduleDayKey(item) : '';
+          const showSportBadge = !!options.showSportBadge;
           return `
             <div class="schedule-card" data-search-item="true" data-search-text="${escapeHtml(`${time} ${matchInfo} ${location} ${dayLabel}`)}">
               <div class="schedule-inline-row">
@@ -20249,14 +20290,15 @@ ${guide}`, current || '');
                       type="button"
                       class="action-pill player"
                       data-role="player"
-                      data-sport64="${escapeHtml(utf8ToBase64(sport))}"
+                      data-sport64="${escapeHtml(utf8ToBase64(itemSport))}"
                       data-match64="${escapeHtml(utf8ToBase64(matchInfo))}"
                     >선수단</button>
                     <button
                       type="button"
                       class="action-pill referee"
                       data-role="referee"
-                      data-sport64="${escapeHtml(utf8ToBase64(sport))}"
+                      data-sport64="${escapeHtml(utf8ToBase64(itemSport))}"
+                      data-match64="${escapeHtml(utf8ToBase64(matchInfo))}"
                       data-ref64="${escapeHtml(utf8ToBase64(rawRefData))}"
                     >심판</button>
                   </div>
@@ -29277,6 +29319,409 @@ textarea{
       }
     };
   }
+})();
+</script>
+
+
+<script id="referee-unify-final-v1">
+(function(){
+  const txt = (v) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim();
+  const sameSport = (a,b) => {
+    try { if (typeof window.sportEquals === 'function') return window.sportEquals(a,b); } catch(_) {}
+    return txt(a) === txt(b);
+  };
+  const parseRows = (raw) => {
+    if (!Array.isArray(raw)) return [];
+    const rows = raw.slice(1).filter(Boolean).map((item) => ({
+      sport: txt(item && item.col1),
+      time: txt(item && item.col2),
+      match: txt(item && item.col3),
+      location: txt(item && item.col4),
+      referee: txt(item && item.col5),
+      stage: txt(item && item.col7)
+    }));
+    const seen = new Set();
+    return rows.filter((row) => {
+      if (!row.sport || !row.referee) return false;
+      const key = [row.sport,row.time,row.match,row.location,row.referee,row.stage].join('|');
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
+  async function getScheduleRows(){
+    const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof window.fetchTabData === 'function' ? window.fetchTabData : null);
+    if (!fetcher) return [];
+    const candidates = ['세부경기일정','세부일정','일정_세부일정','경기일정','일정'];
+    for (const tab of candidates){
+      try {
+        const raw = await fetcher(tab);
+        const rows = parseRows(raw);
+        if (rows.length) return rows;
+      } catch(_) {}
+    }
+    return [];
+  }
+  function stageLabel(row){
+    const text = `${txt(row && row.stage)} ${txt(row && row.match)}`;
+    if (/준결승|4강|semi/i.test(text)) return '준결승';
+    if (/결승|final/i.test(text)) return '결승';
+    if (/예선|prelim/i.test(text)) return '예선';
+    return '';
+  }
+  function buildRowsHtml(rows, sport){
+    if (!rows.length) {
+      if (typeof window.createEmptyGuideHTML === 'function') {
+        return window.createEmptyGuideHTML('등록된 심판 정보가 없습니다.', `${sport || '선택한 종목'} 경기의 심판 정보가 아직 등록되지 않았습니다.`);
+      }
+      return '<div class="loader">등록된 심판 정보가 없습니다.</div>';
+    }
+    const normalized = rows.map((row) => ({...row, stageLabel: stageLabel(row)}));
+    if (typeof window.buildRefereeDetailHtml === 'function') {
+      try { return window.buildRefereeDetailHtml(normalized, sport); } catch(_) {}
+    }
+    const esc = (s) => String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return '<div class="unified-info-stack">' + normalized.map((row, idx) => {
+      const meta = [row.time || '시간미정', row.location || '장소미정', row.stageLabel].filter(Boolean).join(' · ');
+      return `
+        <div class="unified-info-card">
+          <div class="unified-info-card-head">
+            <div class="unified-order-badge">${idx+1}</div>
+            <div style="flex:1;min-width:0;">
+              <div class="unified-info-label">심판</div>
+              <div class="unified-info-title">${esc(row.match || sport || '경기 정보')}</div>
+            </div>
+          </div>
+          <div class="unified-info-meta"><span class="meta-pill">${esc(meta)}</span></div>
+          <div class="unified-info-body">${esc(row.referee || '등록된 심판 정보가 없습니다.').replace(/\n/g,'<br>')}</div>
+        </div>`;
+    }).join('') + '</div>';
+  }
+  function buildTextHtml(refText, sport){
+    const targetId = (typeof window.createUID === 'function') ? window.createUID('referee-search') : `referee-search-${Date.now()}`;
+    if (typeof window.buildSearchableRefereeHTML === 'function') {
+      return window.buildSearchableRefereeHTML(refText || '등록된 심판 정보가 없습니다.', targetId, sport || '');
+    }
+    return `<div class="loader">${refText || '등록된 심판 정보가 없습니다.'}</div>`;
+  }
+  window.showRefereeFromSchedule = async function(sport, refContent, matchInfo = '') {
+    const modal = document.getElementById('detail-modal');
+    const title = document.getElementById('detail-modal-title');
+    const content = document.getElementById('detail-modal-content');
+    if (!modal || !title || !content) return;
+    title.textContent = `${sport || ''} 심판진 정보`;
+    content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
+    modal.style.display = 'flex';
+    try {
+      const rows = await getScheduleRows();
+      const sportRows = rows.filter((row) => sameSport(row.sport, sport));
+      const normalizedMatch = txt(matchInfo);
+      let filtered = sportRows.length ? sportRows : rows.filter((row) => !sport || txt(row.sport) === txt(sport));
+      if (normalizedMatch) {
+        const strict = filtered.filter((row) => {
+          const rowMatch = txt(row.match);
+          return rowMatch && (rowMatch === normalizedMatch || rowMatch.includes(normalizedMatch) || normalizedMatch.includes(rowMatch));
+        });
+        if (strict.length) filtered = strict;
+      }
+      if (filtered.length) {
+        content.innerHTML = buildRowsHtml(filtered, sport);
+      } else {
+        const fallbackText = txt(refContent) || '등록된 심판 정보가 없습니다.';
+        content.innerHTML = buildTextHtml(fallbackText, sport);
+      }
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try { window.lucide.createIcons(); } catch(_) {}
+      }
+    } catch (_) {
+      const fallbackText = txt(refContent) || '등록된 심판 정보가 없습니다.';
+      content.innerHTML = buildTextHtml(fallbackText, sport);
+    }
+  };
+
+  window.bindScheduleActionButtons = function(container){
+    if (!container || container.dataset.scheduleActionsBoundFinal === 'true') return;
+    container.dataset.scheduleActionsBoundFinal = 'true';
+    container.addEventListener('click', function(event){
+      const btn = event.target.closest('[data-role]');
+      if (!btn || !container.contains(btn)) return;
+      const sport = typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.sport64 || '') : txt(btn.dataset.sport64 || '');
+      const matchInfo = typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.match64 || '') : '';
+      if (btn.dataset.role === 'player') {
+        if (typeof window.openDetailInfo === 'function') window.openDetailInfo('선수단', sport, matchInfo || '');
+        event.preventDefault(); event.stopPropagation();
+        return;
+      }
+      if (btn.dataset.role === 'referee') {
+        const refContent = typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.ref64 || '') : (btn.getAttribute('data-ref-text') || '');
+        const card = btn.closest('.schedule-card');
+        const titleEl = card ? card.querySelector('.schedule-match-title, .schedule-event') : null;
+        const resolvedMatch = matchInfo || (titleEl ? txt(titleEl.textContent) : '');
+        window.showRefereeFromSchedule(sport || ((typeof window.getActiveSportName === 'function') ? window.getActiveSportName() : ''), refContent, resolvedMatch);
+        event.preventDefault(); event.stopPropagation();
+      }
+    }, true);
+  };
+
+  document.addEventListener('click', function(event){
+    const btn = event.target.closest('[data-role="referee"]');
+    if (!btn) return;
+    const card = btn.closest('.schedule-card');
+    const sport = (typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.sport64 || '') : '') || ((typeof window.getActiveSportName === 'function') ? window.getActiveSportName() : '');
+    const matchInfo = (typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.match64 || '') : '') || (card && card.querySelector('.schedule-match-title, .schedule-event') ? txt(card.querySelector('.schedule-match-title, .schedule-event').textContent) : '');
+    const refContent = (typeof window.base64ToUtf8 === 'function' ? window.base64ToUtf8(btn.dataset.ref64 || '') : '') || btn.getAttribute('data-ref-text') || '';
+    if (!sport) return;
+    window.showRefereeFromSchedule(sport, refContent, matchInfo);
+    event.preventDefault();
+    event.stopPropagation();
+  }, true);
+
+  const originalOpenDetailInfo = window.openDetailInfo;
+  window.openDetailInfo = async function(type, sport, matchInfo = ''){
+    if (txt(type) !== '심판') {
+      return typeof originalOpenDetailInfo === 'function' ? originalOpenDetailInfo.apply(this, arguments) : undefined;
+    }
+    const modal = document.getElementById('detail-modal');
+    const title = document.getElementById('detail-modal-title');
+    const content = document.getElementById('detail-modal-content');
+    if (!modal || !title || !content) return;
+    title.textContent = `${sport} 심판 정보`;
+    content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
+    modal.style.display = 'flex';
+    try {
+      const rows = await getScheduleRows();
+      const sportRows = rows.filter((row) => sameSport(row.sport, sport));
+      const normalizedMatch = txt(matchInfo);
+      let filtered = sportRows.length ? sportRows : rows.filter((row) => !sport || txt(row.sport) === txt(sport));
+      if (normalizedMatch) {
+        const strict = filtered.filter((row) => {
+          const rowMatch = txt(row.match);
+          return rowMatch && (rowMatch === normalizedMatch || rowMatch.includes(normalizedMatch) || normalizedMatch.includes(rowMatch));
+        });
+        if (strict.length) filtered = strict;
+      }
+      content.innerHTML = buildRowsHtml(filtered, sport);
+    } catch (_) {
+      content.innerHTML = '<div class="loader">⚠️ 심판 정보를 불러오지 못했습니다.</div>';
+    }
+  };
+})();
+</script>
+
+
+<script id="referee-sport-only-fix-v1">
+(function(){
+  if (window.__refereeSportOnlyFixV1__) return;
+  window.__refereeSportOnlyFixV1__ = true;
+
+  function t(v){
+    try { return typeof stripTrueFalseText === 'function' ? stripTrueFalseText(v || '').trim() : String(v || '').trim(); }
+    catch(_) { return String(v || '').trim(); }
+  }
+  function sportKey(v){
+    return t(v).replace(/\s+/g, '').toLowerCase();
+  }
+  function sameSportStrict(a, b){
+    const ak = sportKey(a);
+    const bk = sportKey(b);
+    return !!ak && !!bk && ak === bk;
+  }
+  function nlLines(v){
+    return t(v).replace(/<br\s*\/?>/gi, '
+').split(/
+?
+/).map(s => s.trim()).filter(Boolean);
+  }
+  async function getRows(){
+    if (typeof window.getRefereeScheduleRows === 'function') {
+      try { return await window.getRefereeScheduleRows(); } catch(_) {}
+    }
+    return [];
+  }
+
+  if (typeof window.handleSportFilterClick === 'function') {
+    const prevHandle = window.handleSportFilterClick;
+    window.handleSportFilterClick = async function(btn, targetTab, sport, isPlayerGrid, isScheduleView, mode){
+      const resolvedMode = mode || 'default';
+      if (!(targetTab === '심판' && !isScheduleView && resolvedMode === 'default')) {
+        return prevHandle.apply(this, arguments);
+      }
+      const container = document.getElementById('sport-common-detail');
+      if (!container) return;
+      const isAlreadyActive = !!btn && btn.classList.contains('active');
+      document.querySelectorAll('#sport-filter-group .filter-btn').forEach(b => b.classList.remove('active'));
+      if (isAlreadyActive) {
+        if (typeof resetSportDetailArea === 'function') resetSportDetailArea(targetTab, false, false, resolvedMode);
+        return;
+      }
+      if (btn) btn.classList.add('active');
+      container.innerHTML = '<div class="loader" style="font-size:0.8rem; padding:20px;">심판 일정 불러오는 중...</div>';
+      try {
+        const rows = await getRows();
+        let filtered = rows.filter(row => sameSportStrict(row && row.sport, sport));
+        if (!filtered.length && typeof sportEquals === 'function') {
+          filtered = rows.filter(row => {
+            try { return sportEquals(row && row.sport, sport); } catch(_) { return false; }
+          });
+        }
+        if (typeof buildRefereeScheduleCardsHTML === 'function') {
+          container.innerHTML = buildRefereeScheduleCardsHTML(filtered, sport);
+        } else {
+          container.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 심판 카드를 표시하지 못했습니다.</div>';
+        }
+      } catch (e) {
+        container.innerHTML = '<div class="loader" style="font-size:0.8rem;">⚠️ 심판 일정을 불러올 수 없습니다.</div>';
+      }
+    };
+  }
+
+  if (typeof window.showRefereeFromSchedule === 'function') {
+    const prevShow = window.showRefereeFromSchedule;
+    window.showRefereeFromSchedule = async function(sport, refContent){
+      const cleanSport = t(sport);
+      const refLines = nlLines(refContent);
+      if (!cleanSport) return prevShow.apply(this, arguments);
+      try {
+        const rows = await getRows();
+        let filtered = rows.filter(row => sameSportStrict(row && row.sport, cleanSport));
+        if (refLines.length) {
+          const refSet = new Set(refLines.map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean));
+          const narrowed = filtered.filter(row => refSet.has(t(row && row.referee).replace(/\s+/g, ' ').trim()));
+          if (narrowed.length) filtered = narrowed;
+        }
+        const mergedRef = filtered.map(row => t(row && row.referee)).filter(Boolean).join('
+');
+        return prevShow.call(this, cleanSport, mergedRef || refContent);
+      } catch (_) {
+        return prevShow.apply(this, arguments);
+      }
+    };
+  }
+})();
+</script>
+
+
+<script id="speed-hotfix-20260402">
+(function(){
+  if (window.__speedHotfix20260402__) return;
+  window.__speedHotfix20260402__ = true;
+
+  const HOT_TTL = 30 * 1000;
+  const WARM_TTL = 5 * 60 * 1000;
+  const HOT_TABS = new Set(['점수','세부경기일정','장소안내','선수단','심판','대진표']);
+  const memory = new Map();
+  const inflight = new Map();
+
+  function keyOf(tabName){ return String(tabName || '').trim(); }
+  function ttlOf(tabName){ return HOT_TABS.has(keyOf(tabName)) ? HOT_TTL : WARM_TTL; }
+  function storageKey(tabName){ return '__festival_speed_cache__:' + keyOf(tabName); }
+
+  function readStorage(tabName){
+    try {
+      const raw = sessionStorage.getItem(storageKey(tabName)) || localStorage.getItem(storageKey(tabName));
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.data) || !parsed.savedAt) return null;
+      if ((Date.now() - parsed.savedAt) > ttlOf(tabName)) return null;
+      return parsed.data;
+    } catch(_) { return null; }
+  }
+
+  function writeStorage(tabName, data){
+    try {
+      if (!Array.isArray(data)) return;
+      const payload = JSON.stringify({ savedAt: Date.now(), data });
+      sessionStorage.setItem(storageKey(tabName), payload);
+      try { localStorage.setItem(storageKey(tabName), payload); } catch(_) {}
+    } catch(_) {}
+  }
+
+  function clearHotCache(tabName){
+    const key = keyOf(tabName);
+    memory.delete(key);
+    inflight.delete(key);
+    try { sessionStorage.removeItem(storageKey(key)); } catch(_) {}
+    try { localStorage.removeItem(storageKey(key)); } catch(_) {}
+  }
+
+  async function fastFetch(tabName, opts){
+    const key = keyOf(tabName);
+    if (!key) return [];
+    const force = !!(opts && opts.force);
+    const now = Date.now();
+    const cached = memory.get(key);
+    if (!force && cached && (now - cached.time) < ttlOf(key)) {
+      return cached.data;
+    }
+    if (!force) {
+      const stored = readStorage(key);
+      if (stored) {
+        memory.set(key, { time: now, data: stored });
+        return stored;
+      }
+    } else {
+      clearHotCache(key);
+    }
+    if (!force && inflight.has(key)) return inflight.get(key);
+
+    const urlBase = (typeof window.SCRIPT_URL !== 'undefined' && window.SCRIPT_URL) || (typeof SCRIPT_URL !== 'undefined' && SCRIPT_URL) || '';
+    if (!urlBase) return [];
+    const url = urlBase + '?tab=' + encodeURIComponent(key) + (force ? ('&_ts=' + Date.now()) : '');
+
+    const task = fetch(url, { cache: force ? 'no-store' : 'default' })
+      .then(function(res){
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(function(json){
+        let data = json;
+        try {
+          if (typeof window.sanitizeTabularData === 'function') data = window.sanitizeTabularData(json);
+          else if (typeof window.sanitizeTableData === 'function') data = window.sanitizeTableData(json);
+        } catch(_) {}
+        if (!Array.isArray(data)) data = [];
+        memory.set(key, { time: Date.now(), data: data });
+        writeStorage(key, data);
+        return data;
+      })
+      .catch(function(error){
+        inflight.delete(key);
+        throw error;
+      })
+      .finally(function(){
+        inflight.delete(key);
+      });
+
+    inflight.set(key, task);
+    return task;
+  }
+
+  window.fetchTabData = fastFetch;
+  window.fetchTabDataCached = function(tabName){ return fastFetch(tabName); };
+  window.getTabData = function(tabName){ return fastFetch(tabName); };
+  window.clearFestivalHotCache = clearHotCache;
+
+  const originalOpenDetailInfo = window.openDetailInfo;
+  if (typeof originalOpenDetailInfo === 'function' && !originalOpenDetailInfo.__speedWrapped__) {
+    const wrapped = async function(type, sport, matchInfo){
+      const key = keyOf(type);
+      if (HOT_TABS.has(key)) {
+        try { await fastFetch(key); } catch(_) {}
+      }
+      return originalOpenDetailInfo.apply(this, arguments);
+    };
+    wrapped.__speedWrapped__ = true;
+    window.openDetailInfo = wrapped;
+  }
+
+  window.addEventListener('focus', function(){
+    ['점수','세부경기일정'].forEach(function(tab){
+      const cached = memory.get(tab);
+      if (cached && (Date.now() - cached.time) > HOT_TTL) clearHotCache(tab);
+    });
+  }, { passive: true });
 })();
 </script>
 
