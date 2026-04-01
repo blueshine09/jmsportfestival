@@ -18460,19 +18460,8 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
         bodyRows = bodyRows.map(row => keepIndexes.map(i => String(row[i] ?? '').trim()));
       }
 
-      // 순위 컬럼이 있으면 테이블 본문에서는 제거
-      const rankColIndex = headers.findIndex(value => /^(순위|rank|ranking)$/i.test(String(value || '').trim()));
-      if (rankColIndex >= 0) {
-        headers = headers.filter((_, idx) => idx !== rankColIndex);
-        bodyRows = bodyRows.map(row => row.filter((_, idx) => idx !== rankColIndex));
-      }
-
-      // 마지막 요약/합계 행 강조
-      const normalizedRows = bodyRows.map(row => row.map(v => v || '0'));
-      const topSummary = normalizedRows.find(row => /합계|총점/.test(String(row[0] || '').trim()));
-      const rowsWithoutSummary = normalizedRows.filter(row => !/합계|총점/.test(String(row[0] || '').trim()));
-
-      const tableRows = [...rowsWithoutSummary, ...(topSummary ? [topSummary] : [])];
+      // 시트 순서를 그대로 유지한다. 순위 컬럼도 제거하지 않고, 합계/총점 행도 재배치하지 않는다.
+      const tableRows = bodyRows.map(row => row.map(v => v || '0'));
 
       const thead = `
         <div class="score-matrix-head">
