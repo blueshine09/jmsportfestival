@@ -20284,6 +20284,7 @@ ${guide}`, current || '');
                       class="meta-pill location schedule-location-btn"
                       data-action-spec='{"action":"openLocationGuideModal","args":["${escapeHtml(String(location || ""))}"],"stop":true}'
                     >${escapeHtml(location)}</button>
+                    ${showSportBadge && itemSport ? `<span class="meta-pill sport">${escapeHtml(itemSport)}</span>` : ''}
                   </div>
                   <div class="meta-right">
                     <button
