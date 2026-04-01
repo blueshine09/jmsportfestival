@@ -18377,25 +18377,31 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
         return '<div class="score-guide-empty">배점표 시트 데이터를 아직 불러오지 못했습니다.</div>';
       }
 
-      const headerRow = data[0] || {};
-      const headerVals = Object.values(headerRow).map(value => String(value ?? '').trim());
-      const bodyRows = data.slice(1).filter(row => Object.values(row || {}).some(value => String(value ?? '').trim()));
+      const orderedKeys = ['col1', 'col2', 'col3', 'col4', 'col5'];
+      const fixedHeaders = ['경기종목', '1위', '2위', '3위', '4위'];
+      const columnCount = fixedHeaders.length;
 
-      if (!headerVals.length || bodyRows.length === 0) {
+      const rawRows = data.slice(1)
+        .map(row => {
+          if (Array.isArray(row)) {
+            return row.slice(0, columnCount).map(value => String(value ?? '').trim());
+          }
+          return orderedKeys.map(key => String((row || {})[key] ?? '').trim());
+        })
+        .filter(row => row.some(value => value));
+
+      if (rawRows.length === 0) {
         return '<div class="score-guide-empty">배점표 시트에 표시할 데이터가 없습니다.</div>';
       }
 
-      const normalizedHeaders = headerVals.map(value => String(value || '').trim() || '-');
-      const columnCount = Math.min(normalizedHeaders.length, 5);
-      const headers = normalizedHeaders.slice(0, columnCount);
-      const rows = bodyRows.map(row => Object.values(row || {}).slice(0, columnCount).map(value => escapeHtml(String(value ?? '').trim() || '-')));
+      const rows = rawRows.map(row => row.map(value => escapeHtml(String(value ?? '').trim() || '-')));
       const gridClass = `score-guide-badge-row cols-${columnCount}`;
 
       return `
         <div class="score-guide-modal-wrap score-guide-badge-wrap">
           <div class="score-guide-badge-grid">
             <div class="score-guide-badge-head ${gridClass}">
-              ${headers.map(value => `<div class="score-guide-badge-head-col">${escapeHtml(value)}</div>`).join('')}
+              ${fixedHeaders.map(value => `<div class="score-guide-badge-head-col">${escapeHtml(value)}</div>`).join('')}
             </div>
             ${rows.map(vals => `
               <div class="award-badge-card award-badge-card-lined score-guide-badge-card">
@@ -18420,48 +18426,44 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
         return '<div class="score-guide-empty">실시간 점수 데이터를 아직 불러오지 못했습니다.</div>';
       }
 
-      const rawRows = data
-        .map(row => Object.values(row || {}).map(value => String(value ?? '').trim()))
+      const defaultTeams = ['빨강', '주황', '노랑', '핑크', '파랑', '남색', '검정'];
+      const orderedKeys = ['col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8'];
+
+      const headerRow = Array.isArray(data[0])
+        ? data[0].map(value => String(value ?? '').trim())
+        : orderedKeys.map(key => String((data[0] || {})[key] ?? '').trim());
+
+      let headers = headerRow.slice(0, orderedKeys.length).map((value, idx) => {
+        if (idx === 0) return '​';
+        const normalized = formatScoreHeaderText(value || '');
+        return normalized || defaultTeams[idx - 1] || '-';
+      });
+
+      let bodyRows = data.slice(1)
+        .map(row => {
+          if (Array.isArray(row)) {
+            return row.slice(0, orderedKeys.length).map(value => String(value ?? '').trim());
+          }
+          return orderedKeys.map(key => String((row || {})[key] ?? '').trim());
+        })
         .filter(row => row.some(value => value));
 
-      if (rawRows.length < 2) {
+      if (bodyRows.length < 1) {
         return '<div class="score-guide-empty">실시간 점수 데이터가 없습니다.</div>';
       }
 
-      let headers = rawRows[0].map(value => formatScoreHeaderText(value || '') || '-');
-      let bodyRows = rawRows.slice(1).filter(row => row.some(value => value));
-
-      // 첫 열은 종목, 윗줄은 팀명으로 맞추기 위한 정규화
-      // 일부 데이터에서 첫 번째 값이 두 번째 값과 중복되어 보이는 현상을 화면에서 제거
-      const duplicateSportLike = bodyRows.filter(row => row.length > 1 && String(row[0] || '').trim() && String(row[0] || '').trim() === String(row[1] || '').trim()).length;
-      if (duplicateSportLike > 0 && duplicateSportLike >= Math.ceil(bodyRows.length * 0.5)) {
-        // 본문에만 종목 중복 열이 끼어든 경우가 있어 본문만 정리한다.
-        // 헤더까지 같이 지우면 '빨강'처럼 첫 팀명이 사라져 열 정렬이 틀어질 수 있다.
-        bodyRows = bodyRows.map(row => [row[0]].concat(row.slice(2)));
+      if (headers.length !== orderedKeys.length) {
+        headers = ['​'].concat(defaultTeams);
       }
 
-      // 헤더 첫 칸을 종목으로 정리
-      if (!headers[0] || /^(번호|no|index|-)$/i.test(headers[0])) {
-        headers[0] = '\u200B';
-      }
-
-      // 팀 헤더가 빠지거나 어긋난 경우 기본 팀 순서로 보정
-      const defaultTeams = ['빨강', '주황', '노랑', '핑크', '파랑', '남색', '검정'];
-      const sportColCount = 1;
-      const expectedLen = sportColCount + defaultTeams.length;
-      if (headers.length === expectedLen) {
-        headers = ['\u200B'].concat(defaultTeams);
-      }
-
-      // 빈 헤더 제거
-      const keepIndexes = headers.map((h, i) => ({h: String(h || '').trim(), i})).filter(item => item.h !== '').map(item => item.i);
-      if (keepIndexes.length) {
-        headers = keepIndexes.map(i => headers[i]);
-        bodyRows = bodyRows.map(row => keepIndexes.map(i => String(row[i] ?? '').trim()));
-      }
+      bodyRows = bodyRows.map(row => {
+        const normalized = row.slice(0, orderedKeys.length);
+        while (normalized.length < orderedKeys.length) normalized.push('');
+        return normalized;
+      });
 
       // 시트 순서를 그대로 유지한다. 순위 컬럼도 제거하지 않고, 합계/총점 행도 재배치하지 않는다.
-      const tableRows = bodyRows.map(row => row.map(v => v || '0'));
+      const tableRows = bodyRows.map(row => row.map((v, idx) => idx === 0 ? (v || '-') : (v || '0')));
 
       const thead = `
         <div class="score-matrix-head">
@@ -18563,8 +18565,11 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
         return '<div class="score-guide-empty">시상계획 시트를 찾지 못했습니다. 시트명을 확인해 주세요.</div>';
       }
 
+      const orderedKeys = ['col1', 'col2', 'col3', 'col4'];
       const awardCards = awardData.slice(1).map((item) => {
-        const v = Object.values(item || {});
+        const v = Array.isArray(item)
+          ? item.slice(0, orderedKeys.length).map(value => String(value ?? '').trim())
+          : orderedKeys.map(key => String((item || {})[key] ?? '').trim());
         const rank = String(v[0] || '').trim();
         const className = String(v[1] || '').trim();
         const prize = String(v[2] || '').trim();
@@ -18635,8 +18640,14 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
         if (!data || data.length < 2) return showState('empty-box');
 
         const headerVals = Object.values(data[0] || {});
-        const totalRow = data[9] || {};
-        const totalVals = Object.values(totalRow);
+        const totalRow = data.find((row, idx) => {
+          if (idx === 0) return false;
+          const firstCell = String(
+            Array.isArray(row) ? (row[0] ?? '') : (row?.col1 ?? '')
+          ).trim();
+          return /합계|총점/.test(firstCell);
+        }) || {};
+        const totalVals = Array.isArray(totalRow) ? totalRow : Object.values(totalRow);
 
         let rankings = headerVals
           .map((rawName, colIndex) => {
@@ -18762,7 +18773,7 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
               </thead>
               <tbody>
                 ${data.slice(1).map((item) => {
-                  const v = Object.values(item);
+                  const v = Array.isArray(item) ? item.slice(0, 4) : ['col1','col2','col3','col4'].map(key => String((item || {})[key] ?? '').trim());
                   return `
                     <tr>
                       <td>${escapeHtml(v[0] || '')}</td>
@@ -19769,9 +19780,17 @@ async function loadBracketByGrade(sport, grade, btn = null) {
           const gradeSports = ['풋살','빅발리볼','8자 줄넘기','단체줄넘기','팔씨름'];
 
           if (sport === '이어달리기') {
-            container.innerHTML = buildRelayBracketSelectorHTML();
+            const defaultRelayType = '학급';
+            const defaultRelayGrade = '1학년';
+            container.innerHTML = buildRelayBracketSelectorHTML(defaultRelayType, defaultRelayGrade);
             if (typeof lucide !== 'undefined') {
               lucide.createIcons();
+            }
+            const relayResultBox = document.getElementById('relay-bracket-result');
+            if (relayResultBox) {
+              relayResultBox.innerHTML = '<div class="loader">대진표 로딩중...</div>';
+              const relayBracketKey = `대진_이어달리기_학급_${defaultRelayGrade}`;
+              await loadBracketDataToContainer(relayResultBox, relayBracketKey, `이어달리기 학급 ${defaultRelayGrade}`);
             }
             return;
           }
@@ -20662,9 +20681,23 @@ ${guide}`, current || '');
   function parseRealtimeScoreRankings(scoreData) {
     if (!Array.isArray(scoreData) || scoreData.length < 2) return [];
 
-    const headerVals = Object.values(scoreData[0] || {});
-    const totalRow = scoreData[9] || scoreData[scoreData.length - 1] || {};
-    const totalVals = Object.values(totalRow || {});
+    const orderedKeys = ['col1', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8'];
+    const defaultTeams = ['빨강', '주황', '노랑', '핑크', '파랑', '남색', '검정'];
+
+    const headerVals = Array.isArray(scoreData[0])
+      ? scoreData[0].slice(0, orderedKeys.length).map(value => String(value ?? '').trim())
+      : orderedKeys.map(key => String((scoreData[0] || {})[key] ?? '').trim());
+
+    const totalRow = scoreData.find(row => {
+      const first = Array.isArray(row)
+        ? String(row[0] ?? '').trim()
+        : String((row || {}).col1 ?? '').trim();
+      return /합계|총점/.test(first);
+    }) || scoreData[scoreData.length - 1] || {};
+
+    const totalVals = Array.isArray(totalRow)
+      ? totalRow.slice(0, orderedKeys.length).map(value => String(value ?? '').trim())
+      : orderedKeys.map(key => String((totalRow || {})[key] ?? '').trim());
 
     return headerVals
       .map((rawName, colIndex) => {
@@ -20673,7 +20706,7 @@ ${guide}`, current || '');
         const scoreText = String(rawScore ?? '').replace(/,/g, '').trim();
         const scoreValue = parseFloat(scoreText);
         return {
-          name: String(rawName ?? '').trim(),
+          name: String(rawName ?? '').trim() || defaultTeams[colIndex - 1] || '',
           score: String(rawScore ?? '').trim(),
           scoreValue: Number.isFinite(scoreValue) ? scoreValue : -Infinity
         };
@@ -27935,14 +27968,24 @@ textarea{
     cachePromise = (async () => {
       const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof fetchTabDataCached === 'function' ? fetchTabDataCached : null);
       if (!fetcher) return [];
-      const raw = await fetcher('세부경기일정');
+      const candidateTabs = ['세부경기일정', '세부일정', '일정_세부일정', '경기일정', '일정'];
+      let raw = [];
+      for (const tabName of candidateTabs) {
+        try {
+          const data = await fetcher(tabName);
+          if (Array.isArray(data) && data.length > 1) {
+            raw = data;
+            break;
+          }
+        } catch (_) {}
+      }
       return getDetailRows(raw).filter(item => {
         const sport = txt(item.col1);
         const time = txt(item.col2);
         const match = txt(item.col3);
         const location = txt(item.col4);
         const referee = txt(item.col5);
-        const hasTime = /\d{1,2}\s*[:.]\s*\d{2}/.test(time);
+        const hasTime = /\d{1,2}\s*[:.]\s*\d{2}/.test(time) || /\d{1,2}교시/.test(time) || !!time;
         return !!sport && !!referee && hasTime && (!!match || !!location);
       }).map(item => {
         const sport = txt(item.col1);
@@ -28689,6 +28732,42 @@ textarea{
     return normalize(a) === normalize(b);
   }
 
+  function splitVs(text){
+    const raw = safeText(text)
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!raw) return null;
+    const parts = raw.split(/\s*(?:vs|VS|v\.?s\.?|대)\s*/i).map(s => safeText(s)).filter(Boolean);
+    if (parts.length !== 2) return null;
+    return { left: parts[0], right: parts[1] };
+  }
+
+
+  function normalizeTeamName(value){
+    const raw = safeText(value)
+      .replace(/팀/g, '')
+      .replace(/연합/g, '')
+      .replace(/조/g, '')
+      .replace(/\s+/g, '');
+    if (!raw) return '';
+    return TEAM_ALIAS[raw] || raw;
+  }
+
+  function isAllianceTeamName(value){
+    return ALLIANCE_TEAM_SET.has(normalizeTeamName(value));
+  }
+
+  function makeClassKey(gradeText, classText){
+    const grade = safeText(gradeText);
+    const klass = safeText(classText);
+    if (!grade || !klass) return '';
+    const g = grade.match(/([123])/);
+    const c = klass.match(/(\d+)/);
+    if (!g || !c) return '';
+    return `${g[1]}-${c[1]}`;
+  }
+
   
 
   
@@ -28754,6 +28833,11 @@ textarea{
     const original = safeText(sideText);
     const cleaned = original.replace(/^([123])학년\s*:\s*/,'').trim();
 
+    const fullClass = original.match(/^([123])학년\s*(\d+)반$/);
+    if (fullClass) {
+      return { type: 'fixed', label: original, grade: `${fullClass[1]}학년`, classText: `${fullClass[2]}반`, classKey: `${fullClass[1]}-${fullClass[2]}` };
+    }
+
     const fixedClass = cleaned.match(/^(\d+)반$/);
     if (fixedClass) {
       const classText = `${fixedClass[1]}반`;
@@ -28763,6 +28847,11 @@ textarea{
     const fixedDash = cleaned.match(/^([123])-(\d+)$/);
     if (fixedDash) {
       return { type: 'fixed', label: original, grade: `${fixedDash[1]}학년`, classText: `${fixedDash[2]}반`, classKey: `${fixedDash[1]}-${fixedDash[2]}` };
+    }
+
+    const gradeClass = cleaned.match(/^([123])학년\s*(\d+)반$/);
+    if (gradeClass) {
+      return { type: 'fixed', label: original, grade: `${gradeClass[1]}학년`, classText: `${gradeClass[2]}반`, classKey: `${gradeClass[1]}-${gradeClass[2]}` };
     }
 
     const winner = cleaned.match(/^\(?(\d+)\s*\/\s*(\d+)\s*승자\)?$/);
@@ -29056,6 +29145,131 @@ textarea{
   box-shadow: 0 8px 18px rgba(217,107,139,0.12) !important;
 }
 </style>
+
+
+<script id="referee-modal-fix-v7-20260401">
+(function(){
+  if (window.__refereeModalFixV7__) return;
+  window.__refereeModalFixV7__ = true;
+
+  function txt(v){ return String(v == null ? '' : v).replace(/ /g,' ').trim(); }
+  function esc(v){
+    return String(v == null ? '' : v)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+  function sportEq(a,b){
+    try { if (typeof sportEquals === 'function') return !!sportEquals(a,b); } catch(_) {}
+    return txt(a) === txt(b);
+  }
+  function stageLabelFromItemSafe(item){
+    const text = `${txt(item && item.col7)} ${txt(item && item.col3)}`;
+    if (text.includes('준결승') || text.includes('4강')) return '준결승';
+    if (text.includes('결승')) return '결승';
+    if (text.includes('예선')) return '예선';
+    return '';
+  }
+  function parseRows(raw){
+    if (!Array.isArray(raw)) return [];
+    return raw.slice(1).filter(Boolean);
+  }
+  function nl(v){
+    const safe = esc(v);
+    return safe.replace(/
+/g,'<br>');
+  }
+  function buildRefereeDetailHtml(rows, sport){
+    if (!rows || !rows.length) {
+      if (typeof createEmptyGuideHTML === 'function') {
+        return createEmptyGuideHTML('등록된 심판 정보가 없습니다.', `${sport || '선택한 경기'}의 심판 정보가 아직 등록되지 않았습니다.`);
+      }
+      return '<div class="loader">등록된 심판 정보가 없습니다.</div>';
+    }
+    const sorted = rows.slice().sort((a,b)=>{
+      const at = txt(a.time); const bt = txt(b.time);
+      return at.localeCompare(bt, 'ko') || txt(a.match).localeCompare(txt(b.match), 'ko');
+    });
+    return `<div class="unified-info-stack">${sorted.map((row, i) => `
+      <div class="unified-info-card" data-search-item="true" data-search-text="${esc([row.sport,row.time,row.stage,row.match,row.location,row.referee].join(' '))}">
+        <div class="unified-info-card-head">
+          <div class="unified-order-badge">${i+1}</div>
+          <div style="flex:1; min-width:0;">
+            <div class="referee-head-wrap">
+              <div class="referee-head-left">
+                <span class="referee-grade-text">${esc(row.match || row.sport || '경기')}</span>
+              </div>
+              <div class="referee-head-right">
+                ${row.stage ? `<span class="referee-stage-badge referee-meta-badge">${esc(row.stage)}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="unified-info-body referee-body-row"><span class="referee-body-name">${nl(row.referee || '심판 정보 없음')}</span>${row.location ? `<span class="meta-pill location referee-body-location">${esc(row.location)}</span>` : ''}</div>
+        <div class="unified-info-meta">
+          <span class="meta-pill">${esc(row.time || '시간미정')}</span>
+          <span class="meta-pill">${esc(row.sport || sport || '')}</span>
+        </div>
+      </div>
+    `).join('')}</div>`;
+  }
+
+  async function loadRefereeRowsFromSchedule(){
+    const fetcher = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : (typeof window.fetchTabData === 'function' ? window.fetchTabData : null);
+    if (!fetcher) return [];
+    const raw = await fetcher('세부경기일정');
+    return parseRows(raw).map(item => ({
+      sport: txt(item.col1),
+      time: txt(item.col2),
+      match: txt(item.col3),
+      location: txt(item.col4),
+      referee: txt(item.col5),
+      stage: stageLabelFromItemSafe(item)
+    })).filter(row => row.sport && row.referee && (row.match || row.location || row.time));
+  }
+
+  if (typeof window.openDetailInfo === 'function') {
+    const originalOpenDetailInfo = window.openDetailInfo;
+    window.openDetailInfo = async function(type, sport, matchInfo = '') {
+      if (txt(type) !== '심판') {
+        return originalOpenDetailInfo.apply(this, arguments);
+      }
+      const modal = document.getElementById('detail-modal');
+      const title = document.getElementById('detail-modal-title');
+      const content = document.getElementById('detail-modal-content');
+      if (!modal || !title || !content) {
+        return originalOpenDetailInfo.apply(this, arguments);
+      }
+      title.textContent = `${sport} 심판 정보`;
+      content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
+      modal.style.display = 'flex';
+      try {
+        const rows = await loadRefereeRowsFromSchedule();
+        const sportRows = rows.filter(row => sportEq(row.sport, sport));
+        const m = txt(matchInfo);
+        let filtered = sportRows;
+        if (m) {
+          const normalizedMatch = m.replace(/\s+/g, ' ').trim();
+          const strict = sportRows.filter(row => {
+            const rowMatch = txt(row.match).replace(/\s+/g, ' ').trim();
+            if (!rowMatch) return false;
+            return rowMatch === normalizedMatch || rowMatch.includes(normalizedMatch) || normalizedMatch.includes(rowMatch);
+          });
+          filtered = strict.length ? strict : sportRows;
+        }
+        content.innerHTML = buildRefereeDetailHtml(filtered, sport);
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          try { window.lucide.createIcons(); } catch(_) {}
+        }
+      } catch (error) {
+        content.innerHTML = '<div class="loader">⚠️ 심판 정보를 불러오지 못했습니다.</div>';
+      }
+    };
+  }
+})();
+</script>
 
 </body>
 </html>
