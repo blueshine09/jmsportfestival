@@ -19173,6 +19173,37 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return [];
     }
 
+
+    function rowMatchesSelectedClassDirect(row, effectiveClass, currentGrade, allianceRows = []) {
+      const safeRow = classScheduleCanonicalizeScheduleRow(row);
+      if (!safeRow || !effectiveClass) return false;
+      const parts = String(effectiveClass).split('-');
+      const gradeNo = parts[0] || '';
+      const classNo = parts[1] || '';
+      const gradeText = `${gradeNo}학년`;
+      const classText = `${classNo}반`;
+      const text = [safeRow.col1, safeRow.col3, safeRow.col6, safeRow.col7].map(v => String(v || '').trim()).join(' | ');
+
+      const inferred = inferClassKeysFromMatchInfo(text, allianceRows, classScheduleExtractGradeFromRow(safeRow) || currentGrade || gradeText);
+      if (Array.isArray(inferred) && inferred.includes(effectiveClass)) return true;
+
+      if (/^연합팀$/.test(String(safeRow.col6 || '').trim())) return false;
+
+      const hasSameGrade = text.includes(gradeText) || String(safeRow.col6 || '').trim() == gradeText;
+      if (hasSameGrade) {
+        if (new RegExp(`(^|[^\d])${classNo}반([^\d]|$)`).search(text)) return true;
+        if (new RegExp(`\(${classNo}\s*\/\s*\d+\s*승자\)`).search(text)) return true;
+        if (new RegExp(`\(\d+\s*\/\s*${classNo}\s*승자\)`).search(text)) return true;
+        if (new RegExp(`${gradeNo}\s*-\s*${classNo}`).search(text)) return true;
+      }
+
+      if (!hasSameGrade && String(safeRow.col3 || '').trim().match(/^\d+반\s*(?:vs|VS|v\.?s\.?|대)\s*\d+반$/)) {
+        if (new RegExp(`(^|[^\d])${classNo}반([^\d]|$)`).search(String(safeRow.col3 || '').trim())) return true;
+      }
+
+      return false;
+    }
+
     function buildClassSchedulePickerHTML(rows = [], allianceRows = []) {
       const classes = getAvailableClassesForGrade(rows, currentClassScheduleGrade, allianceRows);
       const effectiveClass = classes.includes(currentClassScheduleClass) ? currentClassScheduleClass : (classes[0] || '');
@@ -19194,41 +19225,8 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         html += `<div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px;"><p class="info-notice-text">일정 데이터를 아직 읽지 못해도 학년과 반 버튼은 먼저 표시되도록 조정했습니다. 버튼은 보이지만 일정 카드가 비어 있으면 시트 연결 상태를 다시 확인해 주세요.</p></div>`;
       }
 
-      const gradePrefix = String(currentClassScheduleGrade || '').match(/[123]/);
-      const effectiveClassNo = effectiveClass ? String(effectiveClass).split('-')[1] || '' : '';
-      const effectiveGradeNo = gradePrefix ? gradePrefix[0] : '';
-
       const filtered = effectiveClass
-        ? (rows || []).filter(item => {
-            const row = classScheduleCanonicalizeScheduleRow(item);
-            if (!row) return false;
-
-            const fallbackGrade = classScheduleExtractGradeFromRow(row) || currentClassScheduleGrade;
-            const combinedText = [
-              row.classKeys || '',
-              row.col3 || '',
-              row.col6 || '',
-              row.col7 || '',
-              row.col1 || ''
-            ].filter(Boolean).join(' | ');
-
-            const inferredKeys = inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade);
-            if (inferredKeys.includes(effectiveClass)) return true;
-
-            const matchText = safeText(row.col3);
-            const gradeText = safeText(row.col6 || fallbackGrade);
-            const normalized = `${matchText} | ${gradeText}`;
-
-            if (effectiveGradeNo && effectiveClassNo) {
-              if (new RegExp(`(?:^|[^\d])${effectiveGradeNo}\s*-\s*${effectiveClassNo}(?:[^\d]|$)`).test(normalized)) return true;
-              if (new RegExp(`${effectiveGradeNo}학년\s*[:：]?\s*${effectiveClassNo}반`).test(normalized)) return true;
-              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`(?:^|[^\d])${effectiveClassNo}반(?:[^\d]|$)`).test(matchText)) return true;
-              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`\(?${effectiveClassNo}\s*\/\s*\d+\s*승자\)?|\(?\d+\s*\/\s*${effectiveClassNo}\s*승자\)?`).test(matchText)) return true;
-              if (gradeText.includes(`${effectiveGradeNo}학년`) && new RegExp(`(?:^|[^\d])${effectiveClassNo}(?:[^\d]|$)`).test(matchText) && /반|승자|vs|VS/.test(matchText)) return true;
-            }
-
-            return false;
-          })
+        ? (rows || []).filter(item => rowMatchesSelectedClassDirect(item, effectiveClass, currentClassScheduleGrade, allianceRows))
         : [];
 
       html += `<div id="class-schedule-result">` + buildScheduleCardsHTML(
