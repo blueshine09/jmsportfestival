@@ -19173,36 +19173,20 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       return [];
     }
 
-
-    function rowMatchesSelectedClassDirect(row, effectiveClass, currentGrade, allianceRows = []) {
-      const safeRow = classScheduleCanonicalizeScheduleRow(row);
-      if (!safeRow || !effectiveClass) return false;
-      const parts = String(effectiveClass).split('-');
-      const gradeNo = parts[0] || '';
-      const classNo = parts[1] || '';
-      const gradeText = `${gradeNo}학년`;
-      const classText = `${classNo}반`;
-      const text = [safeRow.col1, safeRow.col3, safeRow.col6, safeRow.col7].map(v => String(v || '').trim()).join(' | ');
-
-      const inferred = inferClassKeysFromMatchInfo(text, allianceRows, classScheduleExtractGradeFromRow(safeRow) || currentGrade || gradeText);
-      if (Array.isArray(inferred) && inferred.includes(effectiveClass)) return true;
-
-      if (/^연합팀$/.test(String(safeRow.col6 || '').trim())) return false;
-
-      const hasSameGrade = text.includes(gradeText) || String(safeRow.col6 || '').trim() == gradeText;
-      if (hasSameGrade) {
-        if (new RegExp(`(^|[^\d])${classNo}반([^\d]|$)`).search(text)) return true;
-        if (new RegExp(`\(${classNo}\s*\/\s*\d+\s*승자\)`).search(text)) return true;
-        if (new RegExp(`\(\d+\s*\/\s*${classNo}\s*승자\)`).search(text)) return true;
-        if (new RegExp(`${gradeNo}\s*-\s*${classNo}`).search(text)) return true;
-      }
-
-      if (!hasSameGrade && String(safeRow.col3 || '').trim().match(/^\d+반\s*(?:vs|VS|v\.?s\.?|대)\s*\d+반$/)) {
-        if (new RegExp(`(^|[^\d])${classNo}반([^\d]|$)`).search(String(safeRow.col3 || '').trim())) return true;
-      }
-
-      return false;
-    }
+    window.__classScheduleDebug = window.__classScheduleDebug || {
+      rawRows: 0,
+      renderableRows: 0,
+      allianceRows: 0,
+      selectedGrade: '',
+      selectedClass: '',
+      effectiveClass: '',
+      availableClasses: [],
+      filteredRows: 0,
+      sampleRaw: [],
+      sampleRenderable: [],
+      sampleFiltered: [],
+      error: ''
+    };
 
     function buildClassSchedulePickerHTML(rows = [], allianceRows = []) {
       const classes = getAvailableClassesForGrade(rows, currentClassScheduleGrade, allianceRows);
@@ -19226,8 +19210,58 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       }
 
       const filtered = effectiveClass
-        ? (rows || []).filter(item => rowMatchesSelectedClassDirect(item, effectiveClass, currentClassScheduleGrade, allianceRows))
+        ? (rows || []).filter(item => {
+            const row = classScheduleCanonicalizeScheduleRow(item);
+            if (!row) return false;
+            const fallbackGrade = classScheduleExtractGradeFromRow(row);
+            const combinedText = [
+              row.classKeys || '',
+              row.col3 || '',
+              row.col6 || '',
+              row.col7 || '',
+              row.col1 || ''
+            ].filter(Boolean).join(' | ');
+            return inferClassKeysFromMatchInfo(combinedText, allianceRows, fallbackGrade).includes(effectiveClass);
+          })
         : [];
+
+      try {
+        window.__classScheduleDebug = {
+          ...(window.__classScheduleDebug || {}),
+          selectedGrade: currentClassScheduleGrade || '',
+          selectedClass: currentClassScheduleClass || '',
+          effectiveClass: effectiveClass || '',
+          availableClasses: Array.isArray(classes) ? classes.slice() : [],
+          filteredRows: Array.isArray(filtered) ? filtered.length : 0,
+          sampleFiltered: (filtered || []).slice(0, 5).map(row => ({
+            col1: row && row.col1 || '',
+            col2: row && row.col2 || '',
+            col3: row && row.col3 || '',
+            col6: row && row.col6 || '',
+            col7: row && row.col7 || ''
+          }))
+        };
+      } catch (_) {}
+
+      const debug = window.__classScheduleDebug || {};
+      html += `
+        <div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px; background:#fff8fb;">
+          <p class="info-notice-text" style="font-family:monospace; white-space:pre-line; text-align:left;">
+[DEBUG]
+rawRows: ${debug.rawRows ?? ''}
+renderableRows: ${debug.renderableRows ?? ''}
+allianceRows: ${debug.allianceRows ?? ''}
+selectedGrade: ${debug.selectedGrade ?? ''}
+selectedClass: ${debug.selectedClass ?? ''}
+effectiveClass: ${debug.effectiveClass ?? ''}
+availableClasses: ${(debug.availableClasses || []).join(', ')}
+filteredRows: ${debug.filteredRows ?? ''}
+error: ${debug.error || '-'}
+sampleRaw: ${JSON.stringify((debug.sampleRaw || []).slice(0,2))}
+sampleRenderable: ${JSON.stringify((debug.sampleRenderable || []).slice(0,2))}
+sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
+          </p>
+        </div>`;
 
       html += `<div id="class-schedule-result">` + buildScheduleCardsHTML(
         filtered,
@@ -19260,13 +19294,39 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true }).catch(() => []);
         const allianceData = await fetchFirstAvailableTab(['연합팀 구성', '[연합팀 구성]'], { force: true }).catch(() => []);
 
-        const rows = (Array.isArray(allData) ? allData : [])
-          .map(classScheduleCanonicalizeScheduleRow)
-          .filter(classScheduleIsRenderableItem);
+        const rawRows = Array.isArray(allData) ? allData : [];
+        const canonicalRows = rawRows.map(classScheduleCanonicalizeScheduleRow);
+        const rows = canonicalRows.filter(classScheduleIsRenderableItem);
 
         const allianceRows = (Array.isArray(allianceData) ? allianceData : [])
           .map(classScheduleCanonicalizeAllianceRow)
           .filter(row => row && classScheduleSafeText(row.col1));
+
+        try {
+          window.__classScheduleDebug = {
+            ...(window.__classScheduleDebug || {}),
+            rawRows: rawRows.length,
+            renderableRows: rows.length,
+            allianceRows: allianceRows.length,
+            selectedGrade: currentClassScheduleGrade || '',
+            selectedClass: currentClassScheduleClass || '',
+            sampleRaw: canonicalRows.slice(0, 5).map(row => ({
+              col1: row && row.col1 || '',
+              col2: row && row.col2 || '',
+              col3: row && row.col3 || '',
+              col6: row && row.col6 || '',
+              col7: row && row.col7 || ''
+            })),
+            sampleRenderable: rows.slice(0, 5).map(row => ({
+              col1: row && row.col1 || '',
+              col2: row && row.col2 || '',
+              col3: row && row.col3 || '',
+              col6: row && row.col6 || '',
+              col7: row && row.col7 || ''
+            })),
+            error: ''
+          };
+        } catch (_) {}
 
         container.innerHTML = buildClassSchedulePickerHTML(rows, allianceRows);
         bindScheduleActionButtons(container);
@@ -19274,6 +19334,16 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         console.error('[반별보기 오류]', error);
         const safeRows = [];
         const safeAllianceRows = [];
+        try {
+          window.__classScheduleDebug = {
+            ...(window.__classScheduleDebug || {}),
+            rawRows: 0,
+            renderableRows: 0,
+            allianceRows: 0,
+            filteredRows: 0,
+            error: String(error && error.message ? error.message : error)
+          };
+        } catch (_) {}
         container.innerHTML = buildClassSchedulePickerHTML(safeRows, safeAllianceRows);
         bindScheduleActionButtons(container);
       }
