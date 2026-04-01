@@ -7749,23 +7749,32 @@ margin-top:4px;
     }
   }
 
-/* 일정 화면 가독성 개선: 1일차/2일차는 크게, 세부일정은 읽기 편한 중간 크기 */
+/* 일정 화면 가독성 개선: 1일차/2일차 배경 톤 통일 + 높이 소폭 축소 */
     .schedule-day-switcher{
-      padding: 10px !important;
-      gap: 10px !important;
-      border-radius: 24px !important;
+      padding: 6px !important;
+      gap: 8px !important;
+      border-radius: 22px !important;
+      background: linear-gradient(180deg, rgba(255,249,251,0.82) 0%, rgba(255,244,248,0.76) 100%) !important;
+      border: 1px solid #ead7df !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05) !important;
     }
 
     .schedule-day-btn{
-      font-size: 1.08rem !important;
-      font-weight: 900 !important;
+      font-size: 1rem !important;
+      font-weight: 800 !important;
       letter-spacing: -0.02em !important;
-      padding: 19px 14px !important;
-      border-radius: 20px !important;
+      padding: 14px 12px !important;
+      border-radius: 18px !important;
+      min-height: auto !important;
+      background: rgba(255,255,255,0.68) !important;
+      color: #8b6f79 !important;
+      box-shadow: none !important;
     }
 
     .schedule-day-btn.active{
+      background: rgba(255,255,255,0.82) !important;
       color: #c75d7f !important;
+      box-shadow: 0 8px 18px rgba(120, 88, 107, 0.08) !important;
     }
 
     .schedule-overview-shell .teacher-section-card{
@@ -18774,8 +18783,12 @@ async function loadBracketByGrade(sport, grade, btn = null) {
 
     /* ===== UI refinement patch v22 ===== */
     let currentDetailScheduleMode = null;
-    let currentClassScheduleGrade = '1학년';
+    let currentClassScheduleGrade = '';
     let currentClassScheduleClass = '';
+    let classScheduleViewCache = {
+      rows: null,
+      allianceRows: null
+    };
 
     function parseScheduleStartMinutes(value = '') {
       const text = String(value || '').trim();
@@ -19192,28 +19205,44 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       error: ''
     };
 
-    function buildClassSchedulePickerHTML(rows = [], allianceRows = []) {
-      const classes = getAvailableClassesForGrade(rows, currentClassScheduleGrade, allianceRows);
-      const effectiveClass = classes.includes(currentClassScheduleClass) ? currentClassScheduleClass : (classes[0] || '');
-      if (!currentClassScheduleClass || currentClassScheduleClass !== effectiveClass) currentClassScheduleClass = effectiveClass;
+    function buildClassSchedulePickerHTML(rows = [], allianceRows = [], options = {}) {
+      const isLoading = options.isLoading === true;
+      const selectedGrade = ['1학년','2학년','3학년'].includes(String(currentClassScheduleGrade || '').trim())
+        ? String(currentClassScheduleGrade || '').trim()
+        : '';
+      const classes = selectedGrade
+        ? (() => {
+            const detectedClasses = getAvailableClassesForGrade(rows, selectedGrade, allianceRows);
+            if (isLoading) return Array.from({ length: 7 }, (_, index) => `class-${index + 1}`);
+            return detectedClasses.length ? detectedClasses : Array.from({ length: 7 }, (_, index) => `class-${index + 1}`);
+          })()
+        : Array.from({ length: 7 }, (_, index) => `class-${index + 1}`);
+      const effectiveClass = selectedGrade && classes.includes(currentClassScheduleClass) ? currentClassScheduleClass : '';
+      if (currentClassScheduleClass !== effectiveClass) currentClassScheduleClass = effectiveClass;
 
       let html = `<div class="player-grade-tabs">`;
       ['1학년','2학년','3학년'].forEach(g => {
-        html += `<button class="grade-btn ${currentClassScheduleGrade === g ? 'active' : ''}" type="button" data-inline-click="setClassScheduleGrade('${g}', this)">${g}</button>`;
+        html += `<button class="grade-btn ${selectedGrade === g ? 'active' : ''}" type="button" data-inline-click="setClassScheduleGrade('${g}', this)">${g}</button>`;
       });
       html += `</div>`;
 
       html += `<div class="filter-btn-grid" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-bottom:14px;" id="class-schedule-filter-group">`;
       classes.forEach(key => {
-        const classNo = String(key).split('-')[1] || '';
-        html += `<button type="button" class="filter-btn ${effectiveClass === key ? 'active' : ''}" data-inline-click="setClassScheduleClass('${key}', this)">${classNo}반</button>`;
+        const classNo = String(key).split('-')[1] || String(key).replace(/^class-/, '');
+        const isDisabled = !selectedGrade;
+        html += `<button type="button" class="filter-btn ${effectiveClass === key ? 'active' : ''}" ${isDisabled ? 'disabled aria-disabled="true" style="opacity:0.45; cursor:not-allowed;"' : ''} data-inline-click="setClassScheduleClass('${selectedGrade ? key : ''}', this)">${classNo}반</button>`;
       });
       html += `</div>`;
-      if (!(rows || []).length) {
+
+      if (isLoading) {
+        html += `<div id="class-schedule-inline-loader" class="info-notice-box" style="margin-top:-4px; margin-bottom:14px;"><p class="info-notice-text">반별 일정 불러오는 중...</p></div>`;
+      }
+
+      if (!(rows || []).length && !isLoading) {
         html += `<div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px;"><p class="info-notice-text">일정 데이터를 아직 읽지 못해도 학년과 반 버튼은 먼저 표시되도록 조정했습니다. 버튼은 보이지만 일정 카드가 비어 있으면 시트 연결 상태를 다시 확인해 주세요.</p></div>`;
       }
 
-      const filtered = effectiveClass
+      const filtered = selectedGrade && effectiveClass
         ? (rows || []).filter(item => {
             const row = classScheduleCanonicalizeScheduleRow(item);
             if (!row) return false;
@@ -19247,64 +19276,81 @@ async function loadBracketByGrade(sport, grade, btn = null) {
         };
       } catch (_) {}
 
-      const debug = window.__classScheduleDebug || {};
-      html += `
-        <div class="info-notice-box" style="margin-top:-4px; margin-bottom:14px; background:#fff8fb;">
-          <p class="info-notice-text" style="font-family:monospace; white-space:pre-line; text-align:left;">
-[DEBUG]
-rawRows: ${debug.rawRows ?? ''}
-renderableRows: ${debug.renderableRows ?? ''}
-allianceRows: ${debug.allianceRows ?? ''}
-selectedGrade: ${debug.selectedGrade ?? ''}
-selectedClass: ${debug.selectedClass ?? ''}
-effectiveClass: ${debug.effectiveClass ?? ''}
-availableClasses: ${(debug.availableClasses || []).join(', ')}
-filteredRows: ${debug.filteredRows ?? ''}
-error: ${debug.error || '-'}
-sampleRaw: ${JSON.stringify((debug.sampleRaw || []).slice(0,2))}
-sampleRenderable: ${JSON.stringify((debug.sampleRenderable || []).slice(0,2))}
-sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
-          </p>
-        </div>`;
+
+      const resultEmptyTitle = isLoading
+        ? (selectedGrade ? '반을 선택해 주세요.' : '학년과 반을 선택해 주세요.')
+        : selectedGrade && effectiveClass
+          ? '등록된 일정이 없습니다.'
+          : selectedGrade
+            ? '반을 선택해 주세요.'
+            : '학년과 반을 선택해 주세요.';
+      const resultEmptyDesc = isLoading
+        ? (selectedGrade
+            ? '데이터를 불러오는 중입니다. 불러오기가 끝나면 반 버튼을 눌러 주세요.'
+            : '반별 보기에서 학년을 누른 뒤 반을 선택하면 해당 반 일정이 열립니다.')
+        : selectedGrade && effectiveClass
+          ? `${selectedGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`
+          : selectedGrade
+            ? '선택한 학년의 반 버튼을 누르면 해당 반 일정이 열립니다.'
+            : '반별 보기에서 학년을 누른 뒤 반을 선택하면 해당 반 일정이 열립니다.';
 
       html += `<div id="class-schedule-result">` + buildScheduleCardsHTML(
         filtered,
-        `${currentClassScheduleGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''}`,
+        `${selectedGrade || '학년 미선택'} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''}`,
         {
           showSportBadge: true,
-          emptyTitle: '등록된 일정이 없습니다.',
-          emptyDesc: `${currentClassScheduleGrade} ${effectiveClass ? effectiveClass.split('-')[1] + '반' : ''} 일정이 아직 등록되지 않았습니다.`
+          emptyTitle: resultEmptyTitle,
+          emptyDesc: resultEmptyDesc
         }
       ) + `</div>`;
 
       return html;
     }
 
-    async function renderClassScheduleView(container) {
-      container.innerHTML = '<div class="loader" style="font-size:0.9rem; padding:22px;">반별 일정 불러오는 중...</div>';
+    async function renderClassScheduleView(container, options = {}) {
+      const shouldShowLoader = options.showLoader !== false;
+      const shouldForceReload = options.forceReload === true;
+      const shouldLoadData = options.loadData !== false;
+      const shouldShowInlineLoader = shouldShowLoader && shouldLoadData;
+      if (shouldShowInlineLoader) {
+        const cachedRows = Array.isArray(classScheduleViewCache.rows) ? classScheduleViewCache.rows : [];
+        const cachedAllianceRows = Array.isArray(classScheduleViewCache.allianceRows) ? classScheduleViewCache.allianceRows : [];
+        container.innerHTML = buildClassSchedulePickerHTML(cachedRows, cachedAllianceRows, { isLoading: true });
+        bindScheduleActionButtons(container);
+      }
       try {
-        try {
-          ['세부경기일정','세부일정','연합팀 구성','[연합팀 구성]'].forEach((key) => {
-            try { delete tabDataCache[key]; } catch (_) {}
-            try {
-              const storageKey = typeof getStorageCacheKey === 'function'
-                ? getStorageCacheKey(key)
-                : `tabCache:${key}`;
-              localStorage.removeItem(storageKey);
-            } catch (_) {}
-          });
-        } catch (_) {}
+        let rows = Array.isArray(classScheduleViewCache.rows) ? classScheduleViewCache.rows : null;
+        let allianceRows = Array.isArray(classScheduleViewCache.allianceRows) ? classScheduleViewCache.allianceRows : null;
+        let rawRows = Array.isArray(rows) ? rows : [];
+        let canonicalRows = Array.isArray(rows) ? rows : [];
 
-        const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true }).catch(() => []);
-        const allianceData = await fetchFirstAvailableTab(['연합팀 구성', '[연합팀 구성]'], { force: true }).catch(() => []);
+        if (shouldLoadData && (shouldForceReload || !rows || !allianceRows)) {
+          try {
+            ['세부경기일정','세부일정','연합팀 구성','[연합팀 구성]'].forEach((key) => {
+              try { delete tabDataCache[key]; } catch (_) {}
+              try {
+                const storageKey = typeof getStorageCacheKey === 'function'
+                  ? getStorageCacheKey(key)
+                  : `tabCache:${key}`;
+                localStorage.removeItem(storageKey);
+              } catch (_) {}
+            });
+          } catch (_) {}
 
-        const rawRows = Array.isArray(allData) ? allData : [];
-        const canonicalRows = rawRows.map(classScheduleCanonicalizeScheduleRow);
-        const rows = canonicalRows.filter(classScheduleIsRenderableItem);
+          const allData = await fetchFirstAvailableTab(['세부경기일정', '세부일정'], { force: true }).catch(() => []);
+          const allianceData = await fetchFirstAvailableTab(['연합팀 구성', '[연합팀 구성]'], { force: true }).catch(() => []);
 
-        const allianceRows = (Array.isArray(allianceData) ? allianceData : [])
-          .map(classScheduleCanonicalizeAllianceRow)
-          .filter(row => row && classScheduleSafeText(row.col1));
+          rawRows = Array.isArray(allData) ? allData : [];
+          canonicalRows = rawRows.map(classScheduleCanonicalizeScheduleRow);
+          rows = canonicalRows.filter(classScheduleIsRenderableItem);
+
+          allianceRows = (Array.isArray(allianceData) ? allianceData : [])
+            .map(classScheduleCanonicalizeAllianceRow)
+            .filter(row => row && classScheduleSafeText(row.col1));
+
+          classScheduleViewCache.rows = rows;
+          classScheduleViewCache.allianceRows = allianceRows;
+        }
 
         try {
           window.__classScheduleDebug = {
@@ -19332,7 +19378,7 @@ sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
           };
         } catch (_) {}
 
-        container.innerHTML = buildClassSchedulePickerHTML(rows, allianceRows);
+        container.innerHTML = buildClassSchedulePickerHTML(rows, allianceRows, { isLoading: false });
         bindScheduleActionButtons(container);
       } catch (error) {
         console.error('[반별보기 오류]', error);
@@ -19348,25 +19394,36 @@ sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
             error: String(error && error.message ? error.message : error)
           };
         } catch (_) {}
-        container.innerHTML = buildClassSchedulePickerHTML(safeRows, safeAllianceRows);
+        container.innerHTML = buildClassSchedulePickerHTML(safeRows, safeAllianceRows, { isLoading: false });
         bindScheduleActionButtons(container);
       }
     }
 
     async function setClassScheduleGrade(grade, btn = null) {
-      currentClassScheduleGrade = ['1학년','2학년','3학년'].includes(String(grade || '').trim()) ? String(grade).trim() : '1학년';
+      currentClassScheduleGrade = ['1학년','2학년','3학년'].includes(String(grade || '').trim()) ? String(grade).trim() : '';
       currentClassScheduleClass = '';
       const container = document.getElementById('sport-common-detail');
       if (container && currentDetailScheduleMode === 'class') {
-        await renderClassScheduleView(container);
+        await renderClassScheduleView(container, {
+          showLoader: false,
+          forceReload: false,
+          loadData: false
+        });
       }
     }
 
     async function setClassScheduleClass(classKey, btn = null) {
-      currentClassScheduleClass = String(classKey || '').trim();
+      const nextClassKey = String(classKey || '').trim();
+      if (!currentClassScheduleGrade || !nextClassKey) return;
+      currentClassScheduleClass = nextClassKey;
       const container = document.getElementById('sport-common-detail');
       if (container && currentDetailScheduleMode === 'class') {
-        await renderClassScheduleView(container);
+        const hasCachedRows = Array.isArray(classScheduleViewCache.rows) && Array.isArray(classScheduleViewCache.allianceRows);
+        await renderClassScheduleView(container, {
+          showLoader: !hasCachedRows,
+          forceReload: false,
+          loadData: !hasCachedRows
+        });
       }
     }
 
@@ -19401,7 +19458,7 @@ sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
       }
 
       if (currentDetailScheduleMode === 'class') {
-        await renderClassScheduleView(container);
+        await renderClassScheduleView(container, { showLoader: false, forceReload: false, loadData: false });
         return;
       }
 
@@ -19410,6 +19467,10 @@ sampleFiltered: ${JSON.stringify((debug.sampleFiltered || []).slice(0,2))}
 
     async function handleScheduleDetailModeChange(mode, btn = null) {
       currentDetailScheduleMode = mode === 'timeline' ? 'timeline' : (mode === 'class' ? 'class' : 'sport');
+      if (currentDetailScheduleMode === 'class') {
+        currentClassScheduleGrade = '';
+        currentClassScheduleClass = '';
+      }
       document.querySelectorAll('.schedule-view-toggle-btn').forEach(button => {
         button.classList.toggle('active', button.dataset.mode === currentDetailScheduleMode);
       });
@@ -22527,9 +22588,11 @@ ${visibleDesc}` : visibleTitle)
   padding:8px !important;
   margin:14px 0 12px !important;
   border-radius:22px !important;
-  background:linear-gradient(180deg, #fdf1f5 0%, #fdf1f5 100%) !important;
-  border:1px solid #ead7df !important;
-  box-shadow:0 10px 24px rgba(0,0,0,0.05) !important;
+  background:rgba(255,255,255,0.72) !important;
+  border:1px solid rgba(240,227,233,0.92) !important;
+  box-shadow:0 10px 24px rgba(120,88,107,0.055) !important;
+  backdrop-filter:blur(12px) saturate(1.04) !important;
+  -webkit-backdrop-filter:blur(12px) saturate(1.04) !important;
 }
 
 .schedule-day-btn{
@@ -22547,10 +22610,10 @@ ${visibleDesc}` : visibleTitle)
 }
 
 .schedule-day-btn.active{
-  background:#ffffff !important;
+  background:rgba(255,255,255,0.82) !important;
   color:#111827 !important;
   border:none !important;
-  box-shadow:0 10px 22px rgba(0,0,0,0.08) !important;
+  box-shadow:0 10px 22px rgba(120,88,107,0.08) !important;
 }
 
 .schedule-day-btn::before,
@@ -28785,5 +28848,41 @@ textarea{
   margin-right:0 !important;
 }
 </style>
+
+<style id="schedule-day-switcher-final-color-fix">
+.schedule-overview-shell .schedule-day-switcher,
+.schedule-day-tabs{
+  background: linear-gradient(180deg, #fdf1f5 0%, #fbf4f7 100%) !important;
+  border: 1px solid #f3cad7 !important;
+  box-shadow: 0 10px 24px rgba(217,107,139,0.08) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+.schedule-overview-shell .schedule-day-btn,
+.schedule-day-tabs .schedule-day-btn{
+  background: transparent !important;
+  color: #8b6f79 !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+.schedule-overview-shell .schedule-day-btn::before,
+.schedule-overview-shell .schedule-day-btn::after,
+.schedule-day-tabs .schedule-day-btn::before,
+.schedule-day-tabs .schedule-day-btn::after{
+  display: none !important;
+  content: none !important;
+}
+
+.schedule-overview-shell .schedule-day-btn.active,
+.schedule-day-tabs .schedule-day-btn.active{
+  background: rgba(255,255,255,0.92) !important;
+  color: #d96b8b !important;
+  border: 1px solid #f2c8d6 !important;
+  box-shadow: 0 8px 18px rgba(217,107,139,0.12) !important;
+}
+</style>
+
 </body>
 </html>
