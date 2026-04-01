@@ -14855,6 +14855,108 @@ button.active{
   }
 </style>
 
+
+<style id="score-matrix-final-fix">
+.realtime-score-board,
+.realtime-score-board table,
+.realtime-score-board .score-guide-modal-wrap,
+.realtime-score-board .score-guide-badge-wrap,
+.realtime-score-board .score-guide-badge-grid {
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+}
+.realtime-score-board .score-matrix-wrap{
+  width:100%;
+  margin-top:10px;
+}
+.realtime-score-board .score-matrix-head,
+.realtime-score-board .score-matrix-row{
+  display:grid;
+  grid-template-columns: 1.5fr repeat(7, 0.8fr);
+  gap:6px;
+  align-items:stretch;
+}
+.realtime-score-board .score-matrix-head{
+  margin-bottom:8px;
+}
+.realtime-score-board .score-matrix-row{
+  margin-bottom:8px;
+}
+.realtime-score-board .score-matrix-cell{
+  min-width:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  border-radius:14px;
+  border:1px solid rgba(244, 227, 233, 0.92);
+  background: rgba(255,255,255,0.88);
+  color: #8b5f72;
+  font-weight:800;
+  box-shadow: 0 4px 10px rgba(120,88,107,0.04);
+  padding: 10px 4px;
+  line-height:1.2;
+  letter-spacing:-0.02em;
+}
+.realtime-score-board .score-matrix-head .score-matrix-cell{
+  background: rgba(255,247,250,0.95);
+  color: var(--primary);
+  font-size: 0.8rem;
+  font-weight: 900;
+  padding: 8px 4px;
+}
+.realtime-score-board .score-matrix-cell.is-sport{
+  justify-content:center;
+  padding-left:0;
+  text-align:center;
+  color: var(--dark);
+  font-weight:900;
+  background: rgba(255,255,255,0.92);
+}
+.realtime-score-board .score-matrix-row.is-summary .score-matrix-cell{
+  background: linear-gradient(135deg, #fff4f8 0%, #ffffff 100%);
+  border-color: #f3dbe5;
+  font-weight: 900;
+}
+.realtime-score-board .score-matrix-row .score-matrix-cell.is-score{
+  font-size: 0.95rem;
+}
+@media (max-width: 480px){
+  .realtime-score-board .score-matrix-head,
+  .realtime-score-board .score-matrix-row{
+    grid-template-columns: 1.4fr repeat(7, minmax(0, 0.72fr));
+    gap:4px;
+  }
+  .realtime-score-board .score-matrix-head .score-matrix-cell{
+    font-size:0.72rem;
+    padding:7px 2px;
+  }
+  .realtime-score-board .score-matrix-row .score-matrix-cell{
+    font-size:0.84rem;
+    padding:9px 2px;
+    border-radius:12px;
+  }
+  .realtime-score-board .score-matrix-row .score-matrix-cell.is-sport{
+    font-size:0.82rem;
+    justify-content:center;
+    padding-left:0;
+    text-align:center;
+  }
+}
+</style>
+
+
+<style id="score-first-col-center-fix-v1">
+.score-table-wrapper th:first-child,
+.score-table-wrapper td:first-child,
+.score-table-wrapper .score-name-cell,
+.realtime-score-board th:first-child,
+.realtime-score-board td:first-child,
+.realtime-score-board .score-name-cell{
+  text-align:center !important;
+}
+</style>
 </head>
 <body>
   <div class="app-container">
@@ -18312,63 +18414,91 @@ function createTeamRowHTML(item, ph = 'TBD', isFinal = false) {
       `;
     }
 
+    
     function renderRealtimeScoreBadgeHTML(data = []) {
       if (!Array.isArray(data) || data.length < 2) {
         return '<div class="score-guide-empty">실시간 점수 데이터를 아직 불러오지 못했습니다.</div>';
       }
 
-      const headerRow = data[0] || {};
-      const headerVals = Object.values(headerRow).map(value => String(value ?? '').trim());
-      const bodyRows = data.slice(1).filter(row => Object.values(row || {}).some(value => String(value ?? '').trim()));
+      const rawRows = data
+        .map(row => Object.values(row || {}).map(value => String(value ?? '').trim()))
+        .filter(row => row.some(value => value));
 
-      if (!headerVals.length || bodyRows.length === 0) {
+      if (rawRows.length < 2) {
         return '<div class="score-guide-empty">실시간 점수 데이터가 없습니다.</div>';
       }
 
-      const headers = headerVals.map(value => formatScoreHeaderText(value || '') || '-');
-      const rankHeaderRegex = /^(순위|rank|ranking)$/i;
-      const rankColIndex = headers.findIndex(value => rankHeaderRegex.test(String(value || '').trim()));
-      const hasRankColumn = rankColIndex >= 0;
-      const gridStyle = `style="grid-template-columns: ${headers.map((_, idx) => {
-        if (idx === 0) return '1.55fr';
-        if (hasRankColumn && idx === rankColIndex) return '0.92fr';
-        return '0.7fr';
-      }).join(' ')};"`;
+      let headers = rawRows[0].map(value => formatScoreHeaderText(value || '') || '-');
+      let bodyRows = rawRows.slice(1).filter(row => row.some(value => value));
 
-      const rowsHtml = bodyRows.map((row, rowIndex) => {
-        const rowValues = Object.values(row || {});
-        const vals = rowValues.map((value, idx) => {
-          const raw = String(value ?? '').trim();
-          if (hasRankColumn && idx === rankColIndex && raw === '1') return '🥇 1';
-          return escapeHtml(raw || '0');
-        });
-        const rankRaw = hasRankColumn ? String(rowValues[rankColIndex] ?? '').trim() : '';
-        const isTop = hasRankColumn && rankRaw === '1';
+      // 첫 열은 종목, 윗줄은 팀명으로 맞추기 위한 정규화
+      // 일부 데이터에서 첫 번째 값이 두 번째 값과 중복되어 보이는 현상을 화면에서 제거
+      const duplicateSportLike = bodyRows.filter(row => row.length > 1 && String(row[0] || '').trim() && String(row[0] || '').trim() === String(row[1] || '').trim()).length;
+      if (duplicateSportLike > 0 && duplicateSportLike >= Math.ceil(bodyRows.length * 0.5)) {
+        // 본문에만 종목 중복 열이 끼어든 경우가 있어 본문만 정리한다.
+        // 헤더까지 같이 지우면 '빨강'처럼 첫 팀명이 사라져 열 정렬이 틀어질 수 있다.
+        bodyRows = bodyRows.map(row => [row[0]].concat(row.slice(2)));
+      }
+
+      // 헤더 첫 칸을 종목으로 정리
+      if (!headers[0] || /^(번호|no|index|-)$/i.test(headers[0])) {
+        headers[0] = '\u200B';
+      }
+
+      // 팀 헤더가 빠지거나 어긋난 경우 기본 팀 순서로 보정
+      const defaultTeams = ['빨강', '주황', '노랑', '핑크', '파랑', '남색', '검정'];
+      const sportColCount = 1;
+      const expectedLen = sportColCount + defaultTeams.length;
+      if (headers.length === expectedLen) {
+        headers = ['\u200B'].concat(defaultTeams);
+      }
+
+      // 빈 헤더 제거
+      const keepIndexes = headers.map((h, i) => ({h: String(h || '').trim(), i})).filter(item => item.h !== '').map(item => item.i);
+      if (keepIndexes.length) {
+        headers = keepIndexes.map(i => headers[i]);
+        bodyRows = bodyRows.map(row => keepIndexes.map(i => String(row[i] ?? '').trim()));
+      }
+
+      // 순위 컬럼이 있으면 테이블 본문에서는 제거
+      const rankColIndex = headers.findIndex(value => /^(순위|rank|ranking)$/i.test(String(value || '').trim()));
+      if (rankColIndex >= 0) {
+        headers = headers.filter((_, idx) => idx !== rankColIndex);
+        bodyRows = bodyRows.map(row => row.filter((_, idx) => idx !== rankColIndex));
+      }
+
+      // 마지막 요약/합계 행 강조
+      const normalizedRows = bodyRows.map(row => row.map(v => v || '0'));
+      const topSummary = normalizedRows.find(row => /합계|총점/.test(String(row[0] || '').trim()));
+      const rowsWithoutSummary = normalizedRows.filter(row => !/합계|총점/.test(String(row[0] || '').trim()));
+
+      const tableRows = [...rowsWithoutSummary, ...(topSummary ? [topSummary] : [])];
+
+      const thead = `
+        <div class="score-matrix-head">
+          ${headers.map((h, idx) => `<div class="score-matrix-cell ${idx === 0 ? 'is-sport' : 'is-team'}">${escapeHtml(h)}</div>`).join('')}
+        </div>
+      `;
+
+      const tbody = tableRows.map(row => {
+        const isSummary = /합계|총점/.test(String(row[0] || '').trim());
         return `
-          <div class="award-badge-card award-badge-card-lined score-guide-badge-card realtime-score-badge-card${isTop ? ' top-rank' : ''}">
-            <div class="score-guide-badge-row realtime-score-badge-row" ${gridStyle}>
-              ${vals.map((value, idx) => {
-                const extraClass = idx === 0
-                  ? ' score-guide-badge-col-sport'
-                  : (hasRankColumn && idx === rankColIndex ? ' realtime-rank-col' : '');
-                return `<div class="score-guide-badge-col${extraClass}">${value}</div>`;
-              }).join('')}
-            </div>
+          <div class="score-matrix-row${isSummary ? ' is-summary' : ''}">
+            ${row.map((value, idx) => `<div class="score-matrix-cell ${idx === 0 ? 'is-sport' : 'is-score'}">${escapeHtml(String(value || '0'))}</div>`).join('')}
           </div>
         `;
       }).join('');
 
       return `
-        <div class="score-guide-modal-wrap score-guide-badge-wrap realtime-score-badge-wrap">
-          <div class="score-guide-badge-grid">
-            <div class="score-guide-badge-head realtime-score-badge-head" ${gridStyle}>
-              ${headers.map((value, idx) => `<div class="score-guide-badge-head-col${idx === 0 ? ' score-guide-badge-head-col-sport' : (hasRankColumn && idx === rankColIndex ? ' realtime-rank-head-col' : '')}">${escapeHtml(value)}</div>`).join('')}
-            </div>
-            ${rowsHtml}
+        <div class="score-matrix-wrap">
+          ${thead}
+          <div class="score-matrix-body">
+            ${tbody}
           </div>
         </div>
       `;
     }
+
 
     let scoreGuidePrefetchPromise = null;
     let awardPlanPrefetchPromise = null;
@@ -19438,8 +19568,42 @@ async function loadBracketByGrade(sport, grade, btn = null) {
       const container = document.getElementById('sport-common-detail');
       if (container && currentDetailScheduleMode === 'class') {
         const hasCachedRows = Array.isArray(classScheduleViewCache.rows) && Array.isArray(classScheduleViewCache.allianceRows);
+
+        if (!hasCachedRows) {
+          try {
+            const classButtons = container.querySelectorAll('#class-schedule-filter-group .filter-btn');
+            classButtons.forEach((el) => {
+              const label = String(el.textContent || '').trim();
+              const classNo = String(nextClassKey).replace(/^class-/, '');
+              el.classList.toggle('active', label === `${classNo}반`);
+            });
+
+            const loaderHost = container.querySelector('#class-schedule-inline-loader');
+            if (loaderHost) {
+              loaderHost.innerHTML = '<p class="info-notice-text">반별 일정 불러오는 중...</p>';
+              loaderHost.style.display = '';
+            } else {
+              const filterGroup = container.querySelector('#class-schedule-filter-group');
+              if (filterGroup) {
+                const loaderBox = document.createElement('div');
+                loaderBox.id = 'class-schedule-inline-loader';
+                loaderBox.className = 'info-notice-box';
+                loaderBox.style.marginTop = '-4px';
+                loaderBox.style.marginBottom = '14px';
+                loaderBox.innerHTML = '<p class="info-notice-text">반별 일정 불러오는 중...</p>';
+                filterGroup.insertAdjacentElement('afterend', loaderBox);
+              }
+            }
+
+            const resultEl = container.querySelector('#class-schedule-result');
+            if (resultEl) {
+              resultEl.innerHTML = createEmptyGuideHTML('반별 일정 불러오는 중...', '선택한 반의 일정을 불러오는 중입니다.');
+            }
+          } catch (_) {}
+        }
+
         await renderClassScheduleView(container, {
-          showLoader: !hasCachedRows,
+          showLoader: false,
           forceReload: false,
           loadData: !hasCachedRows
         });
@@ -28904,309 +29068,5 @@ textarea{
 }
 </style>
 
-
-<script id="speed-cache-optimizer-v1">
-(function(){
-  if (window.__speedCacheOptimizerV1__) return;
-  window.__speedCacheOptimizerV1__ = true;
-
-  const STATIC_TTL = 1000 * 60 * 10;
-  const LIVE_TTL = 1000 * 45;
-  const CACHE_PREFIX = 'sports-fast-v60:';
-  const LIVE_TABS = new Set(['점수','세부경기일정','세부일정','장소안내','선수단','심판','대진표','전체일정_1일차','전체일정_2일차']);
-  const memoryCache = new Map();
-  const inflight = new Map();
-
-  function safeKey(tabName){ return String(tabName || '').trim(); }
-  function ttlFor(key){ return LIVE_TABS.has(key) ? LIVE_TTL : STATIC_TTL; }
-  function readStore(key){
-    try {
-      const raw = sessionStorage.getItem(CACHE_PREFIX + key);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.data) || !parsed.savedAt) return null;
-      if ((Date.now() - parsed.savedAt) > ttlFor(key)) return null;
-      return parsed.data;
-    } catch(_) { return null; }
-  }
-  function writeStore(key, data){
-    try {
-      if (!Array.isArray(data)) return;
-      sessionStorage.setItem(CACHE_PREFIX + key, JSON.stringify({ savedAt: Date.now(), data }));
-    } catch(_) {}
-  }
-  function getCached(key){
-    if (memoryCache.has(key)) {
-      const entry = memoryCache.get(key);
-      if (entry && (Date.now() - entry.savedAt) <= ttlFor(key) && Array.isArray(entry.data)) return entry.data;
-      memoryCache.delete(key);
-    }
-    const stored = readStore(key);
-    if (stored) {
-      memoryCache.set(key, { savedAt: Date.now(), data: stored });
-      return stored;
-    }
-    return null;
-  }
-  function setCached(key, data){
-    if (!Array.isArray(data)) return data;
-    memoryCache.set(key, { savedAt: Date.now(), data });
-    writeStore(key, data);
-    return data;
-  }
-
-  if (typeof window.fetchTabData === 'function') {
-    const originalFetchTabData = window.fetchTabData;
-    window.fetchTabData = async function(tabName, options){
-      const key = safeKey(tabName);
-      const force = !!(options && options.force);
-      const cached = getCached(key);
-
-      if (cached && !force) {
-        if (LIVE_TABS.has(key)) {
-          setTimeout(() => {
-            Promise.resolve(originalFetchTabData.call(this, key, options || {}))
-              .then((rows) => { if (Array.isArray(rows)) setCached(key, rows); })
-              .catch(() => {});
-          }, 0);
-        }
-        return cached;
-      }
-
-      if (cached && force && LIVE_TABS.has(key)) {
-        setTimeout(() => {
-          Promise.resolve(originalFetchTabData.call(this, key, options || {}))
-            .then((rows) => { if (Array.isArray(rows)) setCached(key, rows); })
-            .catch(() => {});
-        }, 0);
-        return cached;
-      }
-
-      if (inflight.has(key)) return inflight.get(key);
-
-      const task = Promise.resolve(originalFetchTabData.call(this, key, options || {}))
-        .then((rows) => setCached(key, Array.isArray(rows) ? rows : []))
-        .finally(() => inflight.delete(key));
-      inflight.set(key, task);
-      return task;
-    };
-  }
-
-  if (typeof window.fetchTabDataCached === 'function') {
-    const originalFetchTabDataCached = window.fetchTabDataCached;
-    window.fetchTabDataCached = function(tabName){
-      const key = safeKey(tabName);
-      const cached = getCached(key);
-      if (cached) {
-        if (LIVE_TABS.has(key) && typeof window.fetchTabData === 'function') {
-          setTimeout(() => { window.fetchTabData(key, { force: true }).catch(() => {}); }, 0);
-        }
-        return Promise.resolve(cached);
-      }
-      return Promise.resolve(originalFetchTabDataCached.apply(this, arguments))
-        .then((rows) => setCached(key, Array.isArray(rows) ? rows : []));
-    };
-  }
-
-  if (typeof window.getTabData === 'function') {
-    const originalGetTabData = window.getTabData;
-    window.getTabData = function(tabName){
-      const key = safeKey(tabName);
-      const cached = getCached(key);
-      if (cached) {
-        if (LIVE_TABS.has(key) && typeof window.fetchTabData === 'function') {
-          setTimeout(() => { window.fetchTabData(key, { force: true }).catch(() => {}); }, 0);
-        }
-        return Promise.resolve(cached);
-      }
-      return Promise.resolve(originalGetTabData.apply(this, arguments))
-        .then((rows) => setCached(key, Array.isArray(rows) ? rows : []));
-    };
-  }
-
-  function prefetchTabs(){
-    if (typeof window.fetchTabData !== 'function') return;
-    ['점수','세부경기일정','선수단','심판','대진표'].forEach((tab, idx) => {
-      setTimeout(() => {
-        if (!getCached(tab)) window.fetchTabData(tab).catch(() => {});
-      }, 180 * (idx + 1));
-    });
-  }
-
-  if ('requestIdleCallback' in window) {
-    window.requestIdleCallback(prefetchTabs, { timeout: 1500 });
-  } else {
-    window.addEventListener('load', () => setTimeout(prefetchTabs, 900), { once: true });
-  }
-})();
-</script>
-
-
-<script>
-(function(){
-  if (window.__finalDataLoadingOptimizationPatchV1__) return;
-  window.__finalDataLoadingOptimizationPatchV1__ = true;
-
-  const inflight = Object.create(null);
-  const memory = Object.create(null);
-  const TTL = 1000 * 60 * 10;
-
-  function now(){ return Date.now(); }
-  function keyOf(tab){ return String(tab || '').trim(); }
-  function storageKey(tab){ return 'final-fast-cache:' + keyOf(tab); }
-  function sanitize(data){
-    if (!Array.isArray(data)) return [];
-    return data;
-  }
-  function readFastCache(tab){
-    const key = keyOf(tab);
-    const hit = memory[key];
-    if (hit && (now() - hit.savedAt) < TTL) return hit.data;
-    try {
-      const raw = localStorage.getItem(storageKey(key));
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.data)) return null;
-      if ((now() - Number(parsed.savedAt || 0)) >= TTL) return null;
-      memory[key] = { savedAt: Number(parsed.savedAt || now()), data: parsed.data };
-      return parsed.data;
-    } catch(_) { return null; }
-  }
-  function writeFastCache(tab, data){
-    const key = keyOf(tab);
-    const safe = sanitize(data);
-    memory[key] = { savedAt: now(), data: safe };
-    try { localStorage.setItem(storageKey(key), JSON.stringify({ savedAt: now(), data: safe })); } catch(_) {}
-    return safe;
-  }
-
-  if (typeof window.fetchTabData === 'function') {
-    const baseFetchTabData = window.fetchTabData.bind(window);
-    window.fetchTabData = async function(tabName, options){
-      const key = keyOf(tabName);
-      const force = !!(options && options.force);
-      if (!key) return [];
-      if (!force) {
-        const cached = readFastCache(key);
-        if (Array.isArray(cached) && cached.length) return cached;
-      }
-      if (inflight[key]) return inflight[key];
-      inflight[key] = (async () => {
-        try {
-          const data = await baseFetchTabData(key, force ? { force: true } : (options || {}));
-          return writeFastCache(key, data);
-        } catch (error) {
-          const cached = readFastCache(key);
-          if (Array.isArray(cached) && cached.length) return cached;
-          throw error;
-        } finally {
-          delete inflight[key];
-        }
-      })();
-      return inflight[key];
-    };
-  }
-
-  if (typeof window.fetchFirstAvailableTab === 'function') {
-    const baseFetchFirstAvailableTab = window.fetchFirstAvailableTab.bind(window);
-    window.fetchFirstAvailableTab = async function(tabNames, options){
-      const force = !!(options && options.force);
-      if (!force && Array.isArray(tabNames)) {
-        for (const tabName of tabNames) {
-          const cached = readFastCache(tabName);
-          if (Array.isArray(cached) && cached.length) return cached;
-        }
-      }
-      const data = await baseFetchFirstAvailableTab(tabNames, force ? { force: true } : (options || {}));
-      if (Array.isArray(tabNames)) {
-        const first = tabNames.find(Boolean);
-        if (first && Array.isArray(data) && data.length) writeFastCache(first, data);
-      }
-      return data;
-    };
-  }
-
-  if (typeof window.renderClassScheduleView === 'function') {
-    const baseRenderClassScheduleView = window.renderClassScheduleView.bind(window);
-    window.renderClassScheduleView = async function(container, options = {}){
-      const nextOptions = Object.assign({}, options || {});
-      if (nextOptions.forceReload === true) nextOptions.forceReload = false;
-      return baseRenderClassScheduleView(container, nextOptions);
-    };
-  }
-
-  if (typeof window.updateGradeFilter === 'function') {
-    const baseUpdateGradeFilter = window.updateGradeFilter.bind(window);
-    window.updateGradeFilter = async function(grade, sport, cachedData, listId, btn){
-      const data = cachedData || (window.gradeDataCache && window.gradeDataCache[listId]);
-      if (data) return baseUpdateGradeFilter(grade, sport, data, listId, btn);
-      try {
-        const loaded = await window.fetchTabData('선수단');
-        window.gradeDataCache = window.gradeDataCache || {};
-        window.gradeDataCache[listId] = loaded;
-        return baseUpdateGradeFilter(grade, sport, loaded, listId, btn);
-      } catch (_) {
-        return baseUpdateGradeFilter(grade, sport, cachedData, listId, btn);
-      }
-    };
-  }
-
-  if (typeof window.openDetailInfo === 'function') {
-    const baseOpenDetailInfo = window.openDetailInfo.bind(window);
-    window.openDetailInfo = async function(type, sport, matchInfo = ''){
-      const modal = document.getElementById('detail-modal');
-      const title = document.getElementById('detail-modal-title');
-      const content = document.getElementById('detail-modal-content');
-      if (!modal || !title || !content) return baseOpenDetailInfo(type, sport, matchInfo);
-
-      title.textContent = `${sport} ${type} 정보`;
-      content.innerHTML = '<div class="loader">데이터를 불러오고 있습니다...</div>';
-      modal.style.display = 'flex';
-
-      try {
-        const data = await window.fetchTabData(type);
-        const rows = Array.isArray(data) ? data.slice(1) : [];
-
-        if (type === '선수단') {
-          const classes = String(matchInfo || '').match(/\d+-\d+/g) || [];
-          if (classes.length > 0) {
-            const filtered = (typeof window.uniqueRows === 'function' ? window.uniqueRows : (v => v))(
-              rows.filter((item) => {
-                const itemSport = (window.nv ? window.nv(item.col1) : String(item.col1 || '').trim());
-                const itemClass = (window.nv ? window.nv(item.col2) : String(item.col2 || '').trim());
-                const matched = typeof window.sportEquals === 'function' ? window.sportEquals(itemSport, sport) : itemSport === String(sport || '').trim();
-                return matched && classes.some((cls) => itemClass.includes(cls));
-              }),
-              sport
-            );
-            if (typeof window.renderCards === 'function') window.renderCards(content, filtered, sport, false);
-            return;
-          }
-          if (typeof window.isGradeFilterSport === 'function' && window.isGradeFilterSport(sport)) {
-            if (typeof window.renderGradeFilterAndList === 'function') window.renderGradeFilterAndList(content, rows, sport);
-            return;
-          }
-        }
-        return baseOpenDetailInfo(type, sport, matchInfo);
-      } catch (_) {
-        return baseOpenDetailInfo(type, sport, matchInfo);
-      }
-    };
-  }
-
-  function prewarm(){
-    const tabs = ['세부경기일정', '세부일정', '연합팀 구성', '[연합팀 구성]', '선수단', '심판', '대진표', '전체일정_1일차', '전체일정_2일차'];
-    const run = () => tabs.forEach((tab) => { try { window.fetchTabData(tab).catch(() => {}); } catch(_) {} });
-    if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 1200 });
-    else setTimeout(run, 600);
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', prewarm, { once: true });
-  } else {
-    prewarm();
-  }
-})();
-</script>
 </body>
 </html>
