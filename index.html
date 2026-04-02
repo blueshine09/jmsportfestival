@@ -14957,6 +14957,37 @@ button.active{
   text-align:center !important;
 }
 </style>
+
+<style id="v-match-title-wrap-fix">
+  /* 종목별 보기 경기내용이 잘리지 않도록 보강 */
+  .schedule-top-row{
+    align-items:flex-start !important;
+  }
+  .schedule-title-row{
+    align-items:flex-start !important;
+    min-width:0 !important;
+    flex:1 1 auto !important;
+  }
+  .schedule-match-title{
+    font-size:0.94rem !important;
+    line-height:1.38 !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    word-break:keep-all !important;
+    overflow-wrap:anywhere !important;
+    display:block !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+  }
+  .schedule-stage-badge,
+  .schedule-time-badge,
+  .meta-pill,
+  .action-pill{
+    flex-shrink:0 !important;
+  }
+</style>
+
 </head>
 <body>
   <div class="app-container">
@@ -16883,7 +16914,21 @@ button.active{
       }).join('');
     }
 
-    function buildScheduleCardsHTML(filtered, sport, options = {}) {
+    
+    function stripGradeFromMatchInfo(matchInfo = '') {
+      const text = String(matchInfo || '').trim();
+      if (!text) return '';
+
+      return text
+        .replace(/([123])학년\s*(\d+)반/g, '$2반')
+        .replace(/([123])\s*-\s*(\d+)/g, '$2반')
+        .replace(/([123])학년\s+(?=결승|준결승|예선|본선)/g, '')
+        .replace(/\s{2,}/g, ' ')
+        .replace(/\s*vs\s*/gi, ' vs ')
+        .trim();
+    }
+
+function buildScheduleCardsHTML(filtered, sport, options = {}) {
       const showSportBadge = !!options.showSportBadge;
       const emptyTitle = options.emptyTitle || '조회된 일정이 없습니다.';
       const emptyDesc = options.emptyDesc || `${sport} 종목의 세부 일정이 아직 등록되지 않았습니다.`;
@@ -16895,7 +16940,7 @@ button.active{
         <div class="schedule-stack">
           ${filtered.map((item) => {
             const rawRefData = stripTrueFalseText(item.col5) || '등록된 심판 정보가 없습니다.';
-            const matchInfo = item.col3 || '등록된 경기 정보가 없습니다.';
+            const matchInfo = stripGradeFromMatchInfo(item.col3 || '') || '등록된 경기 정보가 없습니다.';
             const location = item.col4 || '장소미정';
             const time = item.col2 || '시간미정';
             const itemSport = item.col1 || sport || '';
@@ -20258,7 +20303,7 @@ ${guide}`, current || '');
       <div class="schedule-stack">
         ${rows.map((item) => {
           const rawRefData = normalizeCell(item.col5) || '등록된 심판 정보가 없습니다.';
-          const matchInfo = normalizeCell(item.col3) || '등록된 경기 정보가 없습니다.';
+          const matchInfo = stripGradeFromMatchInfo(normalizeCell(item.col3) || '') || '등록된 경기 정보가 없습니다.';
           const location = normalizeCell(item.col4) || '장소미정';
           const time = normalizeCell(item.col2) || '시간미정';
           const itemSport = normalizeCell(item.col1) || normalizeCell(sport) || '';
@@ -29726,5 +29771,525 @@ textarea{
 })();
 </script>
 
+
+<script id="live-top3-visibility-fix-v1">
+(function(){
+  if (window.__liveTop3VisibilityFixV1__) return;
+  window.__liveTop3VisibilityFixV1__ = true;
+
+  function esc(v){
+    const s = String(v == null ? '' : v);
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  }
+
+  function parseRankings(scoreData){
+    if (!Array.isArray(scoreData) || scoreData.length < 2) return [];
+    const orderedKeys = ['col1','col2','col3','col4','col5','col6','col7','col8'];
+    const defaultTeams = ['빨강', '주황', '노랑', '핑크', '파랑', '남색', '검정'];
+
+    const headerVals = Array.isArray(scoreData[0])
+      ? scoreData[0].slice(0, orderedKeys.length).map(v => String(v ?? '').trim())
+      : orderedKeys.map(key => String((scoreData[0] || {})[key] ?? '').trim());
+
+    const totalRow = scoreData.find((row, idx) => {
+      if (idx === 0) return false;
+      const first = Array.isArray(row) ? String(row[0] ?? '').trim() : String((row || {}).col1 ?? '').trim();
+      return /합계|총점/.test(first);
+    }) || scoreData[scoreData.length - 1] || {};
+
+    const totalVals = Array.isArray(totalRow)
+      ? totalRow.slice(0, orderedKeys.length).map(v => String(v ?? '').trim())
+      : orderedKeys.map(key => String((totalRow || {})[key] ?? '').trim());
+
+    return headerVals.map((rawName, colIndex) => {
+      if (colIndex === 0) return null;
+      const rawScore = totalVals[colIndex];
+      const scoreText = String(rawScore ?? '').replace(/,/g, '').trim();
+      const scoreValue = parseFloat(scoreText);
+      return {
+        name: String(rawName ?? '').trim() || defaultTeams[colIndex - 1] || '',
+        score: String(rawScore ?? '').trim(),
+        scoreValue: Number.isFinite(scoreValue) ? scoreValue : -Infinity
+      };
+    }).filter(item => item && item.name && item.scoreValue !== -Infinity)
+      .sort((a,b) => b.scoreValue - a.scoreValue)
+      .slice(0,3)
+      .map((item, index) => ({...item, rank:index+1}));
+  }
+
+  function buildTop3Html(rankings){
+    if (!rankings.length) return '';
+    return `
+      <div class="score-page-top3 score-page-top3-restored">
+        ${rankings.map(item => `
+          <div class="summary-mini-card rank-${item.rank}">
+            <div class="summary-mini-rank">${item.rank === 1 ? '🥇' : (item.rank === 2 ? '🥈' : '🥉')}</div>
+            <div class="summary-mini-name">${esc(item.name)}</div>
+            <div class="summary-mini-score">${esc(item.score)}점</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  async function ensureScoreTabTop3(){
+    const page = document.querySelector('.realtime-score-page');
+    if (!page) return;
+    if (page.querySelector('.score-page-top3')) return;
+    try {
+      const getter = (typeof window.fetchTabDataCached === 'function') ? window.fetchTabDataCached : window.fetchTabData;
+      if (typeof getter !== 'function') return;
+      const scoreData = await getter('점수');
+      const rankings = parseRankings(scoreData);
+      if (!rankings.length) return;
+      const hero = page.querySelector('.hero-card, .score-hero-card');
+      if (!hero) return;
+      hero.insertAdjacentHTML('afterend', buildTop3Html(rankings));
+    } catch (_) {}
+  }
+
+  function scheduleEnsureScoreTop3(){
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        ensureScoreTabTop3();
+      });
+    });
+  }
+
+  function refreshActiveTabWidgets(key){
+    const normalized = String(key == null ? '' : key).trim();
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (normalized === '홈') {
+          if (typeof window.updateHomeLiveBoard === 'function') {
+            Promise.resolve().then(() => window.updateHomeLiveBoard()).catch(() => {});
+          }
+          if (typeof window.updateHomeTop3Board === 'function') {
+            Promise.resolve().then(() => window.updateHomeTop3Board()).catch(() => {});
+          }
+        }
+        if (normalized === '점수시상') {
+          if (typeof window.loadRealtimeScore === 'function') {
+            Promise.resolve().then(() => window.loadRealtimeScore('점수', true)).catch(() => {});
+          }
+          scheduleEnsureScoreTop3();
+        }
+      });
+    });
+  }
+
+  if (typeof window.updateHomeTop3Board === 'function') {
+    const originalUpdateHomeTop3Board = window.updateHomeTop3Board;
+    window.updateHomeTop3Board = async function(){
+      let mount = document.getElementById('home-live-top3');
+      if (!mount) {
+        await new Promise(resolve => requestAnimationFrame(resolve));
+        mount = document.getElementById('home-live-top3');
+      }
+      if (!mount) {
+        await new Promise(resolve => setTimeout(resolve, 60));
+      }
+      return originalUpdateHomeTop3Board.apply(this, arguments);
+    };
+  }
+
+  if (typeof window.toggleMainTab === 'function') {
+    const originalToggleMainTab = window.toggleMainTab;
+    window.toggleMainTab = function(key){
+      const activeBtn = document.querySelector('.tab-item.active');
+      const normalized = String(key == null ? '' : key).trim();
+      const isSameActive = activeBtn && activeBtn.dataset && activeBtn.dataset.key === normalized;
+      const result = originalToggleMainTab.apply(this, arguments);
+      if (isSameActive) {
+        refreshActiveTabWidgets(normalized);
+      }
+      return result;
+    };
+  }
+
+  if (typeof window.activateMainTab === 'function') {
+    const originalActivateMainTab = window.activateMainTab;
+    window.activateMainTab = function(key, updateHash){
+      const result = originalActivateMainTab.apply(this, arguments);
+      refreshActiveTabWidgets(key);
+      return result;
+    };
+  }
+
+  if (typeof window.loadRealtimeScore === 'function') {
+    const originalLoadRealtimeScore = window.loadRealtimeScore;
+    window.loadRealtimeScore = async function(){
+      const result = await originalLoadRealtimeScore.apply(this, arguments);
+      scheduleEnsureScoreTop3();
+      return result;
+    };
+  }
+
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) {
+      refreshActiveTabWidgets(document.querySelector('.tab-item.active')?.dataset?.key || '');
+    }
+  });
+})();
+</script>
+
+
+<script>
+(function(){
+  const SHORT_TTL = 15 * 1000;
+  const MEDIUM_TTL = 60 * 1000;
+  const LONG_TTL = 5 * 60 * 1000;
+  const FAST_TABS = new Set(['점수','세부경기일정','대진표']);
+  const SLOW_TABS = new Set(['선수단','심판','연합팀 구성','장소안내']);
+  const cacheStore = new Map();
+  const inflightStore = new Map();
+
+  function safe(v){ return String(v == null ? '' : v).trim(); }
+  function now(){ return Date.now(); }
+  function ttlForTab(tab){
+    const name = safe(tab);
+    if (FAST_TABS.has(name)) return SHORT_TTL;
+    if (SLOW_TABS.has(name)) return LONG_TTL;
+    return MEDIUM_TTL;
+  }
+  function scheduleIdle(fn, timeout){
+    if (window.requestIdleCallback) return window.requestIdleCallback(fn, { timeout: timeout || 1200 });
+    return setTimeout(fn, Math.min(timeout || 1200, 600));
+  }
+  function setHtmlIfChanged(el, html){
+    if (!el) return false;
+    if (el.innerHTML === html) return false;
+    el.innerHTML = html;
+    return true;
+  }
+  function getHomeHost(){
+    return document.querySelector('.home-hero-slot') || document.querySelector('.home-page-content') || document.querySelector('#tab-content') || document.querySelector('.main-content');
+  }
+  function ensureHomeLiveStack(){
+    let stack = document.querySelector('.home-live-stack');
+    const host = getHomeHost();
+    if (!host) return null;
+
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.className = 'home-live-stack';
+      stack.innerHTML = '<div id="home-live-schedule"></div><div id="home-live-top3"></div>';
+      const hero = host.querySelector('.hero-card') || host.firstElementChild;
+      if (hero && hero.parentNode) {
+        if (hero.nextSibling) hero.parentNode.insertBefore(stack, hero.nextSibling);
+        else hero.parentNode.appendChild(stack);
+      } else {
+        host.appendChild(stack);
+      }
+    }
+
+    if (!stack.querySelector('#home-live-schedule')) {
+      const div = document.createElement('div');
+      div.id = 'home-live-schedule';
+      stack.prepend(div);
+    }
+    if (!stack.querySelector('#home-live-top3')) {
+      const div = document.createElement('div');
+      div.id = 'home-live-top3';
+      stack.appendChild(div);
+    }
+    return stack;
+  }
+
+  function parseRows(data){
+    if (!Array.isArray(data) || data.length < 2) return [];
+    return data.slice(1).filter(Boolean);
+  }
+
+  function buildTop3FromScoreData(data){
+    const rows = parseRows(data);
+    if (!rows.length) return [];
+    const totalRow = rows.find(row => safe(row.col1 || row['경기 종목'] || row['종목']) === '합계' || safe(row.col1) === '총점');
+    const rankRow = rows.find(row => safe(row.col1 || row['경기 종목'] || row['종목']) === '순위');
+
+    let items = [];
+    const colors = ['빨강','주황','노랑','핑크','파랑','남색','검정'];
+
+    if (totalRow) {
+      items = colors.map((name, idx) => {
+        const raw = totalRow['col' + (idx + 2)] ?? totalRow[name] ?? '';
+        const score = Number(String(raw).replace(/[^\d.-]/g, ''));
+        return { name, score: Number.isFinite(score) ? score : 0 };
+      }).sort((a,b) => b.score - a.score || a.name.localeCompare(b.name, 'ko')).slice(0,3).map((item, index) => ({...item, rank:index+1}));
+    }
+
+    if (!items.length && rankRow) {
+      items = colors.map((name, idx) => {
+        const raw = rankRow['col' + (idx + 2)] ?? rankRow[name] ?? '';
+        const rank = Number(String(raw).replace(/[^\d.-]/g, ''));
+        return { name, rank: Number.isFinite(rank) ? rank : 999 };
+      }).sort((a,b) => a.rank - b.rank || a.name.localeCompare(b.name, 'ko')).slice(0,3).map((item, index) => ({ name:item.name, score:'', rank:index+1 }));
+    }
+
+    return items;
+  }
+
+  function top3Html(items, scope){
+    if (!items || !items.length) return '';
+    const klass = scope === 'score' ? 'score-page-top3' : 'home-live-score-top3';
+    return `
+      <div class="${klass}">
+        ${items.map(item => `
+          <div class="summary-mini-card rank-${item.rank}">
+            <div class="summary-mini-rank">${item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : '🥉'}</div>
+            <div class="summary-mini-name">${item.name}</div>
+            <div class="summary-mini-score">${item.score === '' ? '' : String(item.score) + '점'}</div>
+          </div>
+        `).join('')}
+      </div>`;
+  }
+
+  function getScorePageMount(){
+    const page = document.querySelector('.realtime-score-page');
+    if (!page) return null;
+    return page.querySelector('.realtime-score-board') || page.querySelector('.score-table-wrapper') || page;
+  }
+
+  function ensureScoreTop3FromData(data){
+    const page = document.querySelector('.realtime-score-page');
+    if (!page) return;
+    if (page.querySelector('.score-page-top3')) return;
+    const mount = getScorePageMount();
+    if (!mount || !mount.parentNode) return;
+    const items = buildTop3FromScoreData(data);
+    if (!items.length) return;
+    const wrap = document.createElement('div');
+    wrap.innerHTML = top3Html(items, 'score');
+    mount.parentNode.insertBefore(wrap.firstElementChild, mount);
+  }
+
+  async function refreshHomeWidgets(force){
+    ensureHomeLiveStack();
+    const jobs = [];
+    try { if (typeof window.updateHomeLiveBoard === 'function') jobs.push(Promise.resolve(window.updateHomeLiveBoard())); } catch(_){}
+    try { if (typeof window.updateHomeTop3Board === 'function') jobs.push(Promise.resolve(window.updateHomeTop3Board())); } catch(_){}
+    if (force && typeof window.fetchTabDataCached === 'function') {
+      try {
+        const data = await window.fetchTabDataCached('점수');
+        ensureScoreTop3FromData(data);
+      } catch(_){}
+    }
+    return Promise.allSettled(jobs);
+  }
+
+  async function refreshScoreTop3(){
+    try {
+      if (typeof window.fetchTabDataCached !== 'function') return;
+      const data = await window.fetchTabDataCached('점수');
+      ensureScoreTop3FromData(data);
+    } catch(_){}
+  }
+
+  function installFastFetchLayer(){
+    if (typeof window.fetchTabDataCached !== 'function') return;
+    const original = window.fetchTabDataCached;
+    window.fetchTabDataCached = function(tabName){
+      const name = safe(tabName);
+      const ts = now();
+      const ttl = ttlForTab(name);
+      const cached = cacheStore.get(name);
+      if (cached && (ts - cached.ts) < ttl) {
+        return Promise.resolve(cached.data);
+      }
+      if (inflightStore.has(name)) return inflightStore.get(name);
+      const req = Promise.resolve(original.apply(this, arguments)).then(data => {
+        cacheStore.set(name, { ts: now(), data });
+        inflightStore.delete(name);
+        return data;
+      }).catch(err => {
+        inflightStore.delete(name);
+        if (cached) return cached.data;
+        throw err;
+      });
+      inflightStore.set(name, req);
+      return req;
+    };
+  }
+
+  function warmup(){
+    if (typeof window.fetchTabDataCached !== 'function') return;
+    scheduleIdle(() => { Promise.resolve(window.fetchTabDataCached('점수')).catch(() => {}); }, 500);
+    scheduleIdle(() => { Promise.resolve(window.fetchTabDataCached('세부경기일정')).catch(() => {}); }, 900);
+  }
+
+  function hookActivateMainTab(){
+    if (typeof window.activateMainTab !== 'function') return;
+    const original = window.activateMainTab;
+    window.activateMainTab = function(key, updateHash){
+      const result = original.apply(this, arguments);
+      const normalized = safe(key);
+      requestAnimationFrame(() => {
+        if (normalized === '홈') {
+          refreshHomeWidgets(true);
+          setTimeout(() => refreshHomeWidgets(true), 180);
+          setTimeout(() => refreshHomeWidgets(true), 650);
+        }
+        if (normalized === '점수' || normalized === '점수시상') {
+          refreshScoreTop3();
+          setTimeout(refreshScoreTop3, 180);
+          setTimeout(refreshScoreTop3, 650);
+        }
+      });
+      return result;
+    };
+  }
+
+  function observeDom(){
+    const obs = new MutationObserver(() => {
+      const homeVisible = !!document.querySelector('.home-live-stack, #home-live-top3, #home-live-schedule') || safe(location.hash).includes('홈');
+      if (homeVisible) ensureHomeLiveStack();
+      if (document.querySelector('.realtime-score-page')) refreshScoreTop3();
+    });
+    obs.observe(document.body, { childList:true, subtree:true });
+  }
+
+  function initialKick(){
+    ensureHomeLiveStack();
+    refreshHomeWidgets(true);
+    setTimeout(() => refreshHomeWidgets(true), 120);
+    setTimeout(() => refreshHomeWidgets(true), 500);
+    setTimeout(() => refreshHomeWidgets(true), 1200);
+    setTimeout(() => refreshScoreTop3(), 200);
+    setTimeout(() => refreshScoreTop3(), 800);
+  }
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+      refreshHomeWidgets(true);
+      refreshScoreTop3();
+    }
+  });
+  window.addEventListener('pageshow', () => {
+    refreshHomeWidgets(true);
+    refreshScoreTop3();
+  });
+  window.addEventListener('load', () => {
+    installFastFetchLayer();
+    hookActivateMainTab();
+    observeDom();
+    warmup();
+    initialKick();
+  }, { once:true });
+})();
+</script>
 </body>
 </html>
+
+
+<script id="home-initial-live-restore-v2">
+(function(){
+  if (window.__homeInitialLiveRestoreV2__) return;
+  window.__homeInitialLiveRestoreV2__ = true;
+
+  function activeMainKey(){
+    const activeBtn = document.querySelector('.tab-item.active[data-key]');
+    return activeBtn && activeBtn.dataset ? String(activeBtn.dataset.key || '').trim() : '';
+  }
+
+  function ensureHomeLiveMounts(){
+    const hero = document.getElementById('home-hero');
+    if (!hero) return false;
+    let stack = hero.querySelector('.home-live-stack');
+    let inserted = false;
+
+    if (!stack) {
+      const anchor = hero.querySelector('.home-grid-section') || hero.firstElementChild || null;
+      const wrap = document.createElement('div');
+      wrap.className = 'home-live-stack';
+      wrap.innerHTML = '<div id="home-live-schedule"></div><div id="home-live-top3"></div>';
+      if (anchor) hero.insertBefore(wrap, anchor);
+      else hero.appendChild(wrap);
+      stack = wrap;
+      inserted = true;
+    }
+
+    if (stack && !stack.querySelector('#home-live-schedule')) {
+      const div = document.createElement('div');
+      div.id = 'home-live-schedule';
+      stack.insertBefore(div, stack.firstChild || null);
+      inserted = true;
+    }
+    if (stack && !stack.querySelector('#home-live-top3')) {
+      const div = document.createElement('div');
+      div.id = 'home-live-top3';
+      stack.appendChild(div);
+      inserted = true;
+    }
+    return inserted;
+  }
+
+  function kickHomeWidgets(){
+    if (activeMainKey() && activeMainKey() !== '홈') return;
+
+    if (!document.getElementById('home-hero') && typeof window.renderHomeMenu === 'function') {
+      try { window.renderHomeMenu(); } catch (_) {}
+    }
+
+    ensureHomeLiveMounts();
+
+    const run = () => {
+      try { ensureHomeLiveMounts(); } catch (_) {}
+      try {
+        if (typeof window.updateHomeLiveBoard === 'function') {
+          Promise.resolve(window.updateHomeLiveBoard()).catch(() => {});
+        }
+      } catch (_) {}
+      try {
+        if (typeof window.updateHomeTop3Board === 'function') {
+          Promise.resolve(window.updateHomeTop3Board()).catch(() => {});
+        }
+      } catch (_) {}
+    };
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(run);
+    });
+    setTimeout(run, 120);
+    setTimeout(run, 480);
+    setTimeout(run, 1200);
+  }
+
+  if (typeof window.activateMainTab === 'function') {
+    const originalActivateMainTab = window.activateMainTab;
+    window.activateMainTab = function(key, updateHash){
+      const result = originalActivateMainTab.apply(this, arguments);
+      if (String(key == null ? '' : key).trim() === '홈') {
+        kickHomeWidgets();
+      }
+      return result;
+    };
+  }
+
+  if (typeof window.renderHomeMenu === 'function') {
+    const originalRenderHomeMenu = window.renderHomeMenu;
+    window.renderHomeMenu = function(){
+      const result = originalRenderHomeMenu.apply(this, arguments);
+      kickHomeWidgets();
+      return result;
+    };
+  }
+
+  window.addEventListener('load', kickHomeWidgets);
+  window.addEventListener('pageshow', kickHomeWidgets);
+  document.addEventListener('DOMContentLoaded', kickHomeWidgets);
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) kickHomeWidgets();
+  });
+
+  const observer = new MutationObserver(() => {
+    if (activeMainKey() === '홈' || !activeMainKey()) {
+      const hero = document.getElementById('home-hero');
+      if (hero && (!hero.querySelector('#home-live-schedule') || !hero.querySelector('#home-live-top3'))) {
+        kickHomeWidgets();
+      }
+    }
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+})();
+</script>
+
